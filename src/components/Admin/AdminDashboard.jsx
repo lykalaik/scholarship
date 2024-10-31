@@ -1,184 +1,120 @@
-import Sidebar from "./Sidebar.jsx";
-import { IoIosAddCircle } from "react-icons/io";
-import { SiGooglescholar } from "react-icons/si";
+import Sidebar from "./Sidebar";
+import { FaUserFriends } from "react-icons/fa";
+import { FiMail, FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
+import { RiFileExcel2Fill } from "react-icons/ri";
+import { useState, useEffect } from "react";
+import supabase from "../supabaseClient";
+
+
 
 const AdminDashboard = () => {
-  const openModal = () => {
-    const modal = document.getElementById("my_modal_5");
-    if (modal) {
-      modal.showModal();
+  const [scholars, setScholars] = useState([]);
+  const [selectedScholar, setSelectedScholar] = useState([]);
+  const [amount, setAmount] = useState('');
+
+  useEffect(() => {
+    fetch_scholars();
+  }, []);
+
+  const fetch_scholars = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('scholars')
+        .select('*');
+      if (error) throw error;
+      setScholars(data);
+    } catch (error) {
+      alert("An unexpected error occurred.");
+      console.error('Error during registration:', error.message);
     }
   };
 
+  const toggleAllowedRenewal = async (applicantId, currentStatus) => {
+    const newStatus = currentStatus === "Yes" ? "No" : "Yes";
+    try {
+      const { error } = await supabase
+        .from('scholars')
+        .update({ allowed_renewal: newStatus })
+        .eq('id', applicantId);
+      if (error) throw error;
+
+      // Update state locally to reflect change immediately
+      setScholars((prevScholars) =>
+        prevScholars.map((applicant) =>
+          applicant.id === applicantId ? { ...applicant, allowed_renewal: newStatus } : applicant
+        )
+      );
+    } catch (error) {
+      alert("Error updating renewal status.");
+      console.error('Error updating renewal status:', error.message);
+    }
+  };
+
+
   return (
-    <>
-      <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-mono">
-        <Sidebar />
-        <main className="flex-1 p-4 lg:p-8 ml-0 lg:ml-64 transition-all duration-300">
-          <div className="lg:flex lg:justify-between mb-5">
-            <label className="input input-bordered flex items-center gap-2 lg:w-1/3 shadow-md">
-              <input type="text" className="grow" placeholder="Search" />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                className="h-4 w-4 opacity-70"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </label>
-            <button className="btn btn-primary text-white" onClick={openModal}>
-              <IoIosAddCircle size={20} />
-              Add Scholarship
+    <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-mono">
+      <Sidebar />
+      <main className="flex-1 p-4 lg:p-8 ml-0 lg:ml-64 transition-all duration-300">
+        <div className="lg:flex lg:justify-between mb-5">
+          <h1 className="text-2xl mt-2 font-bold flex gap-2">
+            <FaUserFriends size={30} />
+            Scholars Record
+          </h1>
+          <div className="flex gap-2">
+            <select className="select select-bordered w-full max-w-xs">
+              <option disabled selected>Scholarship Status:</option>
+              <option>New</option>
+              <option>Renewal</option>
+            </select>
+            <button className="btn btn-success text-white">
+              <RiFileExcel2Fill size={20} /> Export as Excel
             </button>
           </div>
+        </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5">
-            <div className="relative max-w-md mx-auto bg-white rounded-xl shadow-xl overflow-hidden md:max-w-2xl border border-gray-300 hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
-              <div className="p-8 pb-16 mb-10">
-                <div className="flex justify-between items-start">
-                  <div className="flex-grow">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                      Ayala Foundation Educational Grants
-                    </h2>
-                    <p className="text-gray-600 mb-4">
-                      Eligibility: Mga tambay ras gedli
-                    </p>
-                  </div>
-                  <div className="ml-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                      <SiGooglescholar className="h-6 w-6 text-blue-500" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 flex justify-end bg-white px-8 py-4 border-t border-gray-300">
-                <span className="px-2 py-3 text-green-400 rounded-full text-md font-bold">
-                  Newly Posted
-                </span>
-              </div>
-            </div>
-
-            <div className="relative max-w-md mx-auto bg-white rounded-xl shadow-xl overflow-hidden md:max-w-2xl border border-gray-300 hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
-              <div className="p-8 pb-16 mb-10">
-                <div className="flex justify-between items-start">
-                  <div className="flex-grow">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                      DOST-SEI Undergraduate Scholarship
-                    </h2>
-                    <p className="text-gray-600 mb-4">
-                      Eligibility: Mga tambay ras gedli
-                    </p>
-                  </div>
-                  <div className="ml-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                      <SiGooglescholar className="h-6 w-6 text-blue-500" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 flex justify-end bg-white px-8 py-4 border-t border-gray-300">
-                <span className="px-2 py-3 text-yellow-400 rounded-full text-md font-bold">
-                  3 Days Ago
-                </span>
-              </div>
-            </div>
-            <div className="relative max-w-md mx-auto bg-white rounded-xl shadow-xl overflow-hidden md:max-w-2xl border border-gray-300 hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
-              <div className="p-8 pb-16 mb-10">
-                <div className="flex justify-between items-start">
-                  <div className="flex-grow">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                      Landbank Gawad Patnubay Scholarship
-                    </h2>
-                    <p className="text-gray-600 mb-4">
-                      Eligibility: Mga tambay ras gedli
-                    </p>
-                  </div>
-                  <div className="ml-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                      <SiGooglescholar className="h-6 w-6 text-blue-500" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 flex justify-end bg-white px-8 py-4 border-t border-gray-300">
-                <span className="px-2 py-3 text-gray-400 rounded-full text-md font-bold">
-                  A Month Ago
-                </span>
-              </div>
-            </div>
-            <div className="relative max-w-md mx-auto bg-white rounded-xl shadow-xl overflow-hidden md:max-w-2xl border border-gray-300 hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
-              <div className="p-8 pb-16 mb-10">
-                <div className="flex justify-between items-start">
-                  <div className="flex-grow">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                      Mayor Marc Gerasmio's Scholar ng Gedli
-                    </h2>
-                    <p className="text-gray-600 mb-4">
-                      Eligibility: Mga tambay ras gedli
-                    </p>
-                  </div>
-                  <div className="ml-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                      <SiGooglescholar className="h-6 w-6 text-blue-500" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 flex justify-end bg-white px-8 py-4 border-t border-gray-300">
-                <span className="px-2 py-3 text-gray-400 rounded-full text-md font-bold">
-                  2 Months Ago
-                </span>
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
-
-      <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
-        <div className="modal-box">
-          <p>
-            <label className="form-control w-full">
-              <div className="label">
-                <span className="label-text text-lg">Scholarship Name</span>
-              </div>
-              <input
-                type="text"
-                placeholder="e.g, DOST "
-                className="input input-bordered w-full"
-                required
-              />
-            </label>
-            <label className="form-control w-full">
-              <div className="label">
-                <span className="label-text text-lg">
-                  Scholarship Eligibility
-                </span>
-              </div>
-              <input
-                placeholder="e.g, tambay sa kilid kilid"
-                type="text"
-                className="input input-bordered w-full"
-                required
-              />
-            </label>
-          </p>
-          <div className="modal-action">
-            <form method="dialog" className="flex gap-2">
-              {/* if there is a button in form, it will close the modal */}
-              <button className="btn btn-primary text-white" type="submit">
-                Save
-              </button>
-              <button className="btn btn-error text-white">Close</button>
-            </form>
+        <div className="card rounded shadow-xl bordered p-5 bg-white">
+          <div className="overflow-x-auto">
+            <table className="table table-zebra">
+              <thead>
+                <tr>
+                  <th>Name of Scholar</th>
+                  <th>Location</th>
+                  <th>Contact No.</th>
+                  <th>Name of School</th>
+                  <th>Course</th>
+                  <th>Sex</th>
+                  <th>Status</th>
+                  <th>Scholarship Type</th>
+                  <th>Allow Renewal?</th>
+                </tr>
+              </thead>
+              <tbody>
+                {scholars.map((applicant) => (
+                  <tr key={applicant.id}>
+                    <td>{applicant.full_name}</td>
+                    <td>{applicant.address}</td>
+                    <td>{applicant.contact_no}</td>
+                    <td>{applicant.school}</td>
+                    <td>{applicant.course}</td>
+                    <td>{applicant.sex}</td>
+                    <td>{applicant.status}</td>
+                    <td>{applicant.scholarship_type}</td>
+                    <td>
+                      <button
+                        className={`btn btn-sm ${applicant.allowed_renewal === "Yes" ? 'btn-success' : 'btn-error'}`}
+                        onClick={() => toggleAllowedRenewal(applicant.id, applicant.allowed_renewal)}
+                      >
+                        {applicant.allowed_renewal === "Yes" ? "Yes" : "No"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
-      </dialog>
-    </>
+      </main>
+    </div>
   );
 };
 

@@ -1,6 +1,51 @@
 import { FaGoogleScholar } from "react-icons/fa6";
+import supabase from "../supabaseClient";
+import { useState,  useEffect } from "react";
 
 const RenewApplication = () => {
+  const scholarName = sessionStorage.getItem("scholarData");
+  const email = sessionStorage.getItem("email");
+  const [userData, setUserData] = useState([]);
+  const [recommendation, setRecommendation] = useState('');
+  const [final_grades, setFinalGrades] = useState('');
+  const [evaluation_sheet, setEvaluationSheet] = useState('');
+  const [scholarship_contract, setScholarshipContract] = useState('');
+  const [study_load, setStudyLoad] = useState('');
+  const [clearance, setClearance] = useState('');
+  const [file, setFile] = useState('');
+  const [renewalstatus, setRenewalStatus] = useState('');
+
+  useEffect(() => {
+    fetch_data();
+    fetch_renewal();
+  }, []);
+
+  const fetch_data = async () => {
+    try {
+      const { data, error } = await supabase
+      .from('scholars')
+      .select('*')
+      .eq('full_name', scholarName);
+      if (error) throw error;
+      setUserData(data);
+    } catch (error) {
+      alert("An unexpected error occurred.");
+      console.error('Error during registration:', error.message);
+    }
+  };
+
+  const fetch_renewal = async () => {
+    try {
+      const { data, error } = await supabase
+      .from('renewals')
+      .select('*')
+      .eq('full_name', scholarName);
+
+      setRenewalStatus(data[0].status);
+    } catch (error) {
+      console.error('Error during renewal:', error.message);
+    }
+  };
   const openModal = () => {
     const modal = document.getElementById("my_modal_5");
     if (modal) {
@@ -15,23 +60,237 @@ const RenewApplication = () => {
     }
   };
 
+  const handleRecommendation = async (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    if (selectedFile) {
+        try {
+            const filePath = `${selectedFile.name}`;
+            const { data, error } = await supabase.storage
+                .from('Applicant_Storage')
+                .upload(filePath, selectedFile);
+            if (error) {
+                throw error;
+            }
+            const { data: publicURL, error: urlError } = supabase.storage
+                .from('Applicant_Storage')
+                .getPublicUrl(filePath);
+            if (urlError) {
+                throw urlError;
+            }
+            console.log('Image URL:', publicURL.publicUrl);
+            setRecommendation(publicURL.publicUrl)
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            alert('Error uploading image: ' + error.message);
+        }
+    }
+  };
+
+  const handleGrades = async (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    if (selectedFile) {
+        try {
+            const filePath = `${selectedFile.name}`;
+            const { data, error } = await supabase.storage
+                .from('Applicant_Storage')
+                .upload(filePath, selectedFile);
+            if (error) {
+                throw error;
+            }
+            const { data: publicURL, error: urlError } = supabase.storage
+                .from('Applicant_Storage')
+                .getPublicUrl(filePath);
+            if (urlError) {
+                throw urlError;
+            }
+            console.log('Image URL:', publicURL.publicUrl);
+            setFinalGrades(publicURL.publicUrl)
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            alert('Error uploading image: ' + error.message);
+        }
+    }
+  };
+
+  const handleEvaluation = async (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    if (selectedFile) {
+        try {
+            const filePath = `${selectedFile.name}`;
+            const { data, error } = await supabase.storage
+                .from('Applicant_Storage')
+                .upload(filePath, selectedFile);
+            if (error) {
+                throw error;
+            }
+            const { data: publicURL, error: urlError } = supabase.storage
+                .from('Applicant_Storage')
+                .getPublicUrl(filePath);
+            if (urlError) {
+                throw urlError;
+            }
+            console.log('Image URL:', publicURL.publicUrl);
+            setEvaluationSheet(publicURL.publicUrl)
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            alert('Error uploading image: ' + error.message);
+        }
+    }
+  };
+  const handleScholarship = async (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    if (selectedFile) {
+        try {
+            const filePath = `${selectedFile.name}`;
+            const { data, error } = await supabase.storage
+                .from('Applicant_Storage')
+                .upload(filePath, selectedFile);
+            if (error) {
+                throw error;
+            }
+            const { data: publicURL, error: urlError } = supabase.storage
+                .from('Applicant_Storage')
+                .getPublicUrl(filePath);
+            if (urlError) {
+                throw urlError;
+            }
+            console.log('Image URL:', publicURL.publicUrl);
+            setScholarshipContract(publicURL.publicUrl)
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            alert('Error uploading image: ' + error.message);
+        }
+    }
+  };
+  const handleStudyLoad = async (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    if (selectedFile) {
+        try {
+            const filePath = `${selectedFile.name}`;
+            const { data, error } = await supabase.storage
+                .from('Applicant_Storage')
+                .upload(filePath, selectedFile);
+            if (error) {
+                throw error;
+            }
+            const { data: publicURL, error: urlError } = supabase.storage
+                .from('Applicant_Storage')
+                .getPublicUrl(filePath);
+            if (urlError) {
+                throw urlError;
+            }
+            console.log('Image URL:', publicURL.publicUrl);
+            setStudyLoad(publicURL.publicUrl)
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            alert('Error uploading image: ' + error.message);
+        }
+    }
+  };
+
+  const handleClearance = async (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    if (selectedFile) {
+        try {
+            const filePath = `${selectedFile.name}`;
+            const { data, error } = await supabase.storage
+                .from('Applicant_Storage')
+                .upload(filePath, selectedFile);
+            if (error) {
+                throw error;
+            }
+            const { data: publicURL, error: urlError } = supabase.storage
+                .from('Applicant_Storage')
+                .getPublicUrl(filePath);
+            if (urlError) {
+                throw urlError;
+            }
+            console.log('Image URL:', publicURL.publicUrl);
+            setClearance(publicURL.publicUrl)
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            alert('Error uploading image: ' + error.message);
+        }
+    }
+  };
+
+  const renew_application = async () => {
+    // Check for null values in required fields
+    if (
+      !recommendation || 
+      !final_grades || 
+      !evaluation_sheet || 
+      !scholarship_contract || 
+      !study_load || 
+      !clearance
+    ) {
+      alert('Please fill out all required fields.');
+      return;
+    }
+  
+    // Proceed with submission if all fields are valid
+    const { data, error } = await supabase
+      .from('renewals')
+      .insert([
+        {
+          full_name: scholarName,
+          recommendation,
+          final_grades,
+          evaluation_sheet,
+          scholarship_contract,
+          study_load,
+          clearance,
+          status: 'Pending',
+          email,
+        },
+      ]);
+  
+    if (error) {
+      console.error('Error inserting data:', error);
+      alert('Error inserting data');
+    } else {
+      console.log('Data inserted successfully:', data);
+      update_account();
+    }
+  };
+  
+
+  const update_account = async() =>{
+    try{
+        const {data} = await supabase
+        .from('scholars')
+        .update([
+          {
+           status : 'Pending',
+           scholarship_type: 'Renewal'
+          }
+        ])
+        .eq('full_name', scholarName);
+    window.location.reload();
+      }
+      catch (error) {
+        alert("Error Saving Data.")
+    }
+  }
+
   return (
     <>
       <div className="flex justify-between mb-5 mt-20">
         <h1 className="text-2xl flex gap-2 font-bold">
           <FaGoogleScholar className="mt-1" />
-          Scholarship Renewal
+          Scholarship
         </h1>
-        <div className="flex gap-3">
-          <select className="select select-bordered w-full max-w-xs">
-            <option disabled selected>
-              School Year:
-            </option>
-            <option>School Year 1</option>
-            <option>School Year 2</option>
-          </select>
-          <button className="btn btn-primary text-white">Search</button>
-        </div>
+        {renewalstatus && (
+        <h1 className="text-2xl flex gap-2 font-bold">
+          Renewal Status: {renewalstatus}
+        </h1>
+      )}
       </div>
       <div className="card rounded shadow-xl bordered mb-10 p-5">
         <div className="overflow-x-auto">
@@ -39,37 +298,27 @@ const RenewApplication = () => {
             {/* head */}
             <thead>
               <tr>
-                <th>Availed Scholarships</th>
+                <th>Scholarship Type</th>
                 <th>Scholarship Status</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
+            {userData.map((user) => (
               <tr>
-                <td>DOST-SEI Undergraduate Scholarship</td>
-                <td className="text-green-600">Completed</td>
+                <td>{user.scholarship_type}</td>
+                <td>{user.status}</td>
                 <td>
-                  <button
-                    className="btn btn-sm bg-blue-600 hover:bg-blue-500 text-white"
-                    onClick={openModal}
-                  >
-                    Renew
-                  </button>
-                </td>
+                <button
+                className="btn btn-sm bg-blue-600 hover:bg-blue-500 text-white"
+                onClick={openModal}
+                disabled={user.allowed_renewal === "No" || renewalstatus === "Pending"}
+              >
+                Renew
+              </button>
+              </td>
               </tr>
-
-              <tr>
-                <td>DOST-SEI Undergraduate Scholarship</td>
-                <td className="text-yellow-500">On-going</td>
-                <td>
-                  <button
-                    className="btn btn-sm bg-blue-600 hover:bg-blue-500 text-white"
-                    disabled
-                  >
-                    Renew
-                  </button>
-                </td>
-              </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -98,6 +347,7 @@ const RenewApplication = () => {
               type="file"
               className="file-input file-input-bordered w-full"
               placeholder="Upload recommendation from Baranggay Official"
+              onChange={handleRecommendation}
             />
           </div>
 
@@ -112,6 +362,7 @@ const RenewApplication = () => {
               type="file"
               className="file-input file-input-bordered w-full"
               placeholder="Upload final grades for previous semester"
+              onChange={handleGrades}
             />
           </div>
 
@@ -126,6 +377,7 @@ const RenewApplication = () => {
               type="file"
               className="file-input file-input-bordered w-full"
               placeholder="Upload evaluation sheet issued by school"
+              onChange={handleEvaluation}
             />
           </div>
 
@@ -138,6 +390,7 @@ const RenewApplication = () => {
               type="file"
               className="file-input file-input-bordered w-full"
               placeholder="Upload scholarship contract"
+              onChange={handleScholarship}
             />
           </div>
 
@@ -150,6 +403,7 @@ const RenewApplication = () => {
               type="file"
               className="file-input file-input-bordered w-full"
               placeholder="Upload study load"
+              onChange={handleStudyLoad}
             />
           </div>
 
@@ -162,12 +416,13 @@ const RenewApplication = () => {
               type="file"
               className="file-input file-input-bordered w-full"
               placeholder="Upload clearance LGUSF"
+              onChange={handleClearance}
             />
           </div>
 
           {/* Modal Actions */}
           <div className="modal-action">
-            <button className="w-full btn btn-primary text-white" type="submit">
+            <button className="w-full btn btn-primary text-white" onClick={renew_application}>
               Submit
             </button>
           </div>

@@ -1,42 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import { FaUserFriends } from "react-icons/fa";
 import { FiMail, FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
 import { RiFileExcel2Fill } from "react-icons/ri";
+import supabase from "../supabaseClient";
+import emailjs from '@emailjs/browser'
 
 const Applicants = () => {
+  const [applicant, setApplicants] = useState([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [selectedApplicant, setSelectedApplicant] = useState(null);
+  const [email, setEmail] = useState('');
+  
+ 
+  useEffect(() => {
+    fetch_applicants();
+  }, []);
 
-  // Sample data
-  const applicants = [
-    {
-      id: 1,
-      name: "Marc Gerasmio",
-      location: "Butuan City",
-      contact: "09090909090",
-      school: "CSU",
-      course: "BSIT",
-      sex: "LGBTQ++",
-      yearLevel: "4th yr.",
-      firstSem: "1.00",
-      secondSem: "1.00",
-      images: [
-        "/butuan.png",
-        "/butuan.png",
-        "/butuan.png",
-        "/butuan.png",
-        "/butuan.png",
-        "/butuan.png",
-        "/butuan.png",
-        "/butuan.png",
-      ],
-    },
-  ];
+  const fetch_applicants = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('application')
+        .select('*')
+        .eq('status', 'Pending');
+      if (error) throw error;
+      setApplicants(data);
+    } catch (error) {
+      alert("An unexpected error occurred.");
+      console.error('Error during registration:', error.message);
+    }
+  };
 
   const openModal = (applicant) => {
     setSelectedApplicant(applicant);
+    setEmail(applicant.email_address);
     const modal = document.getElementById("my_modal_4");
     if (modal) {
       modal.showModal();
@@ -62,16 +60,138 @@ const Applicants = () => {
     if (!selectedApplicant) return;
     let newIndex =
       direction === "next" ? selectedImageIndex + 1 : selectedImageIndex - 1;
-    if (newIndex < 0) newIndex = selectedApplicant.images.length - 1;
-    if (newIndex >= selectedApplicant.images.length) newIndex = 0;
+    const documentLinks = [
+      selectedApplicant.application_letter,
+      selectedApplicant.recommendation_letter,
+      selectedApplicant.itr,
+      selectedApplicant.copy_itr,
+      selectedApplicant.cedula,
+      selectedApplicant.voters,
+      selectedApplicant.recent_card,
+    ];
+    if (newIndex < 0) newIndex = documentLinks.length - 1;
+    if (newIndex >= documentLinks.length) newIndex = 0;
     setSelectedImageIndex(newIndex);
   };
 
   const handleAction = (action) => {
     console.log(`Action selected: ${action} for applicant:`, selectedApplicant);
-    // Implement the actual logic for handling accept, reject, and email actions here
     closeModal();
   };
+
+  const rejected = () => {
+    const templateParams = {
+      from_name: "Butuan Scholarship",
+      to_name: email,
+      message: "Thankyou so much for taking interest in applying on this scholarship. Unfortunately, we regret to inform you that your application has not been shortlisted.",
+      credentials:"Appreciate the time you spent, once again Thankyou!",
+      reply_to: "scholarship@gmail.com",
+    };
+
+    emailjs
+      .send(
+        "service_yqldzap",
+        "template_4emktjz",
+        templateParams,
+        "O8tmt76KsU3QTOJKz",
+      )
+      .then((response) => {
+        console.log("Email sent successfully!", response.status, response.text);
+        updateReject();
+        
+      })
+      .catch((error) => {
+        console.error("Failed to send email:", error);
+        alert("Failed to send email. Please try again later.");
+      });
+  };
+
+  const updateReject = async() =>{
+    try{
+        const {data} = await supabase
+        .from('application')
+        .update([
+          {
+           status: "Rejected"
+          }
+        ])
+        .eq('id', selectedApplicant.id);
+        // window.location.reload();
+      }
+      catch (error) {
+        alert("Error Saving Data.")
+    }
+  }
+
+  const accepted = () => {
+    const templateParams = {
+      from_name: "Butuan Scholarship",
+      to_name: email,
+      message: "Thankyou so much for taking interest in applying on this scholarship. We are glad to inform you that your application has been chosen.",
+      credentials:"To proceed on your account, login using your email and contact number as your password",
+      reply_to: "scholarship@gmail.com",
+    };
+
+    emailjs
+      .send(
+        "service_yqldzap",
+        "template_4emktjz",
+        templateParams,
+        "O8tmt76KsU3QTOJKz",
+      )
+      .then((response) => {
+        console.log("Email sent successfully!", response.status, response.text);
+        updateAccept();
+      })
+      .catch((error) => {
+        console.error("Failed to send email:", error);
+        alert("Failed to send email. Please try again later.");
+      });
+  };
+
+  const updateAccept = async() =>{
+    try{
+        const {data} = await supabase
+        .from('application')
+        .update([
+          {
+           status: "Accepted"
+          }
+        ])
+        .eq('id', selectedApplicant.id);
+       createaccount();
+      }
+      catch (error) {
+        alert("Error Saving Data.")
+    }
+  }
+
+  
+  const createaccount = async() =>{
+    try{
+        const {data} = await supabase
+        .from('scholars')
+        .insert([
+          {
+           email_address: email,
+           password: selectedApplicant.mobile_number,
+           full_name: selectedApplicant.full_name,
+           address: selectedApplicant.address,
+           contact_no: selectedApplicant.mobile_number,
+           school: selectedApplicant.school,
+           course:selectedApplicant.course,
+           sex:selectedApplicant.sex,
+           status: 'On-going',
+           scholarship_type: 'New',
+           allowed_renewal : 'No',
+          }
+        ])
+        window.location.reload();
+      }
+      catch (error) {
+        alert("Error Saving Data.")
+    }
+  }
 
   return (
     <>
@@ -117,34 +237,38 @@ const Applicants = () => {
                     <th>Name of School</th>
                     <th>Course</th>
                     <th>Sex</th>
-                    <th>Year Level</th>
-                    <th>1st Sem</th>
-                    <th>2nd Sem</th>
+                    <th>GPA</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {applicants.map((applicant) => (
-                    <tr key={applicant.id}>
-                      <td>{applicant.name}</td>
-                      <td>{applicant.location}</td>
-                      <td>{applicant.contact}</td>
-                      <td>{applicant.school}</td>
-                      <td>{applicant.course}</td>
-                      <td>{applicant.sex}</td>
-                      <td>{applicant.yearLevel}</td>
-                      <td>{applicant.firstSem}</td>
-                      <td>{applicant.secondSem}</td>
-                      <td>
-                        <button
-                          className="btn btn-sm btn-primary text-white"
-                          onClick={() => openModal(applicant)}
-                        >
-                          View
-                        </button>
+                  {applicant && applicant.length > 0 ? (
+                    applicant.map((app) => (
+                      <tr key={app.id}>
+                        <td>{app.full_name}</td>
+                        <td>{app.address}</td>
+                        <td>{app.mobile_number}</td>
+                        <td>{app.school}</td>
+                        <td>{app.course}</td>
+                        <td>{app.sex}</td>
+                        <td>{app.gpa}</td>
+                        <td>
+                          <button
+                            className="btn btn-sm btn-primary text-white"
+                            onClick={() => openModal(app)}
+                          >
+                            View
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="8" className="text-center">
+                        No data available
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
@@ -168,7 +292,15 @@ const Applicants = () => {
               {isPreviewOpen ? (
                 <div className="relative flex items-center justify-center h-[60vh]">
                   <img
-                    src={selectedApplicant.images[selectedImageIndex]}
+                    src={[
+                      selectedApplicant.application_letter,
+                      selectedApplicant.recommendation_letter,
+                      selectedApplicant.itr,
+                      selectedApplicant.copy_itr,
+                      selectedApplicant.cedula,
+                      selectedApplicant.voters,
+                      selectedApplicant.recent_card,
+                    ][selectedImageIndex]}
                     alt={`Document ${selectedImageIndex + 1}`}
                     className="max-w-full max-h-full object-contain"
                   />
@@ -193,7 +325,15 @@ const Applicants = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
-                  {selectedApplicant.images.map((src, index) => (
+                  {[
+                    selectedApplicant.application_letter,
+                    selectedApplicant.recommendation_letter,
+                    selectedApplicant.itr,
+                    selectedApplicant.copy_itr,
+                    selectedApplicant.cedula,
+                    selectedApplicant.voters,
+                    selectedApplicant.recent_card,
+                  ].map((src, index) => (
                     <img
                       key={index}
                       src={src}
@@ -206,25 +346,19 @@ const Applicants = () => {
               )}
             </>
           )}
-          <div className="flex justify-between space-x-2 mt-4">
-            <button
-              onClick={() => handleAction("email")}
-              className="btn btn-info text-white"
-            >
-              <FiMail /> Send an Email
-            </button>
+          <div className="flex justify-end space-x-2 mt-4">
             <div className="flex gap-2">
-              <button
-                onClick={() => handleAction("accept")}
-                className="btn btn-primary text-white"
-              >
-                Accept
-              </button>
-              <button
-                onClick={() => handleAction("reject")}
+            <button
+                onClick={rejected}
                 className="btn btn-error text-white"
               >
                 Reject
+              </button>
+              <button
+                onClick={accepted}
+                className="btn btn-primary text-white"
+              >
+                Accept
               </button>
             </div>
           </div>

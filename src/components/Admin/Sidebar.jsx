@@ -57,15 +57,6 @@ const Sidebar = () => {
               className={({ isActive }) => (isActive ? "text-yellow-400" : "")}
             >
               <li className="p-2 hover:bg-gray-700 rounded cursor-pointer hover:translate-y-1 transition-transform">
-                Scholarships
-              </li>
-            </NavLink>
-
-            <NavLink
-              to="/applicants"
-              className={({ isActive }) => (isActive ? "text-yellow-400" : "")}
-            >
-              <li className="p-2 hover:bg-gray-700 rounded cursor-pointer hover:translate-y-1 transition-transform">
                 New Applicants
               </li>
             </NavLink>
@@ -85,6 +76,14 @@ const Sidebar = () => {
             >
               <li className="p-2 hover:bg-gray-700 rounded cursor-pointer hover:translate-y-1 transition-transform">
                 Renewal Applicants
+              </li>
+            </NavLink>
+            <NavLink
+              to="/archive"
+              className={({ isActive }) => (isActive ? "text-yellow-400" : "")}
+            >
+              <li className="p-2 hover:bg-gray-700 rounded cursor-pointer hover:translate-y-1 transition-transform">
+                Archive
               </li>
             </NavLink>
           </ul>

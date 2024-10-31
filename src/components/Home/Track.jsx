@@ -1,6 +1,27 @@
 import Navbar from "./Navbar.jsx";
+import supabase from "../supabaseClient.jsx";
+import { useState } from "react";
 
 const Track = () => {
+  const [status, setStatus] = useState([]);
+  const [full_name, setFullName] = useState([]);
+  const [name, setName] = useState('');
+
+  const track_status = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('application')
+        .select('*')
+        .eq('full_name', name);
+
+      if (error) throw error;
+      setStatus(data[0].status);
+      setFullName(data[0].full_name);
+    } catch (error) {
+      alert("There is no application in this name");
+      console.error('Error during registration:', error.message);
+    }
+  };
   return (
     <>
       <Navbar />
@@ -15,6 +36,7 @@ const Track = () => {
               type="text"
               className="grow"
               placeholder="Search your name"
+              onChange={(e) => setName(e.target.value)}
             />
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -29,49 +51,35 @@ const Track = () => {
               />
             </svg>
           </label>
-          <label className="input input-bordered flex items-center gap-2 shadow-md">
-            <input
-              type="date"
-              className="grow"
-              placeholder="Search your name"
-            />
-          </label>
-          <button type="submit" className="btn btn-primary text-white">
+          <button className="btn btn-primary text-white"   onClick={(e) => {
+            e.preventDefault();
+            track_status();
+          }}>
             Search
           </button>
         </form>
-
         <hr />
-
-        <div className="container mx-auto w-1/2 mt-10">
-          <div className="mb-3">
-            <div className="flex justify-between">
-              <h1 className="text-lg">Applicant Name: Marion Jotohot</h1>
-              <h1 className="text-lg">
-                Status: <span className="text-green-600">New</span>
-              </h1>
-            </div>
-            <div className="p-10">
-              <h1 className="flex justify-center text-lg font-semibold mb-3">
-                - Scholarship/s Applied -
-              </h1>
-              <div className="flex justify-between">
-                <p>DOST Scholarship</p>
-                <p>
-                  Status:
-                  <span className="text-yellow-500">On-going</span>
-                </p>
-              </div>
-              <div className="flex justify-between">
-                <p>CHED Scholarship</p>
-                <p>
-                  Status:
-                  <span className="text-red-500">Rejected</span>
-                </p>
-              </div>
-            </div>
+        <div className="container mx-auto w-3/4 mt-10">
+        <div className="mb-3">
+          <div className="flex justify-between">
+            <h1 className="text-lg">Applicant Name: {full_name}</h1>
+            <h1 className="text-lg">
+              Scholarship Application Status:{" "}
+              <span
+                className={
+                  status === "Rejected"
+                    ? "text-red-600"
+                    : status === "Pending"
+                    ? "text-yellow-600"
+                    : "text-green-600"
+                }
+              >
+                {status}
+              </span>
+            </h1>
           </div>
         </div>
+      </div>
       </div>
     </>
   );

@@ -6,11 +6,17 @@ import { IoNewspaper } from "react-icons/io5";
 import { IoMdLogIn } from "react-icons/io";
 import { SiPivotaltracker } from "react-icons/si";
 import { useState } from "react";
+import supabase from "../supabaseClient";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('')
+  const [role, setRole] = useState('');
+  const navigate = useNavigate();
 
   const openModal = () => {
     const modal = document.getElementById("my_modal_3");
@@ -27,9 +33,45 @@ const Navbar = () => {
     }
   };
 
-  const toggleForm = () => {
-    setIsLogin(!isLogin);
+  const signin = async () => {
+    try {
+      if (role === 'Scholar') {
+        const { data, error } = await supabase
+          .from('scholars')
+          .select('*')
+          .eq('email_address', email)
+          .single();
+
+       if (data && data.password === password && data.email_address === email){
+          sessionStorage.setItem("scholarData", data.full_name);
+          sessionStorage.setItem("email", data.email_address)
+          navigate("/user");
+       }
+       else{
+        alert("Invalid Credentials");
+       }
+    
+      } else {
+        const { data, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', email)
+          .single();
+
+          if (data && data.password === password && data.email === email){
+            navigate("/admin");
+           }
+           else{
+            alert("Invalid Credentials");
+           }
+   
+      }
+    } catch (error) {
+      alert("An unexpected error occurred.");
+      console.error('Error during registration:', error.message);
+    }
   };
+  
 
   return (
     <>
@@ -125,7 +167,7 @@ const Navbar = () => {
                 <IoMdLogIn size={30} />
                 Login
               </h3>
-              <form className="mt-6">
+              <div className="mt-6">
                 <div className="mb-4">
                   <label className="input input-bordered flex items-center gap-2">
                     <input
@@ -133,6 +175,7 @@ const Navbar = () => {
                       className="grow"
                       placeholder="example@gmail.com"
                       required
+                      onChange={(e) => setEmail(e.target.value)}
                     />
                   </label>
                 </div>
@@ -144,6 +187,7 @@ const Navbar = () => {
                       placeholder="Enter a password"
                       className="grow"
                       required
+                      onChange={(e) => setPassword(e.target.value)}
                     />
                   </label>
                 </div>
@@ -160,98 +204,24 @@ const Navbar = () => {
                 </div>
 
                 <div className="flex gap-3">
-                  <select className="select select-bordered max-w-xs">
+                  <select className="select select-bordered max-w-xs"  onChange={(e) => setRole(e.target.value)}>
                     <option disabled selected>
                       Login as:
                     </option>
-                    <option>User</option>
+                    <option>Scholar</option>
                     <option>Admin</option>
                   </select>
                   <button
-                    type="submit"
                     className="w-full py-3 font-medium text-white bg-blue-800 border-blue-800 hover:bg-blue-700 rounded-lg"
+                    onClick={signin}
                   >
                     Sign In
                   </button>
                 </div>
-              </form>
-              <div className="divider before:bg-primary/20 after:bg-primary/20">
-                or
               </div>
-              <button
-                className="w-full py-3 font-medium text-white bg-red-600 border-red-600 hover:bg-red-500 rounded-lg"
-                onClick={toggleForm}
-              >
-                Create an Account
-              </button>
             </>
           ) : (
-            // Registration Form
             <>
-              <h3 className="font-bold text-lg">Register</h3>
-              <form className="mt-6">
-                <div className="mb-4">
-                  <label className="input input-bordered flex items-center gap-2">
-                    <input
-                      type="email"
-                      className="grow"
-                      placeholder="Email Address"
-                      required
-                    />
-                  </label>
-                </div>
-
-                <div className="mb-6">
-                  <label className="input input-bordered flex items-center gap-2">
-                    <input
-                      type={showPass ? "text" : "password"}
-                      placeholder="Create a password"
-                      className="grow"
-                      required
-                    />
-                  </label>
-                </div>
-
-                <div className="mb-6">
-                  <label className="input input-bordered flex items-center gap-2">
-                    <input
-                      type={showPass ? "text" : "password"}
-                      placeholder="Confirm your password"
-                      className="grow"
-                      required
-                    />
-                  </label>
-                </div>
-
-                <div className="flex items-center justify-between mb-4">
-                  <label className="flex items-center text-sm">
-                    <input
-                      type="checkbox"
-                      onChange={() => setShowPass(!showPass)}
-                      className="mr-2 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                    />
-                    Show Password
-                  </label>
-                </div>
-
-                <div className="flex gap-3">
-                  <button
-                    type="submit"
-                    className="w-full py-3 font-medium text-white bg-blue-800 border-blue-800 hover:bg-blue-700 rounded-lg"
-                  >
-                    Sign Up
-                  </button>
-                </div>
-              </form>
-              <div className="divider before:bg-primary/20 after:bg-primary/20">
-                or
-              </div>
-              <button
-                className="w-full py-3 font-medium text-white bg-red-600 border-red-600 hover:bg-red-500 rounded-lg"
-                onClick={toggleForm}
-              >
-                Already have an account? Sign In
-              </button>
             </>
           )}
         </div>

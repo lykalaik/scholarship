@@ -1,39 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import { FaUserFriends } from "react-icons/fa";
 import { FiMail, FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
 import { RiFileExcel2Fill } from "react-icons/ri";
+import supabase from "../supabaseClient";
+import emailjs from '@emailjs/browser'
 
 const Renewal = () => {
+  const [applicant, setApplicants] = useState([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [selectedApplicant, setSelectedApplicant] = useState(null);
+  const [email, setEmail] = useState('');
+  
+ 
+  useEffect(() => {
+    fetch_renewal();
+  }, []);
 
-  // Sample data
-  const applicants = [
-    {
-      id: 1,
-      name: "Marc Gerasmio",
-      availedScholarship: "CHED",
-      location: "Butuan City",
-      contact: "09090909090",
-      school: "CSU",
-      course: "BSIT",
-      yearLevel: "4th yr.",
-      previousSem: "1.00",
-      images: [
-        "/butuan.png",
-        "/butuan.png",
-        "/butuan.png",
-        "/butuan.png",
-        "/butuan.png",
-        "/butuan.png",
-      ],
-    },
-  ];
+  const fetch_renewal = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('renewals')
+        .select('*')
+        .eq('status', 'Pending');
+      if (error) throw error;
+      setApplicants(data);
+    } catch (error) {
+      alert("An unexpected error occurred.");
+      console.error('Error during registration:', error.message);
+    }
+  };
 
   const openModal = (applicant) => {
     setSelectedApplicant(applicant);
+    setEmail(applicant.email);
     const modal = document.getElementById("my_modal_4");
     if (modal) {
       modal.showModal();
@@ -59,16 +60,148 @@ const Renewal = () => {
     if (!selectedApplicant) return;
     let newIndex =
       direction === "next" ? selectedImageIndex + 1 : selectedImageIndex - 1;
-    if (newIndex < 0) newIndex = selectedApplicant.images.length - 1;
-    if (newIndex >= selectedApplicant.images.length) newIndex = 0;
+    const documentLinks = [
+      selectedApplicant.application_letter,
+      selectedApplicant.recommendation_letter,
+      selectedApplicant.itr,
+      selectedApplicant.copy_itr,
+      selectedApplicant.cedula,
+      selectedApplicant.voters,
+      selectedApplicant.recent_card,
+    ];
+    if (newIndex < 0) newIndex = documentLinks.length - 1;
+    if (newIndex >= documentLinks.length) newIndex = 0;
     setSelectedImageIndex(newIndex);
   };
 
   const handleAction = (action) => {
     console.log(`Action selected: ${action} for applicant:`, selectedApplicant);
-    // Implement the actual logic for handling accept, reject, and email actions here
     closeModal();
   };
+
+  const rejected = () => {
+    const templateParams = {
+      from_name: "Butuan Scholarship",
+      to_name: email,
+      message: "Thankyou so much for reapplying on this scholarship. Unfortunately, we regret to inform you that your renewal application has not been shortlisted.",
+      credentials:"Appreciate the time you spent, once again Thankyou!",
+      reply_to: "katanah75@gmail.com",
+    };
+
+    emailjs
+      .send(
+        "service_yqldzap",
+        "template_jst7w51",
+        templateParams,
+        "O8tmt76KsU3QTOJKz",
+      )
+      .then((response) => {
+        console.log("Email sent successfully!", response.status, response.text);
+        updateReject();
+        
+      })
+      .catch((error) => {
+        console.error("Failed to send email:", error);
+        alert("Failed to send email. Please try again later.");
+      });
+  };
+
+  const updateReject = async() =>{
+    try{
+        const {data} = await supabase
+        .from('renewals')
+        .update([
+          {
+           status: "Rejected"
+          }
+        ])
+        .eq('id', selectedApplicant.id);
+        updateRejectScholar();
+      }
+      catch (error) {
+        alert("Error Saving Data.")
+    }
+  }
+
+  const updateRejectScholar = async() =>{
+    try{
+        const {data} = await supabase
+        .from('scholars')
+        .update([
+          {
+           status: "Rejected",
+           allowed_renewal: "No"
+          }
+        ])
+        .eq('id', selectedApplicant.id);
+        window.location.reload();
+      }
+      catch (error) {
+        alert("Error Saving Data.")
+    }
+  }
+
+  const accepted = () => {
+    const templateParams = {
+      from_name: "Butuan Scholarship",
+      to_name: email,
+      message: "Thankyou so much for reapplying on this scholarship We are glad to inform you that your renewal application has been approved.",
+      credentials:"To proceed on your scholarship, just keep on visiting the system for fund updates. Thankyou!",
+      reply_to: "scholarship@gmail.com",
+    };
+
+    emailjs
+      .send(
+        "service_yqldzap",
+        "template_jst7w51",
+        templateParams,
+        "O8tmt76KsU3QTOJKz",
+      )
+      .then((response) => {
+        console.log("Email sent successfully!", response.status, response.text);
+        updateAccept();
+      })
+      .catch((error) => {
+        console.error("Failed to send email:", error);
+        alert("Failed to send email. Please try again later.");
+      });
+  };
+
+  const updateAccept = async() =>{
+    try{
+        const {data} = await supabase
+        .from('renewals')
+        .update([
+          {
+           status: "Accepted"
+          }
+        ])
+        .eq('id', selectedApplicant.id);
+        updateScholar();
+      }
+      catch (error) {
+        alert("Error Saving Data.")
+    }
+  }
+  const updateScholar = async() =>{
+    try{
+        const {data} = await supabase
+        .from('scholars')
+        .update([
+          {
+           status: "On-Going",
+            allowed_renewal: "No"
+          }
+        ])
+        .eq('full_name', selectedApplicant.full_name);
+        window.location.reload();
+      }
+      catch (error) {
+        alert("Error Saving Data.")
+    }
+  }
+
+  
 
   return (
     <>
@@ -78,7 +211,7 @@ const Renewal = () => {
           <div className="lg:flex lg:justify-between mb-5">
             <h1 className="text-2xl mt-2 font-bold flex gap-2">
               <FaUserFriends size={30} />
-              List of Renewal Requests
+              List of Renewals
             </h1>
             <div className="flex gap-2">
               <label className="input input-bordered flex items-center gap-2">
@@ -109,38 +242,32 @@ const Renewal = () => {
                 <thead>
                   <tr>
                     <th>Name of Scholar</th>
-                    <th>Availed Scholarship</th>
-                    <th>Location</th>
-                    <th>Contact No.</th>
-                    <th>Name of School</th>
-                    <th>Course</th>
-                    <th>Year Level</th>
-                    <th>GPA from Previous Sem</th>
-                    <th>Actions</th>
+                    <th>View Submission</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {applicants.map((applicant) => (
-                    <tr key={applicant.id}>
-                      <td>{applicant.name}</td>
-                      <td>{applicant.availedScholarship}</td>
-                      <td>{applicant.location}</td>
-                      <td>{applicant.contact}</td>
-                      <td>{applicant.school}</td>
-                      <td>{applicant.course}</td>
-                      <td>{applicant.yearLevel}</td>
-                      <td>{applicant.previousSem}</td>
+                {applicant && applicant.length > 0 ? (
+                  applicant.map((app) => (
+                    <tr key={app.id}>
+                      <td>{app.full_name}</td>
                       <td>
                         <button
                           className="btn btn-sm btn-primary text-white"
-                          onClick={() => openModal(applicant)}
+                          onClick={() => openModal(app)}
                         >
                           View
                         </button>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="2" className="text-center">
+                      No data available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
               </table>
             </div>
           </div>
@@ -150,7 +277,7 @@ const Renewal = () => {
       <dialog id="my_modal_4" className="modal">
         <div className="modal-box w-11/12 max-w-5xl">
           <h3 className="font-bold text-lg mb-4">
-            Applicant's Uploaded Documents
+            Scholar's Uploaded Documents
           </h3>
           <button
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-5"
@@ -163,7 +290,14 @@ const Renewal = () => {
               {isPreviewOpen ? (
                 <div className="relative flex items-center justify-center h-[60vh]">
                   <img
-                    src={selectedApplicant.images[selectedImageIndex]}
+                    src={[
+                      selectedApplicant.recommendation,
+                      selectedApplicant.final_grades,
+                      selectedApplicant.evaluation_sheet,
+                      selectedApplicant.scholarship_contract,
+                      selectedApplicant.study_load,
+                      selectedApplicant.clearance,
+                    ][selectedImageIndex]}
                     alt={`Document ${selectedImageIndex + 1}`}
                     className="max-w-full max-h-full object-contain"
                   />
@@ -188,7 +322,14 @@ const Renewal = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
-                  {selectedApplicant.images.map((src, index) => (
+                  {[
+                    selectedApplicant.recommendation,
+                    selectedApplicant.final_grades,
+                    selectedApplicant.evaluation_sheet,
+                    selectedApplicant.scholarship_contract,
+                    selectedApplicant.study_load,
+                    selectedApplicant.clearance,
+                  ].map((src, index) => (
                     <img
                       key={index}
                       src={src}
@@ -201,25 +342,19 @@ const Renewal = () => {
               )}
             </>
           )}
-          <div className="flex justify-between space-x-2 mt-4">
-            <button
-              onClick={() => handleAction("email")}
-              className="btn btn-info text-white"
-            >
-              <FiMail /> Send an Email
-            </button>
+          <div className="flex justify-end space-x-2 mt-4">
             <div className="flex gap-2">
-              <button
-                onClick={() => handleAction("accept")}
-                className="btn btn-primary text-white"
-              >
-                Accept
-              </button>
-              <button
-                onClick={() => handleAction("reject")}
+            <button
+                onClick={rejected}
                 className="btn btn-error text-white"
               >
                 Reject
+              </button>
+              <button
+                onClick={accepted}
+                className="btn btn-primary text-white"
+              >
+                Accept
               </button>
             </div>
           </div>

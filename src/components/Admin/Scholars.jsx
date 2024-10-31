@@ -2,38 +2,75 @@ import Sidebar from "./Sidebar";
 import { FaUserFriends } from "react-icons/fa";
 import { FiMail, FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
 import { RiFileExcel2Fill } from "react-icons/ri";
+import { useState, useEffect } from "react";
+import supabase from "../supabaseClient";
 
 const Scholars = () => {
-  // Sample data
-  const applicants = [
-    {
-      id: 1,
-      name: "Marion Jotohot",
-      location: "Butuan City",
-      contact: "09090909090",
-      school: "CSU",
-      course: "BSIT",
-      sex: "LGBTQ++",
-      yearLevel: "4th yr.",
-      firstSem: "$21,000",
-      secondSem: "$21,000",
-      images: [
-        "/butuan.png",
-        "/butuan.png",
-        "/butuan.png",
-        "/butuan.png",
-        "/butuan.png",
-        "/butuan.png",
-        "/butuan.png",
-        "/butuan.png",
-      ],
-    },
-  ];
+  const [scholars, setScholars] = useState([]);
+  const [selectedScholar, setSelectedScholar] = useState([]);
+  const [amount, setAmount] = useState('');
 
-  const openModal = () => {
+  useEffect(() => {
+    fetch_scholars();
+  }, []);
+
+  const fetch_scholars = async () => {
+    try {
+      const { data, error } = await supabase
+      .from('scholars')
+      .select('*')
+      .neq('status', 'Completed');
+      if (error) throw error;
+      setScholars(data);
+    } catch (error) {
+      alert("An unexpected error occurred.");
+      console.error('Error during registration:', error.message);
+    }
+  };
+
+  const funding = async() =>{
+    try{
+        const {data} = await supabase
+        .from('funding')
+        .insert([
+          {
+           full_name: selectedScholar.full_name,
+           date_funded: formattedDate,
+           amount,
+           scholarship_type: selectedScholar.scholarship_type,
+          }
+        ])
+        alert("Funded Successfully");
+        window.location.reload();
+      }
+      catch (error) {
+        alert("Error Adding Fund")
+    }
+  }
+
+  const status_update = async() =>{
+    try{
+        const {data} = await supabase
+        .from('scholars')
+        .update([
+          {
+           status: "Completed"
+          }
+        ])
+        .eq('id', selectedScholar.id);
+        funding();
+    }
+    
+      catch (error) {
+        alert("Error Status Update.")
+    }
+  }
+
+  const openModal = (applicant) => {
     const modal = document.getElementById("my_modal_4");
     if (modal) {
       modal.showModal();
+      setSelectedScholar(applicant);
     }
   };
 
@@ -44,6 +81,13 @@ const Scholars = () => {
     }
   };
 
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0'); 
+  const dd = String(today.getDate()).padStart(2, '0'); 
+
+  const formattedDate = `${yyyy}-${mm}-${dd}`;
+
   return (
     <>
       <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-mono">
@@ -52,15 +96,15 @@ const Scholars = () => {
           <div className="lg:flex lg:justify-between mb-5">
             <h1 className="text-2xl mt-2 font-bold flex gap-2">
               <FaUserFriends size={30} />
-              List of Scholars
+              List of Active Scholars
             </h1>
             <div className="flex gap-2">
               <select className="select select-bordered w-full max-w-xs">
                 <option disabled selected>
-                  Scholarship:
+                  Scholarship Status:
                 </option>
-                <option>DOST</option>
-                <option>CHED</option>
+                <option>New</option>
+                <option>Renewal</option>
               </select>
               <button className="btn btn-success text-white">
                 <RiFileExcel2Fill size={20} />
@@ -74,30 +118,27 @@ const Scholars = () => {
               <table className="table table-zebra">
                 <thead>
                   <tr>
-                    <th>Name of Scholar</th>
+                  <th>Name of Scholar</th>
                     <th>Location</th>
                     <th>Contact No.</th>
                     <th>Name of School</th>
                     <th>Course</th>
                     <th>Sex</th>
-                    <th>Year Level</th>
-                    <th>1st Sem</th>
-                    <th>2nd Sem</th>
+                    <th>Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {applicants.map((applicant) => (
+                {scholars && scholars.length > 0 ? (
+                  scholars.map((applicant) => (
                     <tr key={applicant.id}>
-                      <td>{applicant.name}</td>
-                      <td>{applicant.location}</td>
-                      <td>{applicant.contact}</td>
+                      <td>{applicant.full_name}</td>
+                      <td>{applicant.address}</td>
+                      <td>{applicant.contact_no}</td>
                       <td>{applicant.school}</td>
                       <td>{applicant.course}</td>
                       <td>{applicant.sex}</td>
-                      <td>{applicant.yearLevel}</td>
-                      <td>{applicant.firstSem}</td>
-                      <td>{applicant.secondSem}</td>
+                      <td>{applicant.status}</td>
                       <td>
                         <button
                           className="btn btn-sm btn-primary text-white"
@@ -107,8 +148,15 @@ const Scholars = () => {
                         </button>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="8" className="text-center">
+                      No data available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
               </table>
             </div>
           </div>
@@ -117,31 +165,25 @@ const Scholars = () => {
 
       <dialog id="my_modal_4" className="modal">
         <div className="modal-box">
-          <h3 className="font-bold text-lg mb-4">Send Applicant's Funding</h3>
+          <h3 className="font-bold text-lg mb-4">Send Scholar's Funding</h3>
           <button
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-5"
             onClick={closeModal}
           >
             ✕
           </button>
-          <form className="flex flex-col gap-3">
-            <select className="select select-bordered w-full">
-              <option disabled selected>
-                Semester:
-              </option>
-              <option>1st Semester</option>
-              <option>2nd Semester</option>
-            </select>
+          <div className="flex flex-col gap-3">
             <label className="input input-bordered flex items-center gap-2">
-              Amount
+              Amount:
               <input
-                type="number"
+                type="text"
                 className="grow w-full"
-                placeholder="e.g, $21,000.00"
+                placeholder="e.g, 21,000 (don't include peso sign)"
+                onChange={(e) => setAmount(e.target.value)}
               />
             </label>
-            <button className="btn btn-primary text-white">Submit</button>
-          </form>
+            <button className="btn btn-primary text-white" onClick={status_update}>Send</button>
+          </div>
         </div>
       </dialog>
     </>

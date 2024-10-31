@@ -2,8 +2,31 @@ import RenewApplication from "./RenewApplication";
 import { RiFundsBoxFill } from "react-icons/ri";
 import { MdAnnouncement } from "react-icons/md";
 import { NavLink } from "react-router-dom";
+import supabase from "../supabaseClient";
+import { useState, useEffect } from "react";
 
 const UserDashboard = () => {
+  const [userData, setUserData] = useState([]);
+  const scholarName = sessionStorage.getItem("scholarData");
+
+  useEffect(() => {
+    fetch_data();
+  }, []);
+
+  const fetch_data = async () => {
+    try {
+      const { data, error } = await supabase
+      .from('funding')
+      .select('*')
+      .eq('full_name', scholarName);
+      if (error) throw error;
+      setUserData(data);
+    } catch (error) {
+      alert("An unexpected error occurred.");
+      console.error('Error during registration:', error.message);
+    }
+  };
+
   return (
     <>
       <div className="navbar bg-neutral text-neutral-content font-mono p-3">
@@ -38,23 +61,6 @@ const UserDashboard = () => {
             <RiFundsBoxFill className="mt-1" />
             Track Fundings
           </h1>
-          <div className="flex gap-3">
-            <select className="select select-bordered w-full max-w-xs">
-              <option disabled selected>
-                School Year:
-              </option>
-              <option>School Year 1</option>
-              <option>School Year 2</option>
-            </select>
-            <select className="select select-bordered w-full max-w-xs">
-              <option disabled selected>
-                Semester:
-              </option>
-              <option>1st</option>
-              <option>2nd</option>
-            </select>
-            <button className="btn btn-primary text-white">Search</button>
-          </div>
         </div>
         <div className="card rounded shadow-xl bordered p-5">
           <div className="overflow-x-auto">
@@ -62,21 +68,19 @@ const UserDashboard = () => {
               {/* head */}
               <thead>
                 <tr>
-                  <th>Availed Scholarships</th>
-                  <th>Semester</th>
+                  <th>Date Funded</th>
                   <th>Amount</th>
-                  <th>Date</th>
-                  <th>School Year</th>
+                  <th>Scholarship Type</th>
                 </tr>
               </thead>
               <tbody>
+              {userData.map((user) => (
                 <tr>
-                  <td>CHED</td>
-                  <td>1st</td>
-                  <td>$21,000</td>
-                  <td>05/05/2024</td>
-                  <td>2020 - 2024</td>
+                  <td>{user.date_funded}</td>
+                  <td>${user.amount}</td>
+                  <td>{user.scholarship_type}</td>
                 </tr>
+                    ))}
               </tbody>
             </table>
           </div>
