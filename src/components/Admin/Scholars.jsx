@@ -1,14 +1,13 @@
 import Sidebar from "./Sidebar";
 import { FaUserFriends } from "react-icons/fa";
-import { FiMail, FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
-import { RiFileExcel2Fill } from "react-icons/ri";
 import { useState, useEffect } from "react";
 import supabase from "../supabaseClient";
 
 const Scholars = () => {
   const [scholars, setScholars] = useState([]);
-  const [selectedScholar, setSelectedScholar] = useState([]);
+  const [selectedScholar, setSelectedScholar] = useState(null);
   const [amount, setAmount] = useState('');
+  const [scholarshipType, setScholarshipType] = useState(''); // State for scholarship type
 
   useEffect(() => {
     fetch_scholars();
@@ -17,9 +16,9 @@ const Scholars = () => {
   const fetch_scholars = async () => {
     try {
       const { data, error } = await supabase
-      .from('scholars')
-      .select('*')
-      .neq('status', 'Completed');
+        .from('scholars')
+        .select('*')
+        .neq('status', 'Completed');
       if (error) throw error;
       setScholars(data);
     } catch (error) {
@@ -28,43 +27,34 @@ const Scholars = () => {
     }
   };
 
-  const funding = async() =>{
-    try{
-        const {data} = await supabase
+  const funding = async () => {
+    try {
+      const { data } = await supabase
         .from('funding')
-        .insert([
-          {
-           full_name: selectedScholar.full_name,
-           date_funded: formattedDate,
-           amount,
-           scholarship_type: selectedScholar.scholarship_type,
-          }
-        ])
-        alert("Funded Successfully");
-        window.location.reload();
-      }
-      catch (error) {
-        alert("Error Adding Fund")
+        .insert([{
+          full_name: selectedScholar.full_name,
+          date_funded: formattedDate,
+          amount,
+          scholarship_type: selectedScholar.scholarship_type,
+        }]);
+      alert("Funded Successfully");
+      window.location.reload();
+    } catch (error) {
+      alert("Error Adding Fund");
     }
-  }
+  };
 
-  const status_update = async() =>{
-    try{
-        const {data} = await supabase
+  const status_update = async () => {
+    try {
+      const { data } = await supabase
         .from('scholars')
-        .update([
-          {
-           status: "Completed"
-          }
-        ])
+        .update([{ status: "Completed" }])
         .eq('id', selectedScholar.id);
-        funding();
+      funding();
+    } catch (error) {
+      alert("Error Status Update.");
     }
-    
-      catch (error) {
-        alert("Error Status Update.")
-    }
-  }
+  };
 
   const openModal = (applicant) => {
     const modal = document.getElementById("my_modal_4");
@@ -83,10 +73,15 @@ const Scholars = () => {
 
   const today = new Date();
   const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0'); 
-  const dd = String(today.getDate()).padStart(2, '0'); 
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
 
   const formattedDate = `${yyyy}-${mm}-${dd}`;
+
+  // Filter scholars based on selected scholarship type
+  const filteredScholars = scholarshipType 
+    ? scholars.filter(scholar => scholar.scholarship_type === scholarshipType)
+    : scholars;
 
   return (
     <>
@@ -99,17 +94,16 @@ const Scholars = () => {
               List of Active Scholars
             </h1>
             <div className="flex gap-2">
-              <select className="select select-bordered w-full max-w-xs">
-                <option disabled selected>
-                  Scholarship Status:
+              <select 
+                className="select select-bordered w-full max-w-xs"
+                onChange={(e) => setScholarshipType(e.target.value)} // Update the selected scholarship type
+              >
+                <option value="">
+                  Scholarship Type:
                 </option>
-                <option>New</option>
-                <option>Renewal</option>
+                <option value="New">New</option>
+                <option value="Renewal">Renewal</option>
               </select>
-              <button className="btn btn-success text-white">
-                <RiFileExcel2Fill size={20} />
-                Export as Excel
-              </button>
             </div>
           </div>
 
@@ -118,45 +112,47 @@ const Scholars = () => {
               <table className="table table-zebra">
                 <thead>
                   <tr>
-                  <th>Name of Scholar</th>
+                    <th>Name of Scholar</th>
                     <th>Location</th>
                     <th>Contact No.</th>
                     <th>Name of School</th>
                     <th>Course</th>
                     <th>Sex</th>
                     <th>Status</th>
+                    <th>Scholarship Type</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                {scholars && scholars.length > 0 ? (
-                  scholars.map((applicant) => (
-                    <tr key={applicant.id}>
-                      <td>{applicant.full_name}</td>
-                      <td>{applicant.address}</td>
-                      <td>{applicant.contact_no}</td>
-                      <td>{applicant.school}</td>
-                      <td>{applicant.course}</td>
-                      <td>{applicant.sex}</td>
-                      <td>{applicant.status}</td>
-                      <td>
-                        <button
-                          className="btn btn-sm btn-primary text-white"
-                          onClick={() => openModal(applicant)}
-                        >
-                          Add
-                        </button>
+                  {filteredScholars && filteredScholars.length > 0 ? (
+                    filteredScholars.map((applicant) => (
+                      <tr key={applicant.id}>
+                        <td>{applicant.full_name}</td>
+                        <td>{applicant.address}</td>
+                        <td>{applicant.contact_no}</td>
+                        <td>{applicant.school}</td>
+                        <td>{applicant.course}</td>
+                        <td>{applicant.sex}</td>
+                        <td>{applicant.status}</td>
+                        <td>{applicant.scholarship_type}</td>
+                        <td>
+                          <button
+                            className="btn btn-sm btn-primary text-white"
+                            onClick={() => openModal(applicant)}
+                          >
+                            Add
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="9" className="text-center">
+                        No data available
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="8" className="text-center">
-                      No data available
-                    </td>
-                  </tr>
-                )}
-              </tbody>
+                  )}
+                </tbody>
               </table>
             </div>
           </div>

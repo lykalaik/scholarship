@@ -8,6 +8,7 @@ import emailjs from '@emailjs/browser'
 
 const Applicants = () => {
   const [applicant, setApplicants] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [selectedApplicant, setSelectedApplicant] = useState(null);
@@ -193,6 +194,9 @@ const Applicants = () => {
     }
   }
 
+  const filteredApplicants = applicant.filter((app) =>
+    app.full_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   return (
     <>
       <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-mono">
@@ -205,7 +209,8 @@ const Applicants = () => {
             </h1>
             <div className="flex gap-2">
               <label className="input input-bordered flex items-center gap-2">
-                <input type="text" className="grow" placeholder="Search" />
+                <input type="text" className="grow" placeholder="Search"  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)} />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 16 16"
@@ -219,10 +224,6 @@ const Applicants = () => {
                   />
                 </svg>
               </label>
-              <button className="btn btn-success text-white">
-                <RiFileExcel2Fill size={20} />
-                Export as Excel
-              </button>
             </div>
           </div>
 
@@ -242,8 +243,8 @@ const Applicants = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {applicant && applicant.length > 0 ? (
-                    applicant.map((app) => (
+                  {filteredApplicants && filteredApplicants.length > 0 ? (
+                    filteredApplicants.map((app) => (
                       <tr key={app.id}>
                         <td>{app.full_name}</td>
                         <td>{app.address}</td>

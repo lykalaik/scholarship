@@ -1,16 +1,14 @@
 import Sidebar from "./Sidebar";
 import { FaUserFriends } from "react-icons/fa";
-import { FiMail, FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
 import { RiFileExcel2Fill } from "react-icons/ri";
 import { useState, useEffect } from "react";
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
 import supabase from "../supabaseClient";
 
-
-
-const AdminDashboard = () => {
+const Archive = () => {
   const [scholars, setScholars] = useState([]);
-  const [selectedScholar, setSelectedScholar] = useState([]);
-  const [amount, setAmount] = useState('');
+  const [scholarshipType, setScholarshipType] = useState('');
 
   useEffect(() => {
     fetch_scholars();
@@ -25,7 +23,7 @@ const AdminDashboard = () => {
       setScholars(data);
     } catch (error) {
       alert("An unexpected error occurred.");
-      console.error('Error during registration:', error.message);
+      console.error('Error during fetching scholars:', error.message);
     }
   };
 
@@ -38,7 +36,6 @@ const AdminDashboard = () => {
         .eq('id', applicantId);
       if (error) throw error;
 
-      // Update state locally to reflect change immediately
       setScholars((prevScholars) =>
         prevScholars.map((applicant) =>
           applicant.id === applicantId ? { ...applicant, allowed_renewal: newStatus } : applicant
@@ -50,6 +47,18 @@ const AdminDashboard = () => {
     }
   };
 
+  const exportToExcel = () => {
+    const filteredData = scholars.filter(scholar => 
+      scholarshipType ? scholar.scholarship_type === scholarshipType : true
+    );
+    const worksheet = XLSX.utils.json_to_sheet(filteredData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Scholars');
+
+    const fileBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const fileBlob = new Blob([fileBuffer], { type: 'application/octet-stream' });
+    saveAs(fileBlob, 'scholars.xlsx');
+  };
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-mono">
@@ -61,12 +70,19 @@ const AdminDashboard = () => {
             Scholars Record
           </h1>
           <div className="flex gap-2">
-            <select className="select select-bordered w-full max-w-xs">
-              <option disabled selected>Scholarship Status:</option>
-              <option>New</option>
-              <option>Renewal</option>
+            <select 
+              className="select select-bordered w-full max-w-xs" 
+              value={scholarshipType} 
+              onChange={(e) => setScholarshipType(e.target.value)}
+            >
+              <option value="">Scholarship Type:</option>
+              <option value="New">New</option>
+              <option value="Renewal">Renewal</option>
             </select>
-            <button className="btn btn-success text-white">
+            <button 
+              className="btn btn-success text-white" 
+              onClick={exportToExcel}
+            >
               <RiFileExcel2Fill size={20} /> Export as Excel
             </button>
           </div>
@@ -89,26 +105,28 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {scholars.map((applicant) => (
-                  <tr key={applicant.id}>
-                    <td>{applicant.full_name}</td>
-                    <td>{applicant.address}</td>
-                    <td>{applicant.contact_no}</td>
-                    <td>{applicant.school}</td>
-                    <td>{applicant.course}</td>
-                    <td>{applicant.sex}</td>
-                    <td>{applicant.status}</td>
-                    <td>{applicant.scholarship_type}</td>
-                    <td>
-                      <button
-                        className={`btn btn-sm ${applicant.allowed_renewal === "Yes" ? 'btn-success' : 'btn-error'}`}
-                        onClick={() => toggleAllowedRenewal(applicant.id, applicant.allowed_renewal)}
-                      >
-                        {applicant.allowed_renewal === "Yes" ? "Yes" : "No"}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {scholars
+                  .filter(scholar => !scholarshipType || scholar.scholarship_type === scholarshipType)
+                  .map((applicant) => (
+                    <tr key={applicant.id}>
+                      <td>{applicant.full_name}</td>
+                      <td>{applicant.address}</td>
+                      <td>{applicant.contact_no}</td>
+                      <td>{applicant.school}</td>
+                      <td>{applicant.course}</td>
+                      <td>{applicant.sex}</td>
+                      <td>{applicant.status}</td>
+                      <td>{applicant.scholarship_type}</td>
+                      <td>
+                        <button
+                          className={`btn btn-sm ${applicant.allowed_renewal === "Yes" ? 'btn-success' : 'btn-error'}`}
+                          onClick={() => toggleAllowedRenewal(applicant.id, applicant.allowed_renewal)}
+                        >
+                          {applicant.allowed_renewal === "Yes" ? "Yes" : "No"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
@@ -118,4 +136,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default Archive;

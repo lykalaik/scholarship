@@ -12,6 +12,7 @@ const Renewal = () => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [selectedApplicant, setSelectedApplicant] = useState(null);
   const [email, setEmail] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   
  
   useEffect(() => {
@@ -201,7 +202,9 @@ const Renewal = () => {
     }
   }
 
-  
+  const filteredApplicants = applicant.filter((app) =>
+    app.full_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <>
@@ -215,7 +218,8 @@ const Renewal = () => {
             </h1>
             <div className="flex gap-2">
               <label className="input input-bordered flex items-center gap-2">
-                <input type="text" className="grow" placeholder="Search" />
+                <input type="text" className="grow" placeholder="Search" value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)} />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 16 16"
@@ -229,13 +233,8 @@ const Renewal = () => {
                   />
                 </svg>
               </label>
-              <button className="btn btn-success text-white">
-                <RiFileExcel2Fill size={20} />
-                Export as Excel
-              </button>
             </div>
           </div>
-
           <div className="card rounded shadow-xl bordered p-5 bg-white">
             <div className="overflow-x-auto">
               <table className="table table-zebra">
@@ -246,8 +245,8 @@ const Renewal = () => {
                   </tr>
                 </thead>
                 <tbody>
-                {applicant && applicant.length > 0 ? (
-                  applicant.map((app) => (
+                {filteredApplicants && filteredApplicants.length > 0 ? (
+                  filteredApplicants.map((app) => (
                     <tr key={app.id}>
                       <td>{app.full_name}</td>
                       <td>

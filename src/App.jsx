@@ -3,7 +3,7 @@ import Apply from "./components/Home/Apply.jsx";
 import About from "./components/Home/About.jsx";
 import Track from "./components/Home/Track.jsx";
 import UserDashboard from "./components/User/UserDashboard.jsx";
-import AdminDashboard from "./components/Admin/AdminDashboard.jsx";
+import Archive from "./components/Admin/Archive.jsx";
 import Applicants from "./components/Admin/Applicants.jsx";
 import Scholars from "./components/Admin/Scholars.jsx";
 import Renewal from "./components/Admin/Renewal.jsx";
@@ -20,7 +20,7 @@ const App = () => {
         <Route path="/about" element={<About />} />
         <Route path="/track" element={<Track />} />
         <Route path="/user" element={<UserDashboard />} />
-        <Route path="/archive" element={<AdminDashboard />} />
+        <Route path="/archive" element={<Archive />} />
         <Route path="/admin" element={<Applicants />} />
         <Route path="/scholars" element={<Scholars />} />
         <Route path="/renewals" element={<Renewal />} />

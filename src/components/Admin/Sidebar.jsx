@@ -2,9 +2,11 @@ import { useState } from "react";
 import { RiLogoutCircleRLine } from "react-icons/ri";
 import { RiLogoutBoxRFill } from "react-icons/ri";
 import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const openModal = () => {
     const modal = document.getElementById("error_modal");
@@ -19,6 +21,11 @@ const Sidebar = () => {
       modal.close();
     }
   };
+
+  const sessionclear = () =>{
+    sessionStorage.clear();
+    navigate("/");
+  }
 
   return (
     <>
@@ -112,7 +119,7 @@ const Sidebar = () => {
           <h3 className="font-bold text-lg">Confirm Action</h3>
           <p className="py-4">Are you sure you want to log out?</p>
           <div className="flex justify-end content-end">
-            <button className="btn btn-error text-white">
+            <button className="btn btn-error text-white" onClick={sessionclear}>
               <RiLogoutCircleRLine />
               Log Out
             </button>
