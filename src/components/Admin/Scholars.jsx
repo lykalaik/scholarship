@@ -1,13 +1,12 @@
 import Sidebar from "./Sidebar";
-import { FaUserFriends } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import supabase from "../supabaseClient";
 
 const Scholars = () => {
   const [scholars, setScholars] = useState([]);
   const [selectedScholar, setSelectedScholar] = useState(null);
-  const [amount, setAmount] = useState('');
-  const [scholarshipType, setScholarshipType] = useState(''); // State for scholarship type
+  const [amount, setAmount] = useState("");
+  const [scholarshipType, setScholarshipType] = useState("");
 
   useEffect(() => {
     fetch_scholars();
@@ -16,27 +15,27 @@ const Scholars = () => {
   const fetch_scholars = async () => {
     try {
       const { data, error } = await supabase
-        .from('scholars')
-        .select('*')
-        .neq('status', 'Completed');
+        .from("scholars")
+        .select("*")
+        .neq("status", "Completed");
       if (error) throw error;
       setScholars(data);
     } catch (error) {
       alert("An unexpected error occurred.");
-      console.error('Error during registration:', error.message);
+      console.error("Error during registration:", error.message);
     }
   };
 
   const funding = async () => {
     try {
-      const { data } = await supabase
-        .from('funding')
-        .insert([{
+      const { data } = await supabase.from("funding").insert([
+        {
           full_name: selectedScholar.full_name,
           date_funded: formattedDate,
           amount,
           scholarship_type: selectedScholar.scholarship_type,
-        }]);
+        },
+      ]);
       alert("Funded Successfully");
       window.location.reload();
     } catch (error) {
@@ -47,9 +46,9 @@ const Scholars = () => {
   const status_update = async () => {
     try {
       const { data } = await supabase
-        .from('scholars')
+        .from("scholars")
         .update([{ status: "Completed" }])
-        .eq('id', selectedScholar.id);
+        .eq("id", selectedScholar.id);
       funding();
     } catch (error) {
       alert("Error Status Update.");
@@ -73,14 +72,14 @@ const Scholars = () => {
 
   const today = new Date();
   const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
 
   const formattedDate = `${yyyy}-${mm}-${dd}`;
 
   // Filter scholars based on selected scholarship type
-  const filteredScholars = scholarshipType 
-    ? scholars.filter(scholar => scholar.scholarship_type === scholarshipType)
+  const filteredScholars = scholarshipType
+    ? scholars.filter((scholar) => scholar.scholarship_type === scholarshipType)
     : scholars;
 
   return (
@@ -88,19 +87,13 @@ const Scholars = () => {
       <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-mono">
         <Sidebar />
         <main className="flex-1 p-4 lg:p-8 ml-0 lg:ml-64 transition-all duration-300">
-          <div className="lg:flex lg:justify-between mb-5">
-            <h1 className="text-2xl mt-2 font-bold flex gap-2">
-              <FaUserFriends size={30} />
-              List of Active Scholars
-            </h1>
-            <div className="flex gap-2">
-              <select 
-                className="select select-bordered w-full max-w-xs"
-                onChange={(e) => setScholarshipType(e.target.value)} // Update the selected scholarship type
+          <div className="lg:flex lg:justify-end mb-3">
+            <div className="flex gap-2 justify-end">
+              <select
+                className="select select-bordered sm:w-1/3 lg:w-full"
+                onChange={(e) => setScholarshipType(e.target.value)}
               >
-                <option value="">
-                  Scholarship Type:
-                </option>
+                <option value="">Scholarship Type:</option>
                 <option value="New">New</option>
                 <option value="Renewal">Renewal</option>
               </select>
@@ -178,7 +171,12 @@ const Scholars = () => {
                 onChange={(e) => setAmount(e.target.value)}
               />
             </label>
-            <button className="btn btn-primary text-white" onClick={status_update}>Send</button>
+            <button
+              className="btn btn-primary text-white"
+              onClick={status_update}
+            >
+              Send
+            </button>
           </div>
         </div>
       </dialog>

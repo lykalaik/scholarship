@@ -1,40 +1,52 @@
+import { useState, useEffect } from "react";
 import Navbar from "./Navbar.jsx";
 import supabase from "../supabaseClient.jsx";
-import { useState } from "react";
 
 const Track = () => {
-  const [status, setStatus] = useState([]);
-  const [full_name, setFullName] = useState([]);
-  const [name, setName] = useState('');
+  const [statusData, setStatusData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [name, setName] = useState("");
 
-  const track_status = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('application')
-        .select('*')
-        .eq('full_name', name);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { data, error } = await supabase.from("application").select("*");
+        if (error) throw error;
+        setStatusData(data);
+        setFilteredData(data);
+      } catch (error) {
+        console.error("Error fetching data:", error.message);
+      }
+    };
+    fetchData();
+  }, []);
 
-      if (error) throw error;
-      setStatus(data[0].status);
-      setFullName(data[0].full_name);
-    } catch (error) {
-      alert("There is no application in this name");
-      console.error('Error during registration:', error.message);
+  const track_status = (e) => {
+    e.preventDefault();
+    if (name) {
+      const filtered = statusData.filter((app) =>
+        app.full_name.toLowerCase().includes(name.toLowerCase())
+      );
+      setFilteredData(filtered);
+    } else {
+      setFilteredData(statusData);
     }
   };
+
   return (
     <>
       <Navbar />
-      <div className="container mx-auto p-5">
+      <div className="container mx-auto px-4 py-5">
         <div className="flex justify-center mt-6 mb-6 font-extrabold">
-          <h1 className="text-2xl">- Search your Application Status here -</h1>
+          <h1 className="text-xl md:text-2xl text-center">
+            - Search your Application Status here -
+          </h1>
         </div>
-
-        <form className="flex justify-center gap-2 mb-8">
-          <label className="input input-bordered flex items-center gap-2 shadow-md">
+        <form className="flex flex-col md:flex-row justify-center gap-4 mb-8 px-4">
+          <label className="input input-bordered flex items-center gap-2 shadow-md w-full md:max-w-md">
             <input
               type="text"
-              className="grow"
+              className="grow p-2 text-sm md:text-base"
               placeholder="Search your name"
               onChange={(e) => setName(e.target.value)}
             />
@@ -51,35 +63,45 @@ const Track = () => {
               />
             </svg>
           </label>
-          <button className="btn btn-primary text-white"   onClick={(e) => {
-            e.preventDefault();
-            track_status();
-          }}>
+          <button
+            className="btn btn-primary text-white w-full md:w-auto"
+            onClick={track_status}
+          >
             Search
           </button>
         </form>
         <hr />
-        <div className="container mx-auto w-3/4 mt-10">
-        <div className="mb-3">
-          <div className="flex justify-between">
-            <h1 className="text-lg">Applicant Name: {full_name}</h1>
-            <h1 className="text-lg">
-              Scholarship Application Status:{" "}
-              <span
-                className={
-                  status === "Rejected"
-                    ? "text-red-600"
-                    : status === "Pending"
-                    ? "text-yellow-600"
-                    : "text-green-600"
-                }
-              >
-                {status}
-              </span>
-            </h1>
-          </div>
+        <div className="container mx-auto mt-8 px-4 md:px-20">
+          {filteredData.length > 0 ? (
+            filteredData.map((app) => (
+              <div key={app.id} className="mb-3 p-4 rounded shadow-sm border">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+                  <h1 className="text-base md:text-lg mb-2 md:mb-0 font-semibold">
+                    Applicant Name: {app.full_name}
+                  </h1>
+                  <h1 className="text-base md:text-lg font-semibold">
+                    Application Status:{" "}
+                    <span
+                      className={
+                        app.status === "Rejected"
+                          ? "text-red-600"
+                          : app.status === "Pending"
+                          ? "text-yellow-600"
+                          : "text-green-600"
+                      }
+                    >
+                      {app.status}
+                    </span>
+                  </h1>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="flex justify-center content-center text-gray-600 mt-6">
+              No applications found.
+            </p>
+          )}
         </div>
-      </div>
       </div>
     </>
   );

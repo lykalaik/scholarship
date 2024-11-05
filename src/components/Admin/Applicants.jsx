@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
-import { FaUserFriends } from "react-icons/fa";
-import { FiMail, FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
-import { RiFileExcel2Fill } from "react-icons/ri";
+import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
 import supabase from "../supabaseClient";
-import emailjs from '@emailjs/browser'
+import emailjs from "@emailjs/browser";
 
 const Applicants = () => {
   const [applicant, setApplicants] = useState([]);
@@ -12,9 +10,8 @@ const Applicants = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [selectedApplicant, setSelectedApplicant] = useState(null);
-  const [email, setEmail] = useState('');
-  
- 
+  const [email, setEmail] = useState("");
+
   useEffect(() => {
     fetch_applicants();
   }, []);
@@ -22,14 +19,14 @@ const Applicants = () => {
   const fetch_applicants = async () => {
     try {
       const { data, error } = await supabase
-        .from('application')
-        .select('*')
-        .eq('status', 'Pending');
+        .from("application")
+        .select("*")
+        .eq("status", "Pending");
       if (error) throw error;
       setApplicants(data);
     } catch (error) {
       alert("An unexpected error occurred.");
-      console.error('Error during registration:', error.message);
+      console.error("Error during registration:", error.message);
     }
   };
 
@@ -84,22 +81,21 @@ const Applicants = () => {
     const templateParams = {
       from_name: "Butuan Scholarship",
       to_name: email,
-      message: "Thankyou so much for taking interest in applying on this scholarship. Unfortunately, we regret to inform you that your application has not been shortlisted.",
-      credentials:"Appreciate the time you spent, once again Thankyou!",
+      message:
+        "Thankyou so much for taking interest in applying on this scholarship. Unfortunately, we regret to inform you that your application has not been shortlisted.",
+      credentials: "Appreciate the time you spent, once again Thankyou!",
       reply_to: "scholarship@gmail.com",
     };
-
     emailjs
       .send(
         "service_yqldzap",
         "template_4emktjz",
         templateParams,
-        "O8tmt76KsU3QTOJKz",
+        "O8tmt76KsU3QTOJKz"
       )
       .then((response) => {
         console.log("Email sent successfully!", response.status, response.text);
         updateReject();
-        
       })
       .catch((error) => {
         console.error("Failed to send email:", error);
@@ -107,38 +103,37 @@ const Applicants = () => {
       });
   };
 
-  const updateReject = async() =>{
-    try{
-        const {data} = await supabase
-        .from('application')
+  const updateReject = async () => {
+    try {
+      const { data } = await supabase
+        .from("application")
         .update([
           {
-           status: "Rejected"
-          }
+            status: "Rejected",
+          },
         ])
-        .eq('id', selectedApplicant.id);
-        // window.location.reload();
-      }
-      catch (error) {
-        alert("Error Saving Data.")
+        .eq("id", selectedApplicant.id);
+    } catch (error) {
+      alert("Error Saving Data.");
     }
-  }
+  };
 
   const accepted = () => {
     const templateParams = {
       from_name: "Butuan Scholarship",
       to_name: email,
-      message: "Thankyou so much for taking interest in applying on this scholarship. We are glad to inform you that your application has been chosen.",
-      credentials:"To proceed on your account, login using your email and contact number as your password",
+      message:
+        "Thankyou so much for taking interest in applying on this scholarship. We are glad to inform you that your application has been chosen.",
+      credentials:
+        "To proceed on your account, login using your email and contact number as your password",
       reply_to: "scholarship@gmail.com",
     };
-
     emailjs
       .send(
         "service_yqldzap",
         "template_4emktjz",
         templateParams,
-        "O8tmt76KsU3QTOJKz",
+        "O8tmt76KsU3QTOJKz"
       )
       .then((response) => {
         console.log("Email sent successfully!", response.status, response.text);
@@ -150,49 +145,44 @@ const Applicants = () => {
       });
   };
 
-  const updateAccept = async() =>{
-    try{
-        const {data} = await supabase
-        .from('application')
+  const updateAccept = async () => {
+    try {
+      const { data } = await supabase
+        .from("application")
         .update([
           {
-           status: "Accepted"
-          }
+            status: "Accepted",
+          },
         ])
-        .eq('id', selectedApplicant.id);
-       createaccount();
-      }
-      catch (error) {
-        alert("Error Saving Data.")
+        .eq("id", selectedApplicant.id);
+      createaccount();
+    } catch (error) {
+      alert("Error Saving Data.");
     }
-  }
+  };
 
-  
-  const createaccount = async() =>{
-    try{
-        const {data} = await supabase
-        .from('scholars')
-        .insert([
-          {
-           email_address: email,
-           password: selectedApplicant.mobile_number,
-           full_name: selectedApplicant.full_name,
-           address: selectedApplicant.address,
-           contact_no: selectedApplicant.mobile_number,
-           school: selectedApplicant.school,
-           course:selectedApplicant.course,
-           sex:selectedApplicant.sex,
-           status: 'On-going',
-           scholarship_type: 'New',
-           allowed_renewal : 'No',
-          }
-        ])
-        window.location.reload();
-      }
-      catch (error) {
-        alert("Error Saving Data.")
+  const createaccount = async () => {
+    try {
+      const { data } = await supabase.from("scholars").insert([
+        {
+          email_address: email,
+          password: selectedApplicant.mobile_number,
+          full_name: selectedApplicant.full_name,
+          address: selectedApplicant.address,
+          contact_no: selectedApplicant.mobile_number,
+          school: selectedApplicant.school,
+          course: selectedApplicant.course,
+          sex: selectedApplicant.sex,
+          status: "On-going",
+          scholarship_type: "New",
+          allowed_renewal: "No",
+        },
+      ]);
+      window.location.reload();
+    } catch (error) {
+      alert("Error Saving Data.");
     }
-  }
+  };
 
   const filteredApplicants = applicant.filter((app) =>
     app.full_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -202,15 +192,16 @@ const Applicants = () => {
       <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-mono">
         <Sidebar />
         <main className="flex-1 p-4 lg:p-8 ml-0 lg:ml-64 transition-all duration-300">
-          <div className="lg:flex lg:justify-between mb-5">
-            <h1 className="text-2xl mt-2 font-bold flex gap-2">
-              <FaUserFriends size={30} />
-              List of New Applicants
-            </h1>
+          <div className="lg:flex lg:justify-end mb-5">
             <div className="flex gap-2">
-              <label className="input input-bordered flex items-center gap-2">
-                <input type="text" className="grow" placeholder="Search"  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)} />
+              <label className="input input-bordered flex items-center gap-2 w-full">
+                <input
+                  type="text"
+                  className="grow"
+                  placeholder="Search"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 16 16"
@@ -293,15 +284,17 @@ const Applicants = () => {
               {isPreviewOpen ? (
                 <div className="relative flex items-center justify-center h-[60vh]">
                   <img
-                    src={[
-                      selectedApplicant.application_letter,
-                      selectedApplicant.recommendation_letter,
-                      selectedApplicant.itr,
-                      selectedApplicant.copy_itr,
-                      selectedApplicant.cedula,
-                      selectedApplicant.voters,
-                      selectedApplicant.recent_card,
-                    ][selectedImageIndex]}
+                    src={
+                      [
+                        selectedApplicant.application_letter,
+                        selectedApplicant.recommendation_letter,
+                        selectedApplicant.itr,
+                        selectedApplicant.copy_itr,
+                        selectedApplicant.cedula,
+                        selectedApplicant.voters,
+                        selectedApplicant.recent_card,
+                      ][selectedImageIndex]
+                    }
                     alt={`Document ${selectedImageIndex + 1}`}
                     className="max-w-full max-h-full object-contain"
                   />
@@ -349,16 +342,10 @@ const Applicants = () => {
           )}
           <div className="flex justify-end space-x-2 mt-4">
             <div className="flex gap-2">
-            <button
-                onClick={rejected}
-                className="btn btn-error text-white"
-              >
+              <button onClick={rejected} className="btn btn-error text-white">
                 Reject
               </button>
-              <button
-                onClick={accepted}
-                className="btn btn-primary text-white"
-              >
+              <button onClick={accepted} className="btn btn-primary text-white">
                 Accept
               </button>
             </div>

@@ -1,28 +1,29 @@
 import Navbar from "./Navbar.jsx";
-import { BsFillBookmarkCheckFill } from "react-icons/bs";
 import { SiGooglescholar } from "react-icons/si";
 import supabase from "../supabaseClient.jsx";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const Apply = () => {
-  const [file, setFile] = useState('');
-  const [application_letter, setApplicationLetter] = useState('');
-  const [recommendation_letter, setRecommendationLetter] = useState('');
-  const [itr, setITR] = useState('');
-  const [copy_itr, setCopyITR] = useState('');
-  const [cedula, setCedula] = useState('');
-  const [voters, setVoters] = useState('');
-  const [recent_card, setRecentCard] = useState('');
-  const [full_name, setFullName] = useState('');
-  const [address, setAddress] = useState('');
-  const [email_address, setEmailAddress] = useState('');
-  const [gpa, setGPA] = useState('');
-  const [sex, setSex] = useState('Male');
-  const [mobile_number, setMobileNumber] = useState('');
-  const [school, setSchool] = useState('');
-  const [course, setCourse] = useState('');
+  const [file, setFile] = useState("");
+  const [application_letter, setApplicationLetter] = useState("");
+  const [recommendation_letter, setRecommendationLetter] = useState("");
+  const [itr, setITR] = useState("");
+  const [copy_itr, setCopyITR] = useState("");
+  const [cedula, setCedula] = useState("");
+  const [voters, setVoters] = useState("");
+  const [recent_card, setRecentCard] = useState("");
+  const [full_name, setFullName] = useState("");
+  const [address, setAddress] = useState("");
+  const [email_address, setEmailAddress] = useState("");
+  const [gpa, setGPA] = useState("");
+  const [sex, setSex] = useState("Male");
+  const [mobile_number, setMobileNumber] = useState("");
+  const [school, setSchool] = useState("");
+  const [course, setCourse] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const create_application = async () => {
+    setLoading(true);
     const requiredFields = {
       full_name,
       address,
@@ -38,52 +39,32 @@ const Apply = () => {
       copy_itr,
       cedula,
       voters,
-      recent_card
+      recent_card,
     };
-  
-
     for (const [key, value] of Object.entries(requiredFields)) {
       if (value === null || value === undefined) {
         alert(`Please provide a valid value for ${key}`);
         return;
       }
     }
-    const { data, error } = await supabase
-      .from('application')
-      .insert([
-        {
-          ...requiredFields,
-          status: 'Pending'
-        },
-      ]);
-  
+    const { data, error } = await supabase.from("application").insert([
+      {
+        ...requiredFields,
+        status: "Pending",
+      },
+    ]);
     if (error) {
-      console.error('Error inserting data:', error);
-      alert('Error inserting data');
+      console.error("Error inserting data:", error);
+      alert("Error inserting data");
     } else {
-      alert('Successful Application!');
+      alert("Successful Application!");
+      setLoading(false);
       window.location.reload();
-    }
-  };
-  
-
-  const openModal = () => {
-    const modal = document.getElementById("my_modal_4");
-    if (modal) {
-      modal.showModal();
-    }
-  };
-
-  const closeModal = () => {
-    const modal = document.getElementById("my_modal_4");
-    if (modal) {
-      modal.close();
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    closeModal();
     showToast();
   };
 
@@ -100,220 +81,204 @@ const Apply = () => {
   const handleApplicationLetter = async (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
-
     if (selectedFile) {
-        try {
-            const filePath = `${selectedFile.name}`;
-            const { data, error } = await supabase.storage
-                .from('Applicant_Storage')
-                .upload(filePath, selectedFile);
-
-            if (error) {
-                throw error;
-            }
-            const { data: publicURL, error: urlError } = supabase.storage
-                .from('Applicant_Storage')
-                .getPublicUrl(filePath);
-
-            if (urlError) {
-                throw urlError;
-            }
-            console.log('Image URL:', publicURL.publicUrl);
-            setApplicationLetter(publicURL.publicUrl)
-        } catch (error) {
-            console.error('Error uploading image:', error);
-            alert('Error uploading image: ' + error.message);
+      try {
+        const filePath = `${selectedFile.name}`;
+        const { data, error } = await supabase.storage
+          .from("Applicant_Storage")
+          .upload(filePath, selectedFile);
+        if (error) {
+          throw error;
         }
+        const { data: publicURL, error: urlError } = supabase.storage
+          .from("Applicant_Storage")
+          .getPublicUrl(filePath);
+        if (urlError) {
+          throw urlError;
+        }
+        console.log("Image URL:", publicURL.publicUrl);
+        setApplicationLetter(publicURL.publicUrl);
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        alert("Error uploading image: " + error.message);
+      }
     }
-};
-const handleRecommendationLetter = async (e) => {
-  const selectedFile = e.target.files[0];
-  setFile(selectedFile);
+  };
 
-  if (selectedFile) {
+  const handleRecommendationLetter = async (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    if (selectedFile) {
       try {
-          const filePath = `${selectedFile.name}`;
-          const { data, error } = await supabase.storage
-              .from('Applicant_Storage')
-              .upload(filePath, selectedFile);
-
-          if (error) {
-              throw error;
-          }
-          const { data: publicURL, error: urlError } = supabase.storage
-              .from('Applicant_Storage')
-              .getPublicUrl(filePath);
-
-          if (urlError) {
-              throw urlError;
-          }
-          console.log('Image URL:', publicURL.publicUrl);
-          setRecommendationLetter(publicURL.publicUrl)
+        const filePath = `${selectedFile.name}`;
+        const { data, error } = await supabase.storage
+          .from("Applicant_Storage")
+          .upload(filePath, selectedFile);
+        if (error) {
+          throw error;
+        }
+        const { data: publicURL, error: urlError } = supabase.storage
+          .from("Applicant_Storage")
+          .getPublicUrl(filePath);
+        if (urlError) {
+          throw urlError;
+        }
+        console.log("Image URL:", publicURL.publicUrl);
+        setRecommendationLetter(publicURL.publicUrl);
       } catch (error) {
-          console.error('Error uploading image:', error);
-          alert('Error uploading image: ' + error.message);
+        console.error("Error uploading image:", error);
+        alert("Error uploading image: " + error.message);
       }
-  }
-};
-const handleITR = async (e) => {
-  const selectedFile = e.target.files[0];
-  setFile(selectedFile);
+    }
+  };
 
-  if (selectedFile) {
+  const handleITR = async (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    if (selectedFile) {
       try {
-          const filePath = `${selectedFile.name}`;
-          const { data, error } = await supabase.storage
-              .from('Applicant_Storage')
-              .upload(filePath, selectedFile);
-
-          if (error) {
-              throw error;
-          }
-          const { data: publicURL, error: urlError } = supabase.storage
-              .from('Applicant_Storage')
-              .getPublicUrl(filePath);
-
-          if (urlError) {
-              throw urlError;
-          }
-          console.log('Image URL:', publicURL.publicUrl);
-          setITR(publicURL.publicUrl)
+        const filePath = `${selectedFile.name}`;
+        const { data, error } = await supabase.storage
+          .from("Applicant_Storage")
+          .upload(filePath, selectedFile);
+        if (error) {
+          throw error;
+        }
+        const { data: publicURL, error: urlError } = supabase.storage
+          .from("Applicant_Storage")
+          .getPublicUrl(filePath);
+        if (urlError) {
+          throw urlError;
+        }
+        console.log("Image URL:", publicURL.publicUrl);
+        setITR(publicURL.publicUrl);
       } catch (error) {
-          console.error('Error uploading image:', error);
-          alert('Error uploading image: ' + error.message);
+        console.error("Error uploading image:", error);
+        alert("Error uploading image: " + error.message);
       }
-  }
-};
-const handleCopyITR = async (e) => {
-  const selectedFile = e.target.files[0];
-  setFile(selectedFile);
+    }
+  };
 
-  if (selectedFile) {
+  const handleCopyITR = async (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    if (selectedFile) {
       try {
-          const filePath = `${selectedFile.name}`;
-          const { data, error } = await supabase.storage
-              .from('Applicant_Storage')
-              .upload(filePath, selectedFile);
-
-          if (error) {
-              throw error;
-          }
-          const { data: publicURL, error: urlError } = supabase.storage
-              .from('Applicant_Storage')
-              .getPublicUrl(filePath);
-
-          if (urlError) {
-              throw urlError;
-          }
-          console.log('Image URL:', publicURL.publicUrl);
-          setCopyITR(publicURL.publicUrl)
+        const filePath = `${selectedFile.name}`;
+        const { data, error } = await supabase.storage
+          .from("Applicant_Storage")
+          .upload(filePath, selectedFile);
+        if (error) {
+          throw error;
+        }
+        const { data: publicURL, error: urlError } = supabase.storage
+          .from("Applicant_Storage")
+          .getPublicUrl(filePath);
+        if (urlError) {
+          throw urlError;
+        }
+        console.log("Image URL:", publicURL.publicUrl);
+        setCopyITR(publicURL.publicUrl);
       } catch (error) {
-          console.error('Error uploading image:', error);
-          alert('Error uploading image: ' + error.message);
+        console.error("Error uploading image:", error);
+        alert("Error uploading image: " + error.message);
       }
-  }
-};
-const handleCedula = async (e) => {
-  const selectedFile = e.target.files[0];
-  setFile(selectedFile);
+    }
+  };
 
-  if (selectedFile) {
+  const handleCedula = async (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    if (selectedFile) {
       try {
-          const filePath = `${selectedFile.name}`;
-          const { data, error } = await supabase.storage
-              .from('Applicant_Storage')
-              .upload(filePath, selectedFile);
-
-          if (error) {
-              throw error;
-          }
-          const { data: publicURL, error: urlError } = supabase.storage
-              .from('Applicant_Storage')
-              .getPublicUrl(filePath);
-
-          if (urlError) {
-              throw urlError;
-          }
-          console.log('Image URL:', publicURL.publicUrl);
-          setCedula(publicURL.publicUrl)
+        const filePath = `${selectedFile.name}`;
+        const { data, error } = await supabase.storage
+          .from("Applicant_Storage")
+          .upload(filePath, selectedFile);
+        if (error) {
+          throw error;
+        }
+        const { data: publicURL, error: urlError } = supabase.storage
+          .from("Applicant_Storage")
+          .getPublicUrl(filePath);
+        if (urlError) {
+          throw urlError;
+        }
+        console.log("Image URL:", publicURL.publicUrl);
+        setCedula(publicURL.publicUrl);
       } catch (error) {
-          console.error('Error uploading image:', error);
-          alert('Error uploading image: ' + error.message);
+        console.error("Error uploading image:", error);
+        alert("Error uploading image: " + error.message);
       }
-  }
-};
-const handleVoters = async (e) => {
-  const selectedFile = e.target.files[0];
-  setFile(selectedFile);
+    }
+  };
 
-  if (selectedFile) {
+  const handleVoters = async (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    if (selectedFile) {
       try {
-          const filePath = `${selectedFile.name}`;
-          const { data, error } = await supabase.storage
-              .from('Applicant_Storage')
-              .upload(filePath, selectedFile);
-
-          if (error) {
-              throw error;
-          }
-          const { data: publicURL, error: urlError } = supabase.storage
-              .from('Applicant_Storage')
-              .getPublicUrl(filePath);
-
-          if (urlError) {
-              throw urlError;
-          }
-          console.log('Image URL:', publicURL.publicUrl);
-          setVoters(publicURL.publicUrl)
+        const filePath = `${selectedFile.name}`;
+        const { data, error } = await supabase.storage
+          .from("Applicant_Storage")
+          .upload(filePath, selectedFile);
+        if (error) {
+          throw error;
+        }
+        const { data: publicURL, error: urlError } = supabase.storage
+          .from("Applicant_Storage")
+          .getPublicUrl(filePath);
+        if (urlError) {
+          throw urlError;
+        }
+        console.log("Image URL:", publicURL.publicUrl);
+        setVoters(publicURL.publicUrl);
       } catch (error) {
-          console.error('Error uploading image:', error);
-          alert('Error uploading image: ' + error.message);
+        console.error("Error uploading image:", error);
+        alert("Error uploading image: " + error.message);
       }
-  }
-};
-const handleRecord = async (e) => {
-  const selectedFile = e.target.files[0];
-  setFile(selectedFile);
+    }
+  };
 
-  if (selectedFile) {
+  const handleRecord = async (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    if (selectedFile) {
       try {
-          const filePath = `${selectedFile.name}`;
-          const { data, error } = await supabase.storage
-              .from('Applicant_Storage')
-              .upload(filePath, selectedFile);
-
-          if (error) {
-              throw error;
-          }
-          const { data: publicURL, error: urlError } = supabase.storage
-              .from('Applicant_Storage')
-              .getPublicUrl(filePath);
-
-          if (urlError) {
-              throw urlError;
-          }
-          console.log('Image URL:', publicURL.publicUrl);
-          setRecentCard(publicURL.publicUrl)
+        const filePath = `${selectedFile.name}`;
+        const { data, error } = await supabase.storage
+          .from("Applicant_Storage")
+          .upload(filePath, selectedFile);
+        if (error) {
+          throw error;
+        }
+        const { data: publicURL, error: urlError } = supabase.storage
+          .from("Applicant_Storage")
+          .getPublicUrl(filePath);
+        if (urlError) {
+          throw urlError;
+        }
+        console.log("Image URL:", publicURL.publicUrl);
+        setRecentCard(publicURL.publicUrl);
       } catch (error) {
-          console.error('Error uploading image:', error);
-          alert('Error uploading image: ' + error.message);
+        console.error("Error uploading image:", error);
+        alert("Error uploading image: " + error.message);
       }
-  }
-};
+    }
+  };
 
   return (
     <>
       <Navbar />
-      <div className="container mx-auto p-5 mb-10">
-        <div className="mb-6 flex justify-between">
-          <span className="mt-3 text-2xl font-semibold px-3 flex gap-2">
-            <SiGooglescholar className="text-yellow-400 mt-1" />
-            Fill out Application Form
-          </span>
-        </div>
-        {/* Card wrapping the form */}
-        <div className="card bg-base-100 shadow-xl p-5 border border-gray-300">
+      <div className="container mx-auto p-5 mb-10 px-8">
+        <div className="card bg-base-100 shadow-2xl p-5 border border-gray-300 px-10 py-10">
           <form onSubmit={handleSubmit}>
+            <div className="mb-6 flex justify-between">
+              <span className="mt-3 lg:text-2xl sm:text-md font-semibold px-3 flex gap-2">
+                <SiGooglescholar className="text-yellow-400 mt-1" />
+                Scholarship Application Form
+              </span>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="label">
@@ -331,7 +296,12 @@ const handleRecord = async (e) => {
                 <label className="label">
                   <span className="label-text">Sex</span>
                 </label>
-                <select className="select select-bordered w-full" required value= {sex} onChange={(e) => setSex(e.target.value)}>
+                <select
+                  className="select select-bordered w-full"
+                  required
+                  value={sex}
+                  onChange={(e) => setSex(e.target.value)}
+                >
                   <option>Male</option>
                   <option>Female</option>
                   <option>Other</option>
@@ -457,7 +427,9 @@ const handleRecord = async (e) => {
               </div>
               <div>
                 <label className="label">
-                  <span className="label-text">*Latest Community Tax / Cedula</span>
+                  <span className="label-text">
+                    *Latest Community Tax / Cedula
+                  </span>
                 </label>
                 <input
                   type="file"
@@ -467,7 +439,9 @@ const handleRecord = async (e) => {
               </div>
               <div>
                 <label className="label">
-                  <span className="label-text">*Voter's Registration Certificate</span>
+                  <span className="label-text">
+                    *Voter's Registration Certificate
+                  </span>
                 </label>
                 <input
                   type="file"
@@ -486,13 +460,49 @@ const handleRecord = async (e) => {
                 />
               </div>
             </div>
-            <div className="modal-action mt-4">
-              <button
-                className="btn bg-blue-700 border-blue-700 hover:bg-blue-500 text-white w-full"
+
+            <div className="modal-action mt-10">
+              {/* <button
+                className="btn bg-blue-700 border-blue-700 hover:bg-blue-500 text-white lg:w-1/6 w-full"
                 type="submit"
                 onClick={create_application}
               >
                 Submit Application
+              </button> */}
+
+              <button
+                className="btn bg-blue-700 border-blue-700 hover:bg-blue-500 text-white lg:w-1/6 w-full"
+                type="submit"
+                onClick={create_application}
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="flex items-center justify-center">
+                    <svg
+                      className="animate-spin h-5 w-5 mr-3 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8H4z"
+                      ></path>
+                    </svg>
+                    Loading...
+                  </div>
+                ) : (
+                  "Submit Application"
+                )}
               </button>
             </div>
           </form>
@@ -502,7 +512,7 @@ const handleRecord = async (e) => {
       {/* Toast Notification */}
       <div
         id="toastify"
-        className="toast toast-bottom toast-end animate-bounce"
+        className="toast toast-top toast-right animate-bounce"
         style={{ visibility: "hidden" }}
       >
         <div className="alert alert-success">
