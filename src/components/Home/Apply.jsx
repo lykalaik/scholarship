@@ -1,9 +1,10 @@
 import Navbar from "./Navbar.jsx";
 import { SiGooglescholar } from "react-icons/si";
 import supabase from "../supabaseClient.jsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Apply = () => {
+  const [open, setOpen] = useState('');
   const [file, setFile] = useState("");
   const [application_letter, setApplicationLetter] = useState("");
   const [recommendation_letter, setRecommendationLetter] = useState("");
@@ -21,9 +22,29 @@ const Apply = () => {
   const [school, setSchool] = useState("");
   const [course, setCourse] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [submitshowModal, setSubmitShowModal] = useState(false);
+  const [missingFields, setMissingFields] = useState([]);
+  
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("email", 'admin@gmail.com');
+        if (error) throw error;
+
+        setOpen(data[0].is_open);
+      } catch (error) {
+        console.error("Error fetching data:", error.message);
+      }
+    };
+    fetchData();
+  }, []);
 
   const create_application = async () => {
-    setLoading(true);
     const requiredFields = {
       full_name,
       address,
@@ -41,18 +62,46 @@ const Apply = () => {
       voters,
       recent_card,
     };
-    for (const [key, value] of Object.entries(requiredFields)) {
-      if (value === null || value === undefined) {
-        alert(`Please provide a valid value for ${key}`);
-        return;
-      }
+  
+    // Collect missing fields
+    const missingFields = Object.entries(requiredFields).filter(([key, value]) => value === null || value === "").map(([key]) => key);
+  
+    if (missingFields.length > 0) {
+      // Show modal with missing fields
+      setMissingFields(missingFields);
+      setShowModal(true);
+      return;
     }
+    setSubmitShowModal(true);
+  };
+
+  const handleConfirmSubmit = async () => {
+    const requiredFields = {
+      full_name,
+      address,
+      sex,
+      email_address,
+      gpa,
+      mobile_number,
+      school,
+      course,
+      application_letter,
+      recommendation_letter,
+      itr,
+      copy_itr,
+      cedula,
+      voters,
+      recent_card,
+    };
+
+    // Submit application to the database
     const { data, error } = await supabase.from("application").insert([
       {
         ...requiredFields,
         status: "Pending",
       },
     ]);
+
     if (error) {
       console.error("Error inserting data:", error);
       alert("Error inserting data");
@@ -65,19 +114,12 @@ const Apply = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    showToast();
+    create_application(); // Initiate the modal for confirmation
   };
 
-  const showToast = () => {
-    const toast = document.getElementById("toastify");
-    if (toast) {
-      toast.style.visibility = "visible";
-      setTimeout(() => {
-        toast.style.visibility = "hidden";
-      }, 3000);
-    }
-  };
-
+  const handleCloseModal = () => {
+    setShowModal(false);
+  }
   const handleApplicationLetter = async (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
@@ -272,7 +314,8 @@ const Apply = () => {
       <Navbar />
       <div className="container mx-auto p-5 mb-10 px-8">
         <div className="card bg-base-100 shadow-2xl p-5 border border-gray-300 px-10 py-10">
-          <form onSubmit={handleSubmit}>
+        {open === "Yes" ? (
+          <div>
             <div className="mb-6 flex justify-between">
               <span className="mt-3 lg:text-2xl sm:text-md font-semibold px-3 flex gap-2">
                 <SiGooglescholar className="text-yellow-400 mt-1" />
@@ -286,7 +329,7 @@ const Apply = () => {
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g., Marc Dominic Gerasmio"
+                  placeholder="e.g., Juan Dela Cruz"
                   className="input input-bordered w-full"
                   required
                   onChange={(e) => setFullName(e.target.value)}
@@ -345,11 +388,11 @@ const Apply = () => {
               </div>
               <div>
                 <label className="label">
-                  <span className="label-text">Last School Attended</span>
+                  <span className="label-text">Last School Attended (should not be abbreviated)</span>
                 </label>
                 <input
                   type="text"
-                  placeholder="School Name"
+                  placeholder="e.g. Agusan National HighSchool"
                   className="input input-bordered w-full"
                   required
                   onChange={(e) => setSchool(e.target.value)}
@@ -369,7 +412,7 @@ const Apply = () => {
               </div>
               <div>
                 <label className="label">
-                  <span className="label-text">Course</span>
+                  <span className="label-text">Course/Strand (should not be abbreviated)</span>
                 </label>
                 <input
                   type="text"
@@ -379,6 +422,11 @@ const Apply = () => {
                   onChange={(e) => setCourse(e.target.value)}
                 />
               </div>
+              <div className="flex flex-col items-start">
+              <span className="text-red-400 mt-3">*Note: Filename for images should be "LASTNAME_FIRSTNAME_FILENAME". </span>
+              <span className="text-red-400 mt-3">Example. "DELACRUZ_JUAN_APPLICATIONLETTER" </span>
+              </div>
+              <br/>
               <div>
                 <label className="label">
                   <span className="label-text">*Application Letter</span>
@@ -472,8 +520,7 @@ const Apply = () => {
 
               <button
                 className="btn bg-blue-700 border-blue-700 hover:bg-blue-500 text-white lg:w-1/6 w-full"
-                type="submit"
-                onClick={create_application}
+                onClick={handleSubmit}
                 disabled={loading}
               >
                 {loading ? (
@@ -505,7 +552,17 @@ const Apply = () => {
                 )}
               </button>
             </div>
-          </form>
+          </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-100">
+                <span className="text-2xl font-semibold text-gray-600">
+                  Application for Butuan Scholarship is Closed!
+                </span>
+                <span className="text-1xl font-semibold text-gray-600 mt-2">
+                  For Updates, Visit CEBDD Facebook Page or Wait for further announcements on the Home Page. Have a great day!
+                </span>
+              </div>
+              )}
         </div>
       </div>
 
@@ -521,6 +578,76 @@ const Apply = () => {
           </span>
         </div>
       </div>
+
+        {/* Modal for missing fields */}
+        {showModal && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <h2 className="text-xl font-semibold mb-4">Please Fill out Blank Fields:</h2>
+              <ul className="list-disc pl-5">
+                {missingFields.map((field, index) => (
+                  <li key={index}>{field.replace(/_/g, " ").toUpperCase()}</li>
+                ))}
+              </ul>
+              <button
+                className="mt-4 btn bg-blue-700 border-blue-700 hover:bg-blue-500 text-white"
+                onClick={() => setShowModal(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
+          {/* Confirmation Modal */}
+          {submitshowModal && (
+  <div className="modal modal-open">
+    <div className="modal-box">
+      <h2 className="text-2xl font-semibold mb-4">Confirm Your Application Details</h2>
+      <div className="space-y-4">
+        <div className="flex justify-between">
+          <h6 className="font-semibold">Full Name:</h6>
+          <h6>{full_name}</h6>
+        </div>
+        <div className="flex justify-between">
+          <h6 className="font-semibold">Address:</h6>
+          <h6>{address}</h6>
+        </div>
+        <div className="flex justify-between">
+          <h6 className="font-semibold">Sex:</h6>
+          <h6>{sex}</h6>
+        </div>
+        <div className="flex justify-between">
+          <h6 className="font-semibold">Email Address:</h6>
+          <h6>{email_address}</h6>
+        </div>
+        <div className="flex justify-between">
+          <h6 className="font-semibold">GPA:</h6>
+          <h6>{gpa}</h6>
+        </div>
+        <div className="flex justify-between">
+          <h6 className="font-semibold">Mobile Number:</h6>
+          <h6>{mobile_number}</h6>
+        </div>
+        <div className="flex justify-between">
+          <h6 className="font-semibold">Last School Attended:</h6>
+          <h6>{school}</h6>
+        </div>
+        <div className="flex justify-between">
+          <h6 className="font-semibold">Course/Strand:</h6>
+          <h6>{course}</h6>
+        </div>
+      </div>
+      <div className="modal-action">
+        <button className="btn" onClick={() => setSubmitShowModal(false)}>Cancel</button>
+        <button className="btn btn-primary" onClick={handleConfirmSubmit}>
+          Confirm and Submit
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </>
   );
 };

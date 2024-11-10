@@ -11,9 +11,11 @@ const Applicants = () => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [selectedApplicant, setSelectedApplicant] = useState(null);
   const [email, setEmail] = useState("");
+  const [appstatus, setAppStatus] = useState('');
 
   useEffect(() => {
     fetch_applicants();
+    fetch_user();
   }, []);
 
   const fetch_applicants = async () => {
@@ -30,6 +32,35 @@ const Applicants = () => {
     }
   };
 
+  const fetch_user = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("email", 'admin@gmail.com')
+      if (error) throw error;
+      setAppStatus(data[0].is_open);
+    } catch (error) {
+      alert("An unexpected error occurred.");
+      console.error("Error during registration:", error.message);
+    }
+  };
+
+  const updateAppStatus = async () => {
+    const newStatus = appstatus === "Yes" ? "No" : "Yes"; 
+    try {
+      const { error } = await supabase
+        .from("users")
+        .update({ is_open: newStatus }) 
+        .eq("email", 'admin@gmail.com');
+      if (error) throw error;
+      setAppStatus(newStatus); 
+    } catch (error) {
+      alert("Failed to update status.");
+      console.error("Error updating status:", error.message);
+    }
+  };
+  
   const openModal = (applicant) => {
     setSelectedApplicant(applicant);
     setEmail(applicant.email_address);
@@ -215,8 +246,20 @@ const Applicants = () => {
                   />
                 </svg>
               </label>
+              <div className="flex items-center gap-2">
+                <label className="text-gray-700">Open Applications?</label>
+                <button
+                  onClick={updateAppStatus}
+                  className={`btn btn-sm ${
+                    appstatus === "Yes" ? "btn-primary" : "btn-secondary"
+                  }`}
+                >
+                  {appstatus === "Yes" ? "Yes" : "No"}
+                </button>
+              </div>
             </div>
           </div>
+          
 
           <div className="card rounded shadow-xl bordered p-5 bg-white">
             <div className="overflow-x-auto">

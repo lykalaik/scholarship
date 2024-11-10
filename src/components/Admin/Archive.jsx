@@ -8,6 +8,7 @@ import supabase from "../supabaseClient";
 const Archive = () => {
   const [scholars, setScholars] = useState([]);
   const [scholarshipType, setScholarshipType] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetch_scholars();
@@ -64,12 +65,27 @@ const Archive = () => {
     saveAs(fileBlob, "scholars.xlsx");
   };
 
+  const filteredScholars = scholars.filter(
+    (scholar) =>
+      (!scholarshipType || scholar.scholarship_type === scholarshipType) &&
+      (scholar.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        scholar.course.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        scholar.school.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-mono">
       <Sidebar />
       <main className="flex-1 p-4 lg:p-8 ml-0 lg:ml-64 transition-all duration-300">
         <div className="lg:flex lg:justify-end mb-5">
           <div className="flex gap-2">
+         < input
+            type="text"
+            className="input input-bordered w-100"
+            placeholder="Address, Course, or School"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
             <select
               className="select select-bordered w-full max-w-xs"
               value={scholarshipType}
@@ -87,7 +103,6 @@ const Archive = () => {
             </button>
           </div>
         </div>
-
         <div className="card rounded shadow-xl bordered p-5 bg-white">
           <div className="overflow-x-auto">
             <table className="table table-zebra">
@@ -105,41 +120,35 @@ const Archive = () => {
                 </tr>
               </thead>
               <tbody>
-                {scholars
-                  .filter(
-                    (scholar) =>
-                      !scholarshipType ||
-                      scholar.scholarship_type === scholarshipType
-                  )
-                  .map((applicant) => (
-                    <tr key={applicant.id}>
-                      <td>{applicant.full_name}</td>
-                      <td>{applicant.address}</td>
-                      <td>{applicant.contact_no}</td>
-                      <td>{applicant.school}</td>
-                      <td>{applicant.course}</td>
-                      <td>{applicant.sex}</td>
-                      <td>{applicant.status}</td>
-                      <td>{applicant.scholarship_type}</td>
-                      <td>
-                        <button
-                          className={`btn btn-sm text-white ${
-                            applicant.allowed_renewal === "Yes"
-                              ? "btn-success"
-                              : "btn-error"
-                          }`}
-                          onClick={() =>
-                            toggleAllowedRenewal(
-                              applicant.id,
-                              applicant.allowed_renewal
-                            )
-                          }
-                        >
-                          {applicant.allowed_renewal === "Yes" ? "Yes" : "No"}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                {filteredScholars.map((applicant) => (
+                  <tr key={applicant.id}>
+                    <td>{applicant.full_name}</td>
+                    <td>{applicant.address}</td>
+                    <td>{applicant.contact_no}</td>
+                    <td>{applicant.school}</td>
+                    <td>{applicant.course}</td>
+                    <td>{applicant.sex}</td>
+                    <td>{applicant.status}</td>
+                    <td>{applicant.scholarship_type}</td>
+                    <td>
+                      <button
+                        className={`btn btn-sm text-white ${
+                          applicant.allowed_renewal === "Yes"
+                            ? "btn-success"
+                            : "btn-error"
+                        }`}
+                        onClick={() =>
+                          toggleAllowedRenewal(
+                            applicant.id,
+                            applicant.allowed_renewal
+                          )
+                        }
+                      >
+                        {applicant.allowed_renewal === "Yes" ? "Yes" : "No"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

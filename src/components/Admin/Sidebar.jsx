@@ -84,6 +84,14 @@ const Sidebar = () => {
                 Archive
               </li>
             </NavLink>
+            <NavLink
+              to="/news"
+              className={({ isActive }) => (isActive ? "text-yellow-400" : "")}
+            >
+              <li className="p-2 hover:bg-gray-700 rounded cursor-pointer hover:translate-y-1 transition-transform">
+                News & Announcements
+              </li>
+            </NavLink>
           </ul>
           <button
             onClick={() => openModal()}

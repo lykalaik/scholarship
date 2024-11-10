@@ -3,12 +3,12 @@ import { RiFundsBoxFill } from "react-icons/ri";
 import { MdAnnouncement } from "react-icons/md";
 import { useState, useEffect } from "react";
 import supabase from "../supabaseClient";
-import Announcements from "./Announcements.jsx";
 
 const UserDashboard = () => {
   const [userData, setUserData] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [announcements, setAnnouncements] = useState([]); // Store fetched announcements
   const scholarName = sessionStorage.getItem("scholarData");
 
   useEffect(() => {
@@ -29,11 +29,23 @@ const UserDashboard = () => {
     }
   };
 
+  const fetch_announcements = async () => {
+    try {
+      const { data, error } = await supabase.from("announcements").select("*");
+      if (error) throw error;
+      setAnnouncements(data); // Store fetched announcements
+    } catch (error) {
+      alert("An unexpected error occurred.");
+      console.error("Error during fetching announcements:", error.message);
+    }
+  };
+
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
 
-  const openModal = () => {
+  const openModal = async () => {
+    await fetch_announcements(); // Fetch announcements when opening modal
     setModalOpen(true);
   };
 
@@ -45,13 +57,6 @@ const UserDashboard = () => {
     sessionStorage.removeItem("scholarData");
     window.location.href = "/";
   };
-
-  // Sample announcement
-  const notifications = [
-    "New scholarship opportunity available!",
-    "Application deadline approaching!",
-    "You have been awarded a scholarship!",
-  ];
 
   return (
     <>
@@ -98,10 +103,10 @@ const UserDashboard = () => {
             onClick={openModal}
             className="btn btn-ghost flex items-center"
           >
-            <MdAnnouncement className="text-lg sm:text-xl md:text-2xl" />{" "}
+            <MdAnnouncement className="text-lg sm:text-xl md:text-2xl" />
             <span className="ml-2 text-sm sm:text-lg md:text-xl">
               Announcements
-            </span>{" "}
+            </span>
           </button>
           <button
             onClick={handleLogout}
@@ -169,11 +174,31 @@ const UserDashboard = () => {
         <RenewApplication />
       </div>
 
-      <Announcements
-        isOpen={modalOpen}
-        onClose={closeModal}
-        notifications={notifications}
-      />
+      {/* Announcements Modal */}
+      {modalOpen && (
+        <div className="modal modal-open ">
+          <div className="modal-box w-full max-w-4xl">
+            <h2 className="text-xl font-bold">Announcements</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+              {announcements.length === 0 ? (
+                <p>No announcements available.</p>
+              ) : (
+                announcements.map((announcement, index) => (
+                  <div key={index} className="card shadow-lg border p-4">
+                    <h3 className="font-semibold">{announcement.title}</h3>
+                    <p>{announcement.body}</p>
+                  </div>
+                ))
+              )}
+            </div>
+            <div className="modal-action">
+              <button onClick={closeModal} className="btn btn-primary">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
