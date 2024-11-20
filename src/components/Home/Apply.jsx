@@ -25,6 +25,7 @@ const Apply = () => {
   const [showModal, setShowModal] = useState(false);
   const [submitshowModal, setSubmitShowModal] = useState(false);
   const [missingFields, setMissingFields] = useState([]);
+  const [idnumber, setIDNumber] = useState('');
   
   
   useEffect(() => {
@@ -61,24 +62,23 @@ const Apply = () => {
       voters,
       recent_card,
     };
-
-    // Submit application to the database
     const { data, error } = await supabase.from("application").insert([
       {
         ...requiredFields,
         status: "Pending",
       },
-    ]);
-
+    ])
+    .select();
     if (error) {
       console.error("Error inserting data:", error);
       alert("Error inserting data");
     } else {
-      alert("Successful Application!");
+      setSubmitShowModal(false);
+      setIDNumber(data[0].id);
       setLoading(false);
-      window.location.reload();
+      setShowModal(true);
     }
-  };
+  };    
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -276,6 +276,11 @@ const Apply = () => {
       }
     }
   };
+
+  const showid = () =>{
+    setShowModal(false)
+    window.location.reload();
+  }
 
   return (
     <>
@@ -544,15 +549,12 @@ const Apply = () => {
         {showModal && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-6 rounded-lg shadow-lg">
-              <h2 className="text-xl font-semibold mb-4">Please Fill out Blank Fields:</h2>
-              <ul className="list-disc pl-5">
-                {missingFields.map((field, index) => (
-                  <li key={index}>{field.replace(/_/g, " ").toUpperCase()}</li>
-                ))}
-              </ul>
+              <h2 className="text-xl mb-4">Your application has been successfully submitted!</h2>
+              <h3 className="text-xl mb-4">Use this Application Number to track your status. Thank you for your interest!</h3>
+              <h3 className="text-xl font-semibold mb-4">Application Number: {idnumber}</h3>
               <button
                 className="mt-4 btn bg-blue-700 border-blue-700 hover:bg-blue-500 text-white"
-                onClick={() => setShowModal(false)}
+                onClick={showid}
               >
                 Close
               </button>
