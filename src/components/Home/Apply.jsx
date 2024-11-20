@@ -43,38 +43,6 @@ const Apply = () => {
     };
     fetchData();
   }, []);
-
-  const create_application = async () => {
-    const requiredFields = {
-      full_name,
-      address,
-      sex,
-      email_address,
-      gpa,
-      mobile_number,
-      school,
-      course,
-      application_letter,
-      recommendation_letter,
-      itr,
-      copy_itr,
-      cedula,
-      voters,
-      recent_card,
-    };
-  
-    // Collect missing fields
-    const missingFields = Object.entries(requiredFields).filter(([key, value]) => value === null || value === "").map(([key]) => key);
-  
-    if (missingFields.length > 0) {
-      // Show modal with missing fields
-      setMissingFields(missingFields);
-      setShowModal(true);
-      return;
-    }
-    setSubmitShowModal(true);
-  };
-
   const handleConfirmSubmit = async () => {
     const requiredFields = {
       full_name,
@@ -114,7 +82,7 @@ const Apply = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    create_application(); // Initiate the modal for confirmation
+    setSubmitShowModal(true); 
   };
 
   const handleCloseModal = () => {
@@ -322,6 +290,7 @@ const Apply = () => {
                 Scholarship Application Form
               </span>
             </div>
+            <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="label">
@@ -508,19 +477,10 @@ const Apply = () => {
                 />
               </div>
             </div>
-
             <div className="modal-action mt-10">
-              {/* <button
-                className="btn bg-blue-700 border-blue-700 hover:bg-blue-500 text-white lg:w-1/6 w-full"
-                type="submit"
-                onClick={create_application}
-              >
-                Submit Application
-              </button> */}
-
               <button
+              type="submit"
                 className="btn bg-blue-700 border-blue-700 hover:bg-blue-500 text-white lg:w-1/6 w-full"
-                onClick={handleSubmit}
                 disabled={loading}
               >
                 {loading ? (
@@ -552,6 +512,7 @@ const Apply = () => {
                 )}
               </button>
             </div>
+            </form>
           </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-100">
