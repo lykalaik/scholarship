@@ -452,7 +452,7 @@ const Apply = () => {
               <div>
                 <label className="label">
                   <span className="label-text">
-                    *Latest Income Tax Return with Annual Gross Income
+                    *1x1 Picture
                   </span>
                 </label>
                 <input

@@ -7,6 +7,7 @@ const Scholars = () => {
   const [selectedScholar, setSelectedScholar] = useState(null);
   const [amount, setAmount] = useState("");
   const [scholarshipType, setScholarshipType] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetch_scholars();
@@ -77,10 +78,12 @@ const Scholars = () => {
 
   const formattedDate = `${yyyy}-${mm}-${dd}`;
 
-  // Filter scholars based on selected scholarship type
-  const filteredScholars = scholarshipType
-    ? scholars.filter((scholar) => scholar.scholarship_type === scholarshipType)
-    : scholars;
+  // Filter scholars based on selected scholarship type and search query
+  const filteredScholars = scholars.filter(
+    (scholar) =>
+      (!scholarshipType || scholar.scholarship_type === scholarshipType) &&
+      scholar.full_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <>
@@ -89,7 +92,14 @@ const Scholars = () => {
         <main className="flex-1 p-4 lg:p-8 ml-0 lg:ml-64 transition-all duration-300">
           <div className="lg:flex lg:justify-end mb-3">
             <div className="flex gap-2 justify-end">
-              <select
+              <input
+                type="text"
+                placeholder="Search by name"
+                className="input input-bordered lg:w-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+               <select
                 className="select select-bordered sm:w-1/3 lg:w-full"
                 onChange={(e) => setScholarshipType(e.target.value)}
               >

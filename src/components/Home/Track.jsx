@@ -24,14 +24,15 @@ const Track = () => {
   const track_status = (e) => {
     e.preventDefault();
     if (name) {
-      const filtered = statusData.filter((app) =>
-        app.full_name.toLowerCase().includes(name.toLowerCase())
+      const filtered = statusData.filter((app) => 
+        app.id.toString().includes(name.toString()) // Convert both to string for comparison
       );
       setFilteredData(filtered);
     } else {
       setFilteredData(statusData);
     }
   };
+  
 
   return (
     <>
@@ -77,7 +78,7 @@ const Track = () => {
               <div key={app.id} className="mb-3 p-4 rounded shadow-sm border">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
                   <h1 className="text-base md:text-lg mb-2 md:mb-0 font-semibold">
-                    Applicant Name: {app.full_name}
+                    Applicant ID: {app.id}
                   </h1>
                   <h1 className="text-base md:text-lg font-semibold">
                     Application Status:{" "}

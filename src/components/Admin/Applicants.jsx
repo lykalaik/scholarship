@@ -113,7 +113,7 @@ const Applicants = () => {
       from_name: "Butuan Scholarship",
       to_name: email,
       message:
-        "Thankyou so much for taking interest in applying on this scholarship. Unfortunately, we regret to inform you that your application has not been shortlisted.",
+        "Thank you so much for taking interest in applying on this scholarship. Unfortunately, we regret to inform you that your application has not been shortlisted.",
       credentials: "Appreciate the time you spent, once again Thankyou!",
       reply_to: "scholarship@gmail.com",
     };
@@ -154,7 +154,7 @@ const Applicants = () => {
       from_name: "Butuan Scholarship",
       to_name: email,
       message:
-        "Thankyou so much for taking interest in applying on this scholarship. We are glad to inform you that your application has been chosen.",
+        "Thank you so much for taking interest in applying on this scholarship. We are glad to inform you that your application has been chosen.",
       credentials:
         "To proceed on your account, login using your email and contact number as your password",
       reply_to: "scholarship@gmail.com",

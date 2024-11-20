@@ -81,7 +81,7 @@ const Sidebar = () => {
               className={({ isActive }) => (isActive ? "text-yellow-400" : "")}
             >
               <li className="p-2 hover:bg-gray-700 rounded cursor-pointer hover:translate-y-1 transition-transform">
-                Archive
+                File Lists
               </li>
             </NavLink>
             <NavLink
