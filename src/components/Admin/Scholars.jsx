@@ -82,7 +82,11 @@ const Scholars = () => {
   const filteredScholars = scholars.filter(
     (scholar) =>
       (!scholarshipType || scholar.scholarship_type === scholarshipType) &&
-      scholar.full_name.toLowerCase().includes(searchQuery.toLowerCase())
+      scholar.full_name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      scholar.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      scholar.course.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      scholar.school.toLowerCase().includes(searchQuery.toLowerCase())
+      
   );
 
   return (

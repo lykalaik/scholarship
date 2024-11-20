@@ -216,7 +216,10 @@ const Applicants = () => {
   };
 
   const filteredApplicants = applicant.filter((app) =>
-    app.full_name.toLowerCase().includes(searchTerm.toLowerCase())
+    app.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  app.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  app.school.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  app.course.toLowerCase().includes(searchTerm.toLowerCase())
   );
   return (
     <>

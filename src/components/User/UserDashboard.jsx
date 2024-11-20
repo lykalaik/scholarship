@@ -384,7 +384,7 @@ const UserDashboard = () => {
 
      {/* Card for Submitted Images */}
 {/* Card for Submitted Images */}
-<div className="card shadow-lg border p-4">
+<div className="card shadow-lg border p-4 mt-5">
   <h3 className="font-semibold text-lg">Renewal Documents - {formatDate(renewalData.created_at)}</h3>
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mt-2">
     {renewalData?.recommendation && (

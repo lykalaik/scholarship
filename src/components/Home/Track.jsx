@@ -48,7 +48,7 @@ const Track = () => {
             <input
               type="text"
               className="grow p-2 text-sm md:text-base"
-              placeholder="Search your name"
+              placeholder="Search Application Number"
               onChange={(e) => setName(e.target.value)}
             />
             <svg
