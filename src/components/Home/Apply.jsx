@@ -24,7 +24,6 @@ const Apply = () => {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [submitshowModal, setSubmitShowModal] = useState(false);
-  const [missingFields, setMissingFields] = useState([]);
   const [idnumber, setIDNumber] = useState('');
   
   
@@ -85,9 +84,6 @@ const Apply = () => {
     setSubmitShowModal(true); 
   };
 
-  const handleCloseModal = () => {
-    setShowModal(false);
-  }
   const handleApplicationLetter = async (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
