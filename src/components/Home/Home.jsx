@@ -69,11 +69,11 @@ const Home = () => {
                 key={index}
                 className={`carousel-item w-full ${index === currentIndex ? "block" : "hidden"}`}
               >
-                <img src={image.picture} className="w-full h-64" alt={`Slide ${index + 1}`} />
+                <img src={image.picture} className="w-full h-72" alt={`Slide ${index + 1}`} />
               </div>
             ))
           ) : (
-            <p>Loading images...</p> // Fallback if images are still loading
+            <p>Loading images...</p> 
           )}
         </div>
         

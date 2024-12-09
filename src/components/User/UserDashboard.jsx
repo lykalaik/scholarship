@@ -1,6 +1,8 @@
 import RenewApplication from "./RenewApplication";
 import { RiFundsBoxFill } from "react-icons/ri";
 import { MdAnnouncement } from "react-icons/md";
+import { FaBell } from "react-icons/fa6";
+import { FaUser } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import supabase from "../supabaseClient";
 
@@ -160,7 +162,7 @@ const UserDashboard = () => {
             onClick={openModal}
             className="btn btn-ghost flex items-center"
           >
-            <MdAnnouncement className="text-lg sm:text-xl md:text-xl" />
+            <FaBell  className="text-lg sm:text-xl md:text-xl" />
             <span className="ml-2 text-sm sm:text-lg md:text-l">
               Announcements
             </span>
@@ -169,7 +171,7 @@ const UserDashboard = () => {
             onClick={openPModal}
             className="btn btn-ghost flex items-center"
           >
-            <MdAnnouncement className="text-lg sm:text-xl md:text-xl" />
+            <FaUser  className="text-lg sm:text-xl md:text-xl" />
             <span className="ml-2 text-sm sm:text-lg md:text-l">
               Profile
             </span>
@@ -228,7 +230,7 @@ const UserDashboard = () => {
                 {userData.map((user, index) => (
                   <tr key={index}>
                     <td>{user.date_funded}</td>
-                    <td>${user.amount}</td>
+                    <td>₱{user.amount}</td>
                     <td>{user.scholarship_type}</td>
                   </tr>
                 ))}

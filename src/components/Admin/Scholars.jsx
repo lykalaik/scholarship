@@ -83,10 +83,8 @@ const Scholars = () => {
     (scholar) =>
       (!scholarshipType || scholar.scholarship_type === scholarshipType) &&
       scholar.full_name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      scholar.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      scholar.course.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      scholar.school.toLowerCase().includes(searchQuery.toLowerCase())
-      
+      scholar.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      scholar.scholarship_type?.toLowerCase().trim() === searchQuery.toLowerCase().trim()
   );
 
   return (
@@ -98,19 +96,11 @@ const Scholars = () => {
             <div className="flex gap-2 justify-end">
               <input
                 type="text"
-                placeholder="Search by name"
+                placeholder="Search..."
                 className="input input-bordered lg:w-full"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-               <select
-                className="select select-bordered sm:w-1/3 lg:w-full"
-                onChange={(e) => setScholarshipType(e.target.value)}
-              >
-                <option value="">Scholarship Type:</option>
-                <option value="New">New</option>
-                <option value="Renewal">Renewal</option>
-              </select>
             </div>
           </div>
 
@@ -120,13 +110,9 @@ const Scholars = () => {
                 <thead>
                   <tr>
                     <th>Name of Scholar</th>
-                    <th>Location</th>
-                    <th>Contact No.</th>
-                    <th>Name of School</th>
-                    <th>Course</th>
-                    <th>Sex</th>
                     <th>Status</th>
                     <th>Scholarship Type</th>
+                    <th>Renew</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -135,13 +121,9 @@ const Scholars = () => {
                     filteredScholars.map((applicant) => (
                       <tr key={applicant.id}>
                         <td>{applicant.full_name}</td>
-                        <td>{applicant.address}</td>
-                        <td>{applicant.contact_no}</td>
-                        <td>{applicant.school}</td>
-                        <td>{applicant.course}</td>
-                        <td>{applicant.sex}</td>
                         <td>{applicant.status}</td>
                         <td>{applicant.scholarship_type}</td>
+                        <td>{applicant.allowed_renewal}</td>
                         <td>
                           <button
                             className="btn btn-sm btn-primary text-white"

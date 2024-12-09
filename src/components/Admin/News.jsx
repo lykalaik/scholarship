@@ -72,7 +72,7 @@ const News = () => {
 
       alert(`${type === "news" ? "News" : "Announcement"} updated successfully!`);
       setShowModal(false);
-      type === "news" ? fetch_news() : fetch_announcements(); // Refresh data
+      type === "news" ? fetch_news() : fetch_announcements(); 
     } catch (error) {
       console.error("Error updating data:", error.message);
       alert("An error occurred while saving the updates.");
@@ -138,6 +138,26 @@ const News = () => {
     }
   };
 
+  const handleDelete = async (item, type) => {
+    try {
+      const tableName = type === "news" ? "news" : "announcements";
+      const { error } = await supabase
+        .from(tableName)
+        .delete()
+        .eq("id", item.id);
+  
+      if (error) throw error;
+  
+      alert(`${type === "news" ? "News" : "Announcement"} deleted successfully!`);
+      setShowModal(false);
+      type === "news" ? fetch_news() : fetch_announcements();
+    } catch (error) {
+      console.error("Error deleting data:", error.message);
+      alert("An error occurred while deleting the item.");
+    }
+  };
+  
+
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-mono">
       <Sidebar />
@@ -191,12 +211,20 @@ const News = () => {
                       />
                     )}
                     <h2 className="text-l font-semibold mb-2">{item.title}</h2>
+                    <div className="flex justify-end">
+                    <button
+                      className="btn btn-danger mr-2"
+                      onClick={() => handleDelete(item, "news")}
+                    >
+                      Delete
+                    </button>
                     <button
                       className="btn btn-primary"
                       onClick={() => handleEditItem(item, "news")}
                     >
                       Edit
                     </button>
+                  </div>
                   </div>
                 ))}
               </div>
@@ -228,12 +256,20 @@ const News = () => {
                       />
                     )}
                     <h2 className="text-l font-semibold mb-2">{item.title}</h2>
+                    <div className="flex justify-end">
+                    <button
+                      className="btn btn-danger mr-2"
+                      onClick={() => handleDelete(item, "announcements")}
+                    >
+                      Delete
+                    </button>
                     <button
                       className="btn btn-primary"
                       onClick={() => handleEditItem(item, "announcements")}
                     >
                       Edit
                     </button>
+                  </div>
                   </div>
                 ))}
               </div>
