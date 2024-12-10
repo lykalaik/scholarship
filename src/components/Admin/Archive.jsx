@@ -9,8 +9,10 @@ const Archive = () => {
   const [scholars, setScholars] = useState([]);
   const [scholarshipType, setScholarshipType] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedScholar, setSelectedScholar] = useState(null); 
-  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const [selectedScholar, setSelectedScholar] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null); // For image modal
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false); // For image modal
 
   useEffect(() => {
     fetch_scholars();
@@ -71,7 +73,7 @@ const Archive = () => {
     (scholar) =>
       (!scholarshipType || scholar.scholarship_type === scholarshipType) &&
       (scholar.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      scholar.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        scholar.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         scholar.course.toLowerCase().includes(searchQuery.toLowerCase()) ||
         scholar.contact_no.toLowerCase().includes(searchQuery.toLowerCase()) ||
         scholar.sex?.toLowerCase().trim() === searchQuery.toLowerCase().trim() ||
@@ -82,37 +84,45 @@ const Archive = () => {
 
   const handleViewClick = async (scholar) => {
     setSelectedScholar(scholar);
-  
+
     try {
-      // Fetch the application data associated with the scholar
       const { data, error } = await supabase
         .from("application")
         .select("*")
-        .eq("full_name", scholar.full_name); // assuming scholar_id is the link between the scholar and their application
-  
+        .eq("full_name", scholar.full_name);
+
       if (error) throw error;
-  
-      // Assuming only one application per scholar, if there are multiple applications you may need to adjust this
+
       const applicationData = data && data[0];
-  
-      // Merge the application data with the scholar data
       setSelectedScholar((prevScholar) => ({
         ...prevScholar,
-        ...applicationData, // Adds the application data to the scholar's data
+        ...applicationData,
       }));
-  
-      setIsModalOpen(true); // Open modal after data is fetched
+
+      setIsModalOpen(true);
     } catch (error) {
       alert("An unexpected error occurred.");
       console.error("Error during fetching application data:", error.message);
     }
   };
-  
+
+  const handleImageClick = (imageSrc) => {
+    setSelectedImage(imageSrc);
+    setIsImageModalOpen(true);
+  };
+
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-mono">
       <Sidebar />
       <main className="flex-1 p-4 lg:p-8 ml-0 lg:ml-64 transition-all duration-300">
-        <div className="lg:flex lg:justify-end mb-5">
+        <div className="lg:flex lg:justify-between mb-5">
+        <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <div className="text-lg text-gray-700">
+             Total Number of Scholars: {filteredScholars.length} 
+            </div>
+          </div>
+        </div>
           <div className="flex gap-2">
             <input
               type="text"
@@ -176,8 +186,8 @@ const Archive = () => {
                     </td>
                     <td>
                       <button
-                        className={`btn btn-sm text-white btn-info`}
-                        onClick={() => handleViewClick(applicant)} // Open modal with selected scholar
+                        className="btn btn-sm text-white btn-info"
+                        onClick={() => handleViewClick(applicant)}
                       >
                         View
                       </button>
@@ -189,7 +199,7 @@ const Archive = () => {
           </div>
         </div>
 
-        {/* Modal */}
+        {/* Modal for Scholar Details */}
         {isModalOpen && selectedScholar && (
           <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded shadow-lg w-96">
@@ -203,67 +213,43 @@ const Archive = () => {
                 <p><strong>Scholarship Type:</strong> {selectedScholar.scholarship_type}</p>
               </div>
               <div className="card shadow-lg border p-4">
-        <h3 className="font-semibold text-lg">Uploaded Documents</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-          {selectedScholar?.application_letter && (
-            <img
-              src={selectedScholar.application_letter}
-              alt="Application Letter"
-              className="w-full h-32 object-cover rounded-lg cursor-pointer"
-            />
-          )}
-          {selectedScholar?.recommendation_letter && (
-            <img
-              src={selectedScholar.recommendation_letter}
-              alt="Recommendation Letter"
-              className="w-full h-32 object-cover rounded-lg cursor-pointer"
-      
-            />
-          )}
-          {selectedScholar?.copy_itr && (
-            <img
-              src={selectedScholar.copy_itr}
-              alt="Copy of ITR"
-              className="w-full h-32 object-cover rounded-lg cursor-pointer"
-
-            />
-          )}
-          {selectedScholar?.cedula && (
-            <img
-              src={selectedScholar.cedula}
-              alt="Cedula"
-              className="w-full h-32 object-cover rounded-lg cursor-pointer"
-
-            />
-          )}
-          {selectedScholar?.voters && (
-            <img
-              src={selectedScholar.voters}
-              alt="Voter's ID"
-              className="w-full h-32 object-cover rounded-lg cursor-pointer"
-
-            />
-          )}
-          {selectedScholar?.recent_card && (
-            <img
-              src={selectedScholar.recent_card}
-              alt="Recent Card"
-              className="w-full h-32 object-cover rounded-lg cursor-pointer"
-
-            />
-          )}
-          {!selectedScholar?.application_letter &&
-          !selectedScholar?.recommendation_letter &&
-          !selectedScholar?.itr &&
-          !selectedScholar?.copy_itr &&
-          !selectedScholar?.cedula &&
-          !selectedScholar?.voters &&
-          !selectedScholar?.recent_card && <p>No images submitted.</p>}
-        </div>
-      </div>
+                <h3 className="font-semibold text-lg">Uploaded Documents</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+                  {selectedScholar?.application_letter && (
+                    <img
+                      src={selectedScholar.application_letter}
+                      alt="Application Letter"
+                      className="w-full h-32 object-cover rounded-lg cursor-pointer"
+                      onClick={() =>
+                        handleImageClick(selectedScholar.application_letter)
+                      }
+                    />
+                  )}
+                  {/* Add more images as required */}
+                </div>
+              </div>
               <button
                 className="btn btn-sm btn-error mt-4"
-                onClick={() => setIsModalOpen(false)} 
+                onClick={() => setIsModalOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Modal for Image View */}
+        {isImageModalOpen && (
+          <div className="fixed inset-0 bg-gray-700 bg-opacity-75 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-lg p-4">
+              <img
+                src={selectedImage}
+                alt="Selected"
+                className="max-w-full h-[80vh] object-contain"
+              />
+              <button
+                className="btn btn-sm btn-error mt-4"
+                onClick={() => setIsImageModalOpen(false)}
               >
                 Close
               </button>

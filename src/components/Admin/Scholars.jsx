@@ -78,7 +78,6 @@ const Scholars = () => {
 
   const formattedDate = `${yyyy}-${mm}-${dd}`;
 
-  // Filter scholars based on selected scholarship type and search query
   const filteredScholars = scholars.filter(
     (scholar) =>
       (!scholarshipType || scholar.scholarship_type === scholarshipType) &&
@@ -92,7 +91,14 @@ const Scholars = () => {
       <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-mono">
         <Sidebar />
         <main className="flex-1 p-4 lg:p-8 ml-0 lg:ml-64 transition-all duration-300">
-          <div className="lg:flex lg:justify-end mb-3">
+          <div className="lg:flex lg:justify-between mb-3">
+          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <div className="text-lg text-gray-700">
+             Total Number of Scholars: {filteredScholars.length} 
+            </div>
+          </div>
+        </div>
             <div className="flex gap-2 justify-end">
               <input
                 type="text"

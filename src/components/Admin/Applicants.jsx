@@ -226,42 +226,51 @@ const Applicants = () => {
       <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-mono">
         <Sidebar />
         <main className="flex-1 p-4 lg:p-8 ml-0 lg:ml-64 transition-all duration-300">
-          <div className="lg:flex lg:justify-end mb-5">
-            <div className="flex gap-2">
-              <label className="input input-bordered flex items-center gap-2 w-full">
-                <input
-                  type="text"
-                  className="grow"
-                  placeholder="Search"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="h-4 w-4 opacity-70"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </label>
-              <div className="flex items-center gap-2">
-                <label className="text-gray-700">Open Applications?</label>
-                <button
-                  onClick={updateAppStatus}
-                  className={`btn btn-sm ${
-                    appstatus === "Yes" ? "btn-primary" : "btn-secondary"
-                  }`}
-                >
-                  {appstatus === "Yes" ? "Yes" : "No"}
-                </button>
-              </div>
+        <div className="lg:flex lg:justify-between mb-5">
+        <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <div className="text-lg text-gray-700">
+             Total Number of Applicants: {filteredApplicants.length} 
             </div>
           </div>
+        </div>
+
+
+      <div className="flex items-center gap-2">
+      <label className="input input-bordered flex items-center gap-2 w-full">
+            <input
+              type="text"
+              className="grow"
+              placeholder="Search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              className="h-4 w-4 opacity-70"
+            >
+              <path
+                fillRule="evenodd"
+                d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </label>
+        <label className="text-gray-700">Open Applications?</label>
+        <button
+          onClick={updateAppStatus}
+          className={`btn btn-sm ${
+            appstatus === "Yes" ? "btn-primary" : "btn-secondary"
+          }`}
+        >
+          {appstatus === "Yes" ? "Yes" : "No"}
+        </button>
+      </div>
+    </div>
+
+
           
 
           <div className="card rounded shadow-xl bordered p-5 bg-white">

@@ -206,7 +206,14 @@ const Renewal = () => {
       <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-mono">
         <Sidebar />
         <main className="flex-1 p-4 lg:p-8 ml-0 lg:ml-64 transition-all duration-300">
-          <div className="lg:flex lg:justify-end mb-5">
+          <div className="lg:flex lg:justify-between mb-5">
+          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <div className="text-lg text-gray-700">
+             Total Number of Renewals: {filteredApplicants.length} 
+            </div>
+          </div>
+        </div>
             <div className="flex gap-2">
               <label className="input input-bordered flex items-center gap-2 w-full">
                 <input
