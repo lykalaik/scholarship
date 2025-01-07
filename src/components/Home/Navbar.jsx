@@ -69,11 +69,11 @@ const Navbar = () => {
 
   return (
     <>
-      <div className="navbar bg-neutral text-neutral-content font-mono p-3 flex items-center justify-between">
+      <div className="navbar bg-neutral text-neutral-content font-inter p-3 flex items-center justify-between">
         <div className="flex items-center">
           <NavLink
             to="/"
-            className="btn btn-ghost lg:text-2xl font-extrabold flex items-center"
+            className="btn btn-ghost lg:text-xl font-medium flex items-center"
           >
             <img
               src="butuan.png"
@@ -85,7 +85,7 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex space-x-4">
-          <ul className="menu menu-horizontal text-lg font-bold">
+          <ul className="menu menu-horizontal text-base font-medium">
             <li>
               <NavLink
                 to="/"
@@ -226,7 +226,7 @@ const Navbar = () => {
               ✕
             </button>
           </form>
-          <h3 className="font-bold text-lg flex gap-2">
+          <h3 className="font-semibold text-sm flex gap-2">
             <IoMdLogIn size={30} />
             Login
           </h3>

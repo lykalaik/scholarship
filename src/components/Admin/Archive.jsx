@@ -112,7 +112,7 @@ const Archive = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-mono">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-inter">
       <Sidebar />
       <main className="flex-1 p-4 lg:p-8 ml-0 lg:ml-64 transition-all duration-300">
         <div className="lg:flex lg:justify-between mb-5">
@@ -200,46 +200,129 @@ const Archive = () => {
         </div>
 
         {/* Modal for Scholar Details */}
-        {isModalOpen && selectedScholar && (
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded shadow-lg w-96">
-              <h2 className="text-xl font-bold">Scholar Details</h2>
-              <div>
-                <p><strong>Name:</strong> {selectedScholar.full_name}</p>
-                <p><strong>Address:</strong> {selectedScholar.address}</p>
-                <p><strong>School:</strong> {selectedScholar.school}</p>
-                <p><strong>Course:</strong> {selectedScholar.course}</p>
-                <p><strong>Status:</strong> {selectedScholar.status}</p>
-                <p><strong>Scholarship Type:</strong> {selectedScholar.scholarship_type}</p>
-              </div>
-              <div className="card shadow-lg border p-4">
-                <h3 className="font-semibold text-lg">Uploaded Documents</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                  {selectedScholar?.application_letter && (
-                    <img
-                      src={selectedScholar.application_letter}
-                      alt="Application Letter"
-                      className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                      onClick={() =>
-                        handleImageClick(selectedScholar.application_letter)
-                      }
-                    />
-                  )}
-                  {/* Add more images as required */}
-                </div>
-              </div>
-              <button
-                className="btn btn-sm btn-error mt-4"
-                onClick={() => setIsModalOpen(false)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Modal for Scholar Details */}
+{/* Modal for Scholar Details */}
+{/* Modal for Scholar Details */}
+{isModalOpen && selectedScholar && (
+  <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded shadow-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+      <div className="flex flex-col md:flex-row items-start gap-4">
+        {/* Scholar Details */}
+        <div className="flex-1">
+          <h2 className="text-xl font-bold mb-4">Scholar Details</h2>
+          <p><strong>Name:</strong> {selectedScholar.full_name}</p>
+          <p><strong>Address:</strong> {selectedScholar.address}</p>
+          <p><strong>School:</strong> {selectedScholar.school}</p>
+          <p><strong>Course:</strong> {selectedScholar.course}</p>
+          <p><strong>Status:</strong> {selectedScholar.status}</p>
+          <p><strong>Scholarship Type:</strong> {selectedScholar.scholarship_type}</p>
+        </div>
 
-        {/* Modal for Image View */}
-        {isImageModalOpen && (
+        {/* Profile Image */}
+        <div className="flex-shrink-0">
+          {selectedScholar?.itr ? (
+            <img
+              src={selectedScholar.itr}
+              alt="Profile"
+              className="w-40 h-40 object-cover rounded-md shadow-lg"
+            />
+          ) : (
+            <div className="w-40 h-40 bg-gray-300 flex items-center justify-center rounded-md shadow-lg">
+              <span className="text-gray-600">No Image</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Uploaded Documents Section */}
+      <div className="card shadow-lg border p-4 mt-4">
+        <h3 className="font-semibold text-lg mb-2">Uploaded Documents</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {selectedScholar?.application_letter && (
+            <img
+              src={selectedScholar.application_letter}
+              alt="Application Letter"
+              className="w-full h-32 object-cover rounded-lg cursor-pointer"
+              onClick={() =>
+                handleImageClick(selectedScholar.application_letter)
+              }
+            />
+          )}
+          {selectedScholar?.recommendation_letter && (
+            <img
+              src={selectedScholar.recommendation_letter}
+              alt="Recommendation Letter"
+              className="w-full h-32 object-cover rounded-lg cursor-pointer"
+              onClick={() =>
+                handleImageClick(selectedScholar.recommendation_letter)
+              }
+            />
+          )}
+          {selectedScholar?.itr && (
+            <img
+              src={selectedScholar.itr}
+              alt="ITR"
+              className="w-full h-32 object-cover rounded-lg cursor-pointer"
+              onClick={() =>
+                handleImageClick(selectedScholar.itr)
+              }
+            />
+          )}
+          {selectedScholar?.copy_itr && (
+            <img
+              src={selectedScholar.copy_itr}
+              alt="Copy of ITR"
+              className="w-full h-32 object-cover rounded-lg cursor-pointer"
+              onClick={() =>
+                handleImageClick(selectedScholar.copy_itr)
+              }
+            />
+          )}
+          {selectedScholar?.cedula && (
+            <img
+              src={selectedScholar.cedula}
+              alt="Cedula"
+              className="w-full h-32 object-cover rounded-lg cursor-pointer"
+              onClick={() =>
+                handleImageClick(selectedScholar.cedula)
+              }
+            />
+          )}
+          {selectedScholar?.voters && (
+            <img
+              src={selectedScholar.voters}
+              alt="Voter's ID"
+              className="w-full h-32 object-cover rounded-lg cursor-pointer"
+              onClick={() =>
+                handleImageClick(selectedScholar.voters)
+              }
+            />
+          )}
+          {selectedScholar?.recent_card && (
+            <img
+              src={selectedScholar.recent_card}
+              alt="Recent Card"
+              className="w-full h-32 object-cover rounded-lg cursor-pointer"
+              onClick={() =>
+                handleImageClick(selectedScholar.recent_card)
+              }
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Close Button */}
+      <button
+        className="btn btn-sm btn-error mt-4"
+        onClick={() => setIsModalOpen(false)}
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
+{/* Modal for Image View */}
+{isImageModalOpen && (
           <div className="fixed inset-0 bg-gray-700 bg-opacity-75 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg shadow-lg p-4">
               <img
@@ -256,6 +339,8 @@ const Archive = () => {
             </div>
           </div>
         )}
+
+
       </main>
     </div>
   );

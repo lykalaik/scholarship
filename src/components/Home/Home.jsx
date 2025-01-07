@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"; 
 import Navbar from "./Navbar.jsx";
 import { MdOutlineMenuBook } from "react-icons/md";
 import supabase from "../supabaseClient.jsx";
@@ -62,21 +62,27 @@ const Home = () => {
     <>
       <Navbar />
       <div className="container mx-auto mb-10 p-5">
-        <div className="carousel w-full rounded">
+        {/* Responsive Carousel */}
+        <div className="carousel w-full rounded overflow-hidden mb-8">
           {imagesData.length > 0 ? (
             imagesData.map((image, index) => (
               <div
                 key={index}
                 className={`carousel-item w-full ${index === currentIndex ? "block" : "hidden"}`}
               >
-                <img src={image.picture} className="w-full h-72" alt={`Slide ${index + 1}`} />
+                <img 
+                  src={image.picture} 
+                  className="w-full max-h-[calc(100vh-300px)] h-auto object-cover" 
+                  alt={`Slide ${index + 1}`} 
+                />
               </div>
             ))
           ) : (
-            <p>Loading images...</p> 
+            <p>Loading images...</p> // Fallback if images are still loading
           )}
         </div>
         
+        {/* News Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {newsData.map((news, index) => (
             <div
@@ -106,7 +112,7 @@ const Home = () => {
           ))}
         </div>
 
-        {/* DaisyUI Modal Component */}
+        {/* Modal */}
         {showModal && (
           <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
             <div className="modal modal-open">
@@ -115,7 +121,7 @@ const Home = () => {
                 <img 
                   src={selectedNews?.picture} 
                   alt="Selected News" 
-                  className="w-80 h-80 object-cover mb-4 mx-auto" 
+                  className="w-full max-w-md h-auto object-cover mb-4 mx-auto" 
                 />
                 <p className="break-words text-justify">{selectedNews?.body}</p>
                 <div className="modal-action">

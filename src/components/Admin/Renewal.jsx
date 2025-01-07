@@ -203,7 +203,7 @@ const Renewal = () => {
 
   return (
     <>
-      <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-mono">
+      <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-inter">
         <Sidebar />
         <main className="flex-1 p-4 lg:p-8 ml-0 lg:ml-64 transition-all duration-300">
           <div className="lg:flex lg:justify-between mb-5">

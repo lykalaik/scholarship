@@ -123,7 +123,7 @@ const Sidebar = () => {
               ✕
             </button>
           </form>
-          <h3 className="font-bold text-lg">Confirm Action</h3>
+          <h3 className="font-medium text-base">Confirm Action</h3>
           <p className="py-4">Are you sure you want to log out?</p>
           <div className="flex justify-end content-end">
             <button className="btn btn-error text-white" onClick={sessionclear}>
