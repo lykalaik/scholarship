@@ -52,7 +52,7 @@ const About = () => {
                             href="mailto:cedd@butuan.gov.ph"
                             className="block link link-primary no-underline hover:underline"
                           >
-                            <span className="font-semibold">Email:</span>
+                            <span className="font-semibold">Email: </span>
                             cedd@butuan.gov.ph
                           </a>
                         </div>
@@ -61,7 +61,7 @@ const About = () => {
                             href="http://www.butuan.gov.ph"
                             className="block link link-primary no-underline hover:underline"
                           >
-                            <span className="font-semibold">Website:</span>
+                            <span className="font-semibold">Website: </span>
                             www.butuan.gov.ph
                           </a>
                         </div>
