@@ -13,18 +13,46 @@ const Apply = () => {
   const [cedula, setCedula] = useState("");
   const [voters, setVoters] = useState("");
   const [recent_card, setRecentCard] = useState("");
-  const [full_name, setFullName] = useState("");
-  const [address, setAddress] = useState("");
-  const [email_address, setEmailAddress] = useState("");
-  const [gpa, setGPA] = useState("");
-  const [sex, setSex] = useState("Male");
-  const [mobile_number, setMobileNumber] = useState("");
-  const [school, setSchool] = useState("");
-  const [course, setCourse] = useState("");
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [idnumber, setIDNumber] = useState("");
   const [submitshowModal, setSubmitShowModal] = useState(false);
+  const [status, setStatus] = useState("Pending");
+  const [last_name, setLastName] = useState(null);
+  const [given_name, setGivenName] = useState(null);
+  const [middle_name, setMiddleName] = useState(null);
+  const [age, setAge] = useState(null);
+  const [date_of_birth, setDateOfBirth] = useState(null);
+  const [place_of_birth, setPlaceOfBirth] = useState(null);
+  const [course, setCourse] = useState(null);
+  const [year_level, setYearLevel] = useState(null);
+  const [contact_number, setContactNumber] = useState(null);
+  const [email_address, setEmailAddress] = useState(null);
+  const [sex, setSex] = useState(null);
+  const [civil_service, setCivilService] = useState(null);
+  const [religion, setReligion] = useState(null);
+  const [height, setHeight] = useState(null);
+  const [weight, setWeight] = useState(null);
+  const [address, setAddress] = useState(null);
+  const [number_family_members, setNumberFamilyMembers] = useState(null);
+  const [ethnicity, setEthnicity] = useState(null);
+  const [father_name, setFatherName] = useState(null);
+  const [father_occupation, setFatherOccupation] = useState(null);
+  const [mother_name, setMotherName] = useState(null);
+  const [mother_occupation, setMotherOccupation] = useState(null);
+  const [father_address, setFatherAddress] = useState(null);
+  const [father_number, setFatherNumber] = useState(null);
+  const [mother_address, setMotherAddress] = useState(null);
+  const [mother_number, setMotherNumber] = useState(null);
+  const [elementary_school, setElementarySchool] = useState(null);
+  const [elementary_awards, setElementaryAwards] = useState(null);
+  const [elementary_year, setElementaryYear] = useState(null);
+  const [secondary_school, setSecondarySchool] = useState(null);
+  const [secondary_awards, setSecondaryAwards] = useState(null);
+  const [secondary_year, setSecondaryYear] = useState(null);
+  const [availed_scholarship, setAvailedScholarship] = useState(null);
+  const [scholarship_year, setScholarshipYear] = useState(null);
+  const [scholarship_name, setScholarshipName] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,14 +73,42 @@ const Apply = () => {
 
   const handleConfirmSubmit = async () => {
     const requiredFields = {
-      full_name,
-      address,
-      sex,
-      email_address,
-      gpa,
-      mobile_number,
-      school,
+      last_name,
+      given_name,
+      middle_name,
+      age,
+      date_of_birth,
+      place_of_birth,
       course,
+      year_level,
+      contact_number,
+      email_address,
+      sex,
+      civil_service,
+      religion,
+      height,
+      weight,
+      address,
+      number_family_members,
+      ethnicity,
+      father_address,
+      father_name,
+      father_number,
+      father_occupation,
+      mother_address,
+      mother_name,
+      mother_number,
+      mother_occupation,
+      elementary_awards,
+      elementary_school,
+      elementary_year,
+      secondary_awards,
+      secondary_school,
+      secondary_year,
+      availed_scholarship,
+      scholarship_year,
+      scholarship_name,
+      status,
       application_letter,
       recommendation_letter,
       itr,
@@ -300,18 +356,22 @@ const Apply = () => {
                     placeholder="Last Name"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setLastName(e.target.value)}
+
                   />
                   <input
                     type="text"
                     placeholder="Given Name"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setGivenName(e.target.value)}
                   />
                   <input
                     type="text"
                     placeholder="Middle Name"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setMiddleName(e.target.value)}
                   />
                 </div>
 
@@ -321,18 +381,21 @@ const Apply = () => {
                     placeholder="Age"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setAge(e.target.value)}
                   />
                   <input
                     type="date"
                     placeholder="Date of Birth"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setDateOfBirth(e.target.value)}
                   />
                   <input
                     type="text"
                     placeholder="Place of Birth"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setPlaceOfBirth(e.target.value)}
                   />
                 </div>
 
@@ -342,12 +405,14 @@ const Apply = () => {
                     placeholder="Course"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setCourse(e.target.value)}
                   />
                   <input
                     type="text"
                     placeholder="Year Level"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setYearLevel(e.target.value)}
                   />
                 </div>
 
@@ -357,18 +422,21 @@ const Apply = () => {
                     placeholder="Contact Number"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setContactNumber(e.target.value)}
                   />
                   <input
                     type="email"
                     placeholder="Email Address"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setEmailAddress(e.target.value)}
                   />
                   <input
                     type="text"
                     placeholder="Sex"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setSex(e.target.value)}
                   />
                 </div>
 
@@ -378,24 +446,28 @@ const Apply = () => {
                     placeholder="Civil Service"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setCivilService(e.target.value)}
                   />
                   <input
                     type="text"
                     placeholder="Religion"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setReligion(e.target.value)}
                   />
                   <input
                     type="text"
                     placeholder="Height"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setHeight(e.target.value)}
                   />
                   <input
                     type="number"
                     placeholder="Weight (kg)"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setWeight(e.target.value)}
                   />
                 </div>
 
@@ -404,6 +476,7 @@ const Apply = () => {
                   placeholder="Address"
                   className="input input-bordered border-gray-300 w-full mb-4"
                   required
+                  onChange={(e) => setAddress(e.target.value)}
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -412,12 +485,14 @@ const Apply = () => {
                     placeholder="No. of Family Members"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setNumberFamilyMembers(e.target.value)}
                   />
                   <input
                     type="text"
                     placeholder="Ethnicity"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setEthnicity(e.target.value)}
                   />
                 </div>
 
@@ -427,12 +502,14 @@ const Apply = () => {
                     placeholder="Father's Name"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setFatherName(e.target.value)}
                   />
                   <input
                     type="text"
                     placeholder="Father's Occupation"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setFatherOccupation(e.target.value)}
                   />
                 </div>
 
@@ -442,12 +519,14 @@ const Apply = () => {
                     placeholder="Father's Address"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setFatherAddress(e.target.value)}
                   />
                   <input
                     type="tel"
                     placeholder="Father's Contact Number"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setFatherNumber(e.target.value)}
                   />
                 </div>
 
@@ -457,12 +536,14 @@ const Apply = () => {
                     placeholder="Mother's Name"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setMotherName(e.target.value)}
                   />
                   <input
                     type="text"
                     placeholder="Mother's Occupation"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setMotherOccupation(e.target.value)}
                   />
                 </div>
 
@@ -472,12 +553,14 @@ const Apply = () => {
                     placeholder="Mother's Address"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setMotherAddress(e.target.value)}
                   />
                   <input
                     type="tel"
                     placeholder="Mother's Contact Number"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setMotherNumber(e.target.value)}
                   />
                 </div>
 
@@ -493,18 +576,21 @@ const Apply = () => {
                     placeholder="Elementary School"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setElementarySchool(e.target.value)}
                   />
                   <input
                     type="text"
                     placeholder="Elementary Awards"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setElementaryAwards(e.target.value)}
                   />
                   <input
                     type="text"
                     placeholder="Elementary Year"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setElementaryYear(e.target.value)}
                   />
                 </div>
 
@@ -514,18 +600,21 @@ const Apply = () => {
                     placeholder="High School"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setSecondarySchool(e.target.value)}
                   />
                   <input
                     type="text"
                     placeholder="High School Awards"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setSecondaryAwards(e.target.value)}
                   />
                   <input
                     type="text"
                     placeholder="High School Year"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setSecondaryYear(e.target.value)}
                   />
                 </div>
 
@@ -535,12 +624,14 @@ const Apply = () => {
                     placeholder="Have you availed any scholarship grants?"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setAvailedScholarship(e.target.value)}
                   />
                   <input
                     type="text"
                     placeholder="If yes, what year?"
                     className="input input-bordered border-gray-300 w-full"
                     required
+                    onChange={(e) => setScholarshipYear(e.target.value)}
                   />
                 </div>
 
@@ -549,6 +640,7 @@ const Apply = () => {
                   placeholder="Name of Scholarship Program"
                   className="input input-bordered border-gray-300 w-full mb-4"
                   required
+                  onChange={(e) => setScholarshipName(e.target.value)}
                 />
 
                 <div className="divider"></div>
