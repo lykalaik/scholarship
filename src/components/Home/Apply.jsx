@@ -4,7 +4,7 @@ import supabase from "../supabaseClient.jsx";
 import { useState, useEffect } from "react";
 
 const Apply = () => {
-  const [open, setOpen] = useState('');
+  const [open, setOpen] = useState("");
   const [file, setFile] = useState("");
   const [application_letter, setApplicationLetter] = useState("");
   const [recommendation_letter, setRecommendationLetter] = useState("");
@@ -23,17 +23,16 @@ const Apply = () => {
   const [course, setCourse] = useState("");
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [idnumber, setIDNumber] = useState("");
   const [submitshowModal, setSubmitShowModal] = useState(false);
-  const [idnumber, setIDNumber] = useState('');
-  
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("email", 'admin@gmail.com');
+          .from("users")
+          .select("*")
+          .eq("email", "admin@gmail.com");
         if (error) throw error;
 
         setOpen(data[0].is_open);
@@ -43,6 +42,7 @@ const Apply = () => {
     };
     fetchData();
   }, []);
+
   const handleConfirmSubmit = async () => {
     const requiredFields = {
       full_name,
@@ -61,13 +61,15 @@ const Apply = () => {
       voters,
       recent_card,
     };
-    const { data, error } = await supabase.from("application").insert([
-      {
-        ...requiredFields,
-        status: "Pending",
-      },
-    ])
-    .select();
+    const { data, error } = await supabase
+      .from("application")
+      .insert([
+        {
+          ...requiredFields,
+          status: "Pending",
+        },
+      ])
+      .select();
     if (error) {
       console.error("Error inserting data:", error);
       alert("Error inserting data");
@@ -77,12 +79,12 @@ const Apply = () => {
       setLoading(false);
       setShowModal(true);
     }
-  };    
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSubmitShowModal(true); 
   };
+
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   setSubmitShowModal(true);
+  // };
 
   const handleApplicationLetter = async (e) => {
     const selectedFile = e.target.files[0];
@@ -273,265 +275,371 @@ const Apply = () => {
     }
   };
 
-  const showid = () =>{
-    setShowModal(false)
+  const showid = () => {
+    setShowModal(false);
     window.location.reload();
-  }
+  };
 
   return (
     <>
       <Navbar />
-      <div className="container mx-auto p-5 mb-10 px-8">
+      <div className="p-5 mb-5">
         <div className="card bg-base-100 shadow-2xl p-5 border border-gray-300 px-10 py-10">
-        {open === "Yes" ? (
-          <div>
-            <div className="mb-6 flex justify-between">
-              <span className="mt-3 lg:text-2xl sm:text-md font-semibold px-3 flex gap-2">
-                <SiGooglescholar className="text-yellow-400 mt-1" />
-                Scholarship Application Form
+          {open === "Yes" ? (
+            <div>
+              <div className="mb-6 flex justify-between">
+                <span className="mt-3 lg:text-2xl sm:text-md font-semibold px-3 flex gap-2">
+                  <SiGooglescholar className="text-yellow-400 mt-1" />
+                  Scholarship Application Form
+                </span>
+              </div>
+              <form onSubmit={handleConfirmSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <input
+                    type="text"
+                    placeholder="Last Name"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Given Name"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Middle Name"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <input
+                    type="number"
+                    placeholder="Age"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="date"
+                    placeholder="Date of Birth"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Place of Birth"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <input
+                    type="text"
+                    placeholder="Course"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Year Level"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <input
+                    type="tel"
+                    placeholder="Contact Number"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email Address"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Sex"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                  <input
+                    type="text"
+                    placeholder="Civil Service"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Religion"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Height"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="number"
+                    placeholder="Weight (kg)"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                </div>
+
+                <input
+                  type="text"
+                  placeholder="Address"
+                  className="input input-bordered border-gray-300 w-full mb-4"
+                  required
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <input
+                    type="number"
+                    placeholder="No. of Family Members"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Ethnicity"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <input
+                    type="text"
+                    placeholder="Father's Name"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Father's Occupation"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <input
+                    type="text"
+                    placeholder="Father's Address"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Father's Contact Number"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <input
+                    type="text"
+                    placeholder="Mother's Name"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Mother's Occupation"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+                  <input
+                    type="text"
+                    placeholder="Mother's Address"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Mother's Contact Number"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                </div>
+
+                <div className="divider"></div>
+
+                <h3 className="text-xl font-semibold mb-5 mt-8">
+                  Educational Attainment
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <input
+                    type="text"
+                    placeholder="Elementary School"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Elementary Awards"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Elementary Year"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <input
+                    type="text"
+                    placeholder="High School"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="High School Awards"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="High School Year"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <input
+                    type="text"
+                    placeholder="Have you availed any scholarship grants?"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="If yes, what year?"
+                    className="input input-bordered border-gray-300 w-full"
+                    required
+                  />
+                </div>
+
+                <input
+                  type="text"
+                  placeholder="Name of Scholarship Program"
+                  className="input input-bordered border-gray-300 w-full mb-4"
+                  required
+                />
+
+                <div className="divider"></div>
+
+                <div className="flex flex-col items-start">
+                  <span className="text-red-500 text-sm sm:text-base mt-3">
+                    *Note: Filename for images should be
+                    "LASTNAME_FIRSTNAME_FILENAME".
+                  </span>
+                  <span className="text-red-500 text-sm sm:text-base mt-1">
+                    Example: "DELACRUZ_JUAN_1x1Picture"
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                  {[
+                    {
+                      label: "*Application Letter",
+                      handler: handleApplicationLetter,
+                    },
+                    {
+                      label: "*Recommendation Letter from Baranggay Official",
+                      handler: handleRecommendationLetter,
+                    },
+                    {
+                      label: "*1x1 Picture",
+                      handler: handleITR,
+                    },
+                    {
+                      label:
+                        "*Copy of Income Tax Return of the Applicant's Parents",
+                      handler: handleCopyITR,
+                    },
+                    {
+                      label: "*Latest Community Tax / Cedula",
+                      handler: handleCedula,
+                    },
+                    {
+                      label: "*Voter's Registration Certificate",
+                      handler: handleVoters,
+                    },
+                    {
+                      label: "*Recent Scholastic Records",
+                      handler: handleRecord,
+                    },
+                  ].map((item, index) => (
+                    <div key={index}>
+                      <label className="label">
+                        <span className="label-text">{item.label}</span>
+                      </label>
+                      <input
+                        type="file"
+                        className="file-input file-input-bordered w-full"
+                        onChange={item.handler}
+                        required
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex flex-col sm:flex-row justify-end mt-5 gap-3">
+                  <button className="btn btn-error text-white w-full sm:w-1/5">
+                    Save as PDS
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-neutral w-full sm:w-1/5"
+                  >
+                    Submit Application
+                  </button>
+                </div>
+              </form>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-100">
+              <span className="text-2xl font-semibold text-gray-600">
+                Application for Butuan Scholarship is Closed!
+              </span>
+              <span className="text-1xl font-semibold text-gray-600 mt-2">
+                For Updates, Visit CEBDD Facebook Page or Wait for further
+                announcements on the Home Page. Have a great day!
               </span>
             </div>
-            <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="label">
-                  <span className="label-text">Full Name</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g., Juan Dela Cruz"
-                  className="input input-bordered w-full"
-                  required
-                  onChange={(e) => setFullName(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="label">
-                  <span className="label-text">Sex</span>
-                </label>
-                <select
-                  className="select select-bordered w-full"
-                  required
-                  value={sex}
-                  onChange={(e) => setSex(e.target.value)}
-                >
-                  <option>Male</option>
-                  <option>Female</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div>
-                <label className="label">
-                  <span className="label-text">Permanent Address</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="123 Main St"
-                  className="input input-bordered w-full"
-                  required
-                  onChange={(e) => setAddress(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="label">
-                  <span className="label-text">Mobile Number</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="+1 234 567 890"
-                  className="input input-bordered w-full"
-                  required
-                  onChange={(e) => setMobileNumber(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="label">
-                  <span className="label-text">Email Address</span>
-                </label>
-                <input
-                  type="email"
-                  placeholder="email@example.com"
-                  className="input input-bordered w-full"
-                  required
-                  onChange={(e) => setEmailAddress(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="label">
-                  <span className="label-text">Last School Attended (should not be abbreviated)</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Agusan National HighSchool"
-                  className="input input-bordered w-full"
-                  required
-                  onChange={(e) => setSchool(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="label">
-                  <span className="label-text">Grade Point Average (GPA)</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. 1.0"
-                  className="input input-bordered w-full"
-                  required
-                  onChange={(e) => setGPA(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="label">
-                  <span className="label-text">Course/Strand (should not be abbreviated)</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Bachelor of Science in Information Technology"
-                  className="input input-bordered w-full"
-                  required
-                  onChange={(e) => setCourse(e.target.value)}
-                />
-              </div>
-              <div className="flex flex-col items-start">
-              <span className="text-red-400 mt-3">*Note: Filename for images should be "LASTNAME_FIRSTNAME_FILENAME". </span>
-              <span className="text-red-400 mt-3">Example. "DELACRUZ_JUAN_APPLICATIONLETTER" </span>
-              </div>
-              <br/>
-              <div>
-                <label className="label">
-                  <span className="label-text">*Application Letter</span>
-                </label>
-                <input
-                  type="file"
-                  className="file-input file-input-bordered w-full"
-                  onChange={handleApplicationLetter}
-                />
-              </div>
-              <div>
-                <label className="label">
-                  <span className="label-text">
-                    *Recommendation Letter from Baranggay Official
-                  </span>
-                </label>
-                <input
-                  type="file"
-                  className="file-input file-input-bordered w-full"
-                  onChange={handleRecommendationLetter}
-                />
-              </div>
-              <div>
-                <label className="label">
-                  <span className="label-text">
-                    *1x1 Picture
-                  </span>
-                </label>
-                <input
-                  type="file"
-                  className="file-input file-input-bordered w-full"
-                  onChange={handleITR}
-                />
-              </div>
-              <div>
-                <label className="label">
-                  <span className="label-text">
-                    *Copy of Income Tax Return of the Applicant's Parents
-                  </span>
-                </label>
-                <input
-                  type="file"
-                  className="file-input file-input-bordered w-full"
-                  onChange={handleCopyITR}
-                />
-              </div>
-              <div>
-                <label className="label">
-                  <span className="label-text">
-                    *Latest Community Tax / Cedula
-                  </span>
-                </label>
-                <input
-                  type="file"
-                  className="file-input file-input-bordered w-full"
-                  onChange={handleCedula}
-                />
-              </div>
-              <div>
-                <label className="label">
-                  <span className="label-text">
-                    *Voter's Registration Certificate
-                  </span>
-                </label>
-                <input
-                  type="file"
-                  className="file-input file-input-bordered w-full"
-                  onChange={handleVoters}
-                />
-              </div>
-              <div>
-                <label className="label">
-                  <span className="label-text">*Recent Scholastic Records</span>
-                </label>
-                <input
-                  type="file"
-                  className="file-input file-input-bordered w-full"
-                  onChange={handleRecord}
-                />
-              </div>
-            </div>
-            <div className="modal-action mt-10">
-              <button
-              type="submit"
-                className="btn bg-blue-700 border-blue-700 hover:bg-blue-500 text-white lg:w-1/6 w-full"
-                disabled={loading}
-              >
-                {loading ? (
-                  <div className="flex items-center justify-center">
-                    <svg
-                      className="animate-spin h-5 w-5 mr-3 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v8H4z"
-                      ></path>
-                    </svg>
-                    Loading...
-                  </div>
-                ) : (
-                  "Submit Application"
-                )}
-              </button>
-            </div>
-            </form>
-          </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-100">
-                <span className="text-2xl font-semibold text-gray-600">
-                  Application for Butuan Scholarship is Closed!
-                </span>
-                <span className="text-1xl font-semibold text-gray-600 mt-2">
-                  For Updates, Visit CEBDD Facebook Page or Wait for further announcements on the Home Page. Have a great day!
-                </span>
-              </div>
-              )}
+          )}
         </div>
       </div>
 
       {/* Toast Notification */}
       <div
         id="toastify"
-        className="toast toast-top toast-right animate-bounce"
+        className="toast toast-top toast-right"
         style={{ visibility: "hidden" }}
       >
         <div className="alert alert-success">
@@ -541,72 +649,81 @@ const Apply = () => {
         </div>
       </div>
 
-        {/* Modal for missing fields */}
-        {showModal && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-              <h2 className="text-xl mb-4">Your application has been successfully submitted!</h2>
-              <h3 className="text-xl mb-4">Use this Application Number to track your status. Thank you for your interest!</h3>
-              <h3 className="text-xl font-semibold mb-4">Application Number: {idnumber}</h3>
-              <button
-                className="mt-4 btn bg-blue-700 border-blue-700 hover:bg-blue-500 text-white"
-                onClick={showid}
-              >
-                Close
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-xl mb-4">
+              Your application has been successfully submitted!
+            </h2>
+            <h3 className="text-xl mb-4">
+              Use this Application Number to track your status. Thank you for
+              your interest!
+            </h3>
+            <h3 className="text-xl font-semibold mb-4">
+              Application Number: {idnumber}
+            </h3>
+            <button
+              className="mt-4 btn bg-blue-700 border-blue-700 hover:bg-blue-500 text-white"
+              onClick={showid}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {/* {submitshowModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h2 className="text-2xl font-semibold mb-4">
+              Confirm Your Application Details
+            </h2>
+            <div className="space-y-4">
+              <div className="flex justify-between">
+                <h6 className="font-semibold">Full Name:</h6>
+                <h6>{full_name}</h6>
+              </div>
+              <div className="flex justify-between">
+                <h6 className="font-semibold">Address:</h6>
+                <h6>{address}</h6>
+              </div>
+              <div className="flex justify-between">
+                <h6 className="font-semibold">Sex:</h6>
+                <h6>{sex}</h6>
+              </div>
+              <div className="flex justify-between">
+                <h6 className="font-semibold">Email Address:</h6>
+                <h6>{email_address}</h6>
+              </div>
+              <div className="flex justify-between">
+                <h6 className="font-semibold">GPA:</h6>
+                <h6>{gpa}</h6>
+              </div>
+              <div className="flex justify-between">
+                <h6 className="font-semibold">Mobile Number:</h6>
+                <h6>{mobile_number}</h6>
+              </div>
+              <div className="flex justify-between">
+                <h6 className="font-semibold">Last School Attended:</h6>
+                <h6>{school}</h6>
+              </div>
+              <div className="flex justify-between">
+                <h6 className="font-semibold">Course/Strand:</h6>
+                <h6>{course}</h6>
+              </div>
+            </div>
+            <div className="modal-action">
+              <button className="btn" onClick={() => setSubmitShowModal(false)}>
+                Cancel
+              </button>
+              <button className="btn btn-primary" onClick={handleConfirmSubmit}>
+                Confirm and Submit
               </button>
             </div>
           </div>
-        )}
-
-          {/* Confirmation Modal */}
-          {submitshowModal && (
-  <div className="modal modal-open">
-    <div className="modal-box">
-      <h2 className="text-2xl font-semibold mb-4">Confirm Your Application Details</h2>
-      <div className="space-y-4">
-        <div className="flex justify-between">
-          <h6 className="font-semibold">Full Name:</h6>
-          <h6>{full_name}</h6>
         </div>
-        <div className="flex justify-between">
-          <h6 className="font-semibold">Address:</h6>
-          <h6>{address}</h6>
-        </div>
-        <div className="flex justify-between">
-          <h6 className="font-semibold">Sex:</h6>
-          <h6>{sex}</h6>
-        </div>
-        <div className="flex justify-between">
-          <h6 className="font-semibold">Email Address:</h6>
-          <h6>{email_address}</h6>
-        </div>
-        <div className="flex justify-between">
-          <h6 className="font-semibold">GPA:</h6>
-          <h6>{gpa}</h6>
-        </div>
-        <div className="flex justify-between">
-          <h6 className="font-semibold">Mobile Number:</h6>
-          <h6>{mobile_number}</h6>
-        </div>
-        <div className="flex justify-between">
-          <h6 className="font-semibold">Last School Attended:</h6>
-          <h6>{school}</h6>
-        </div>
-        <div className="flex justify-between">
-          <h6 className="font-semibold">Course/Strand:</h6>
-          <h6>{course}</h6>
-        </div>
-      </div>
-      <div className="modal-action">
-        <button className="btn" onClick={() => setSubmitShowModal(false)}>Cancel</button>
-        <button className="btn btn-primary" onClick={handleConfirmSubmit}>
-          Confirm and Submit
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
+      )} */}
     </>
   );
 };

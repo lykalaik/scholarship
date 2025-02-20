@@ -10,7 +10,6 @@ import Renewal from "./components/Admin/Renewal.jsx";
 import EmailForm from "./components/Admin/Email.jsx";
 import News from "./components/Admin/News.jsx";
 import Analytics from "./components/Admin/Analytics.jsx";
-
 import { Routes, Route } from "react-router-dom";
 
 const App = () => {

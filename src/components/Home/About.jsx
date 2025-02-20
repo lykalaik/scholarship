@@ -21,9 +21,10 @@ const About = () => {
                   <div className="absolute inset-0 bg-gradient-to-t to-transparent opacity-20"></div>
                 </figure>
                 <div className="card-body">
-                  <h1 className="card-title text-3xl flex justify-center font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  <h1 className="card-title text-2xl sm:text-3xl md:text-4xl flex justify-center font-bold tracking-wide">
                     City Government of Butuan
                   </h1>
+
                   <div className="space-y-4">
                     <div className="p-4 bg-base-200 rounded-lg">
                       <h2 className="text-xl font-semibold mb-2 text-base-content">

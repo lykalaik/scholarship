@@ -24,22 +24,21 @@ const Track = () => {
   const track_status = (e) => {
     e.preventDefault();
     if (name) {
-      const filtered = statusData.filter((app) => 
-        app.id.toString().includes(name.toString()) // Convert both to string for comparison
+      const filtered = statusData.filter(
+        (app) => app.id.toString().includes(name.toString()) // Convert both to string for comparison
       );
       setFilteredData(filtered);
     } else {
       setFilteredData(statusData);
     }
   };
-  
 
   return (
     <>
       <Navbar />
-      <div className="container mx-auto px-4 py-5">
+      <div className="px-4 py-5">
         <div className="flex justify-center mt-6 mb-6 font-extrabold">
-          <h1 className="text-xl md:text-2xl text-center">
+          <h1 className="text-xl md:text-2xl text-center tracking-wide">
             - Search your Application Status here -
           </h1>
         </div>
@@ -65,17 +64,19 @@ const Track = () => {
             </svg>
           </label>
           <button
-            className="btn btn-primary text-white w-full md:w-auto"
+            className="btn btn-neutral text-white w-full md:w-auto"
             onClick={track_status}
           >
             Search
           </button>
         </form>
-        <hr />
+
+        <div className="divider"></div>
+
         <div className="container mx-auto mt-8 px-4 md:px-20">
           {filteredData.length > 0 ? (
             filteredData.map((app) => (
-              <div key={app.id} className="mb-3 p-4 rounded shadow-sm border">
+              <div key={app.id} className="mb-3 p-4 rounded shadow-sm">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
                   <h1 className="text-base md:text-lg mb-2 md:mb-0 font-semibold">
                     Applicant ID: {app.id}
