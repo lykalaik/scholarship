@@ -3,6 +3,7 @@ import Sidebar from "./Sidebar";
 import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
 import supabase from "../supabaseClient";
 import emailjs from "@emailjs/browser";
+import jsPDF from "jspdf";
 
 const Applicants = () => {
   const [applicant, setApplicants] = useState([]);
@@ -11,7 +12,7 @@ const Applicants = () => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [selectedApplicant, setSelectedApplicant] = useState(null);
   const [email, setEmail] = useState("");
-  const [appstatus, setAppStatus] = useState('');
+  const [appstatus, setAppStatus] = useState("");
 
   useEffect(() => {
     fetch_applicants();
@@ -37,7 +38,7 @@ const Applicants = () => {
       const { data, error } = await supabase
         .from("users")
         .select("*")
-        .eq("email", 'admin@gmail.com')
+        .eq("email", "admin@gmail.com");
       if (error) throw error;
       setAppStatus(data[0].is_open);
     } catch (error) {
@@ -47,20 +48,20 @@ const Applicants = () => {
   };
 
   const updateAppStatus = async () => {
-    const newStatus = appstatus === "Yes" ? "No" : "Yes"; 
+    const newStatus = appstatus === "Yes" ? "No" : "Yes";
     try {
       const { error } = await supabase
         .from("users")
-        .update({ is_open: newStatus }) 
-        .eq("email", 'admin@gmail.com');
+        .update({ is_open: newStatus })
+        .eq("email", "admin@gmail.com");
       if (error) throw error;
-      setAppStatus(newStatus); 
+      setAppStatus(newStatus);
     } catch (error) {
       alert("Failed to update status.");
       console.error("Error updating status:", error.message);
     }
   };
-  
+
   const openModal = (applicant) => {
     setSelectedApplicant(applicant);
     setEmail(applicant.email_address);
@@ -215,70 +216,131 @@ const Applicants = () => {
     }
   };
 
-  const filteredApplicants = applicant.filter((app) =>
-    app.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  app.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  app.school.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  app.course.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredApplicants = applicant.filter(
+    (app) =>
+      (app.full_name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (app.address || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (app.school || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (app.course || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const saveAsPDF = async () => {
+    if (!selectedApplicant) return;
+
+    const doc = new jsPDF();
+    const documentLinks = [
+      selectedApplicant.application_letter,
+      selectedApplicant.recommendation_letter,
+      selectedApplicant.itr,
+      selectedApplicant.copy_itr,
+      selectedApplicant.cedula,
+      selectedApplicant.voters,
+      selectedApplicant.recent_card,
+    ];
+
+    let yOffset = 10;
+
+    doc.setFontSize(16);
+    doc.text(
+      `Applicant: ${selectedApplicant.given_name} ${
+        selectedApplicant.middle_name || ""
+      } ${selectedApplicant.last_name}`,
+      10,
+      yOffset
+    );
+    yOffset += 10;
+
+    for (let i = 0; i < documentLinks.length; i++) {
+      const imgUrl = documentLinks[i];
+
+      try {
+        const img = await fetch(imgUrl);
+        const blob = await img.blob();
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+          const imageData = event.target.result;
+          doc.addImage(imageData, "JPEG", 10, yOffset, 180, 100);
+          yOffset += 110;
+
+          if (i < documentLinks.length - 1) {
+            doc.addPage(); // Add a new page for each image
+            yOffset = 10;
+          }
+
+          if (i === documentLinks.length - 1) {
+            doc.save(
+              `Applicant_${selectedApplicant.given_name}_${
+                selectedApplicant.middle_name || ""
+              }_${selectedApplicant.last_name}.pdf`
+            );
+          }
+        };
+
+        reader.readAsDataURL(blob);
+      } catch (error) {
+        console.error("Error fetching image:", error);
+      }
+    }
+  };
+
   return (
     <>
       <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-inter">
         <Sidebar />
         <main className="flex-1 p-4 lg:p-8 ml-0 lg:ml-64 transition-all duration-300">
-        <div className="lg:flex lg:justify-between mb-5">
-        <div className="flex gap-2">
-          <div className="flex gap-2 items-center">
-            <div className="text-lg text-gray-700">
-             Total Number of Applicants: {filteredApplicants.length} 
+          <div className="lg:flex lg:justify-between mb-5">
+            <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
+                <div className="text-lg text-gray-700">
+                  Total Number of Applicants: {filteredApplicants.length}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label className="input input-bordered flex items-center gap-2 w-full">
+                <input
+                  type="text"
+                  className="grow"
+                  placeholder="Search"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  className="h-4 w-4 opacity-70"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </label>
+              <label className="text-gray-700">Open Applications?</label>
+              <button
+                onClick={updateAppStatus}
+                className={`btn btn-sm ${
+                  appstatus === "Yes" ? "btn-primary" : "btn-secondary"
+                }`}
+              >
+                {appstatus === "Yes" ? "Yes" : "No"}
+              </button>
+              {/* <button className="btn btn-neutral text-white tracking-wide">
+                Set Application Date
+              </button> */}
             </div>
           </div>
-        </div>
-
-
-      <div className="flex items-center gap-2">
-      <label className="input input-bordered flex items-center gap-2 w-full">
-            <input
-              type="text"
-              className="grow"
-              placeholder="Search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 16 16"
-              fill="currentColor"
-              className="h-4 w-4 opacity-70"
-            >
-              <path
-                fillRule="evenodd"
-                d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </label>
-        <label className="text-gray-700">Open Applications?</label>
-        <button
-          onClick={updateAppStatus}
-          className={`btn btn-sm ${
-            appstatus === "Yes" ? "btn-primary" : "btn-secondary"
-          }`}
-        >
-          {appstatus === "Yes" ? "Yes" : "No"}
-        </button>
-      </div>
-    </div>
-
-
-          
 
           <div className="card rounded shadow-xl bordered p-5 bg-white">
             <div className="overflow-x-auto">
               <table className="table table-zebra">
                 <thead>
                   <tr>
-                    <th>Name of Scholar</th>
+                    <th>Scholar Name</th>
                     <th>Location</th>
                     <th>Contact No.</th>
                     <th>Name of School</th>
@@ -292,19 +354,26 @@ const Applicants = () => {
                   {filteredApplicants && filteredApplicants.length > 0 ? (
                     filteredApplicants.map((app) => (
                       <tr key={app.id}>
-                        <td>{app.full_name}</td>
+                        <td>
+                          {`${app.given_name} ${app.middle_name || ""} ${
+                            app.last_name
+                          }`.trim()}
+                        </td>
                         <td>{app.address}</td>
                         <td>{app.mobile_number}</td>
-                        <td>{app.school}</td>
+                        <td>{app.secondary_school}</td>
                         <td>{app.course}</td>
                         <td>{app.sex}</td>
                         <td>{app.gpa}</td>
-                        <td>
+                        <td className="flex gap-2">
                           <button
-                            className="btn btn-sm btn-primary text-white"
+                            className="btn btn-sm btn-accent text-white"
                             onClick={() => openModal(app)}
                           >
                             View
+                          </button>
+                          <button className="btn btn-sm btn-info text-white">
+                            PDS
                           </button>
                         </td>
                       </tr>
@@ -328,6 +397,7 @@ const Applicants = () => {
           <h3 className="font-bold text-lg mb-4">
             Applicant's Uploaded Documents
           </h3>
+          <div className="divider"></div>
           <button
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-5"
             onClick={closeModal}
@@ -397,6 +467,12 @@ const Applicants = () => {
           )}
           <div className="flex justify-end space-x-2 mt-4">
             <div className="flex gap-2">
+              <button
+                onClick={saveAsPDF}
+                className="btn btn-warning text-white"
+              >
+                Save as PDF
+              </button>
               <button onClick={rejected} className="btn btn-error text-white">
                 Reject
               </button>

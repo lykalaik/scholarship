@@ -27,7 +27,7 @@ const Navbar = () => {
     const modal = document.getElementById("my_modal_3");
     if (modal) {
       modal.close();
-      setIsLogin(true);
+      // setIsLogin(true);
     }
   };
 
