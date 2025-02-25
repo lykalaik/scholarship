@@ -13,6 +13,9 @@ const Applicants = () => {
   const [selectedApplicant, setSelectedApplicant] = useState(null);
   const [email, setEmail] = useState("");
   const [appstatus, setAppStatus] = useState("");
+  const [start, setStart] = useState("");
+  const [end, setEnd] = useState("");
+  const [slots, setSlots] = useState("");
 
   useEffect(() => {
     fetch_applicants();
@@ -40,22 +43,23 @@ const Applicants = () => {
         .select("*")
         .eq("email", "admin@gmail.com");
       if (error) throw error;
-      setAppStatus(data[0].is_open);
+      setStart(data[0].start);
+      setEnd(data[0].end);
+      setSlots(data[0].slots);
     } catch (error) {
       alert("An unexpected error occurred.");
       console.error("Error during registration:", error.message);
     }
   };
 
-  const updateAppStatus = async () => {
-    const newStatus = appstatus === "Yes" ? "No" : "Yes";
+  const updateDate = async () => {
     try {
       const { error } = await supabase
         .from("users")
-        .update({ is_open: newStatus })
+        .update({ start, end, slots, })
         .eq("email", "admin@gmail.com");
       if (error) throw error;
-      setAppStatus(newStatus);
+      window.location.reload();
     } catch (error) {
       alert("Failed to update status.");
       console.error("Error updating status:", error.message);
@@ -68,6 +72,20 @@ const Applicants = () => {
     const modal = document.getElementById("my_modal_4");
     if (modal) {
       modal.showModal();
+    }
+  };
+
+  const openApplicationModal = () => {
+    const modal = document.getElementById("my_modal_3");
+    if (modal) {
+      modal.showModal();
+    }
+  };
+
+  const closeApplicationModal = () => {
+    const modal = document.getElementById("my_modal_3");
+    if (modal) {
+      modal.close();
     }
   };
 
@@ -320,14 +338,11 @@ const Applicants = () => {
                   />
                 </svg>
               </label>
-              <label className="text-gray-700">Open Applications?</label>
               <button
-                onClick={updateAppStatus}
-                className={`btn btn-sm ${
-                  appstatus === "Yes" ? "btn-primary" : "btn-secondary"
-                }`}
+                className="btn btn-sm btn-primary"
+                onClick={openApplicationModal}
               >
-                {appstatus === "Yes" ? "Yes" : "No"}
+              Set Application Date
               </button>
               {/* <button className="btn btn-neutral text-white tracking-wide">
                 Set Application Date
@@ -483,6 +498,46 @@ const Applicants = () => {
           </div>
         </div>
       </dialog>
+
+      <dialog id="my_modal_3" className="modal">
+  <div className="modal-box">
+    <h3 className="font-bold text-lg mb-4">Set Application Date</h3>
+    <div className="divider"></div>
+    <button
+      className="btn btn-sm btn-circle btn-ghost absolute right-2 top-5"
+      onClick={closeApplicationModal}
+    >
+      ✕
+    </button>
+
+    {/* Calendar Selection */}
+    <div className="flex flex-col md:flex-row justify-between">
+      {/* Date Inputs */}
+      <div className="w-full bg-gray-900 p-4 rounded-lg text-white">
+        <label className="block mb-1">From:</label>
+        <input type="date" className="w-full p-2 rounded bg-gray-700"
+          value={start}
+          onChange={(e) => setStart(e.target.value)}/>
+        
+        <label className="block mt-2 mb-1">To:</label>
+        <input type="date" className="w-full p-2 rounded bg-gray-700"
+          value={end}
+          onChange={(e) => setEnd(e.target.value)}/>
+
+        <label className="block mt-2 mb-1">Number of Slots:</label>
+        <input type="number" placeholder="e.g. 123" className="w-full p-2 rounded bg-gray-700"
+          value={slots}
+          onChange={(e) => setSlots(e.target.value)}/>
+        
+        <div className="flex justify-end space-x-2 mt-4">
+          <button className="btn btn-secondary">Cancel</button>
+          <button className="btn btn-primary" onClick={updateDate}>Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
     </>
   );
 };

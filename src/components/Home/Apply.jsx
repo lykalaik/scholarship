@@ -53,6 +53,10 @@ const Apply = () => {
   const [availed_scholarship, setAvailedScholarship] = useState(null);
   const [scholarship_year, setScholarshipYear] = useState(null);
   const [scholarship_name, setScholarshipName] = useState(null);
+  const [start, setStart] = useState("");
+  const [end, setEnd] = useState("");
+  const [slots, setSlots] = useState("");
+  const [total, setTotal] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,17 +64,43 @@ const Apply = () => {
         const { data, error } = await supabase
           .from("users")
           .select("*")
-          .eq("email", "admin@gmail.com");
+          .eq("email", "admin@gmail.com")
+          .single(); 
+        
         if (error) throw error;
 
-        setOpen(data[0].is_open);
+        if (data) {
+          setStart(data.start);
+          setEnd(data.end);
+          setSlots(data.slots);
+          const today = new Date().toISOString().split("T")[0];
+          if (data.start <= today && data.end >= today) {
+            setOpen("Yes");
+          } else {
+            setOpen("No");
+          }
+        }
       } catch (error) {
         console.error("Error fetching data:", error.message);
       }
     };
-    fetchData();
-  }, []);
+    const fetchScholars = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("scholars")
+          .select("*")
 
+       const scholars = data.length;
+       setTotal(parseInt(slots) - scholars)
+      } catch (error) {
+        console.error("Error fetching data:", error.message);
+      }
+    };
+
+
+    fetchData();
+    fetchScholars();
+  }, []);
   const handleConfirmSubmit = async () => {
     const requiredFields = {
       last_name,
@@ -348,6 +378,7 @@ const Apply = () => {
                   <SiGooglescholar className="text-yellow-400 mt-1" />
                   Scholarship Application Form
                 </span>
+                <span className="mt-3 lg:text-2xl sm:text-md font-semibold px-3 flex gap-2">Number of Slots:{total}</span>
               </div>
               <form onSubmit={handleConfirmSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
