@@ -515,12 +515,12 @@ const Applicants = () => {
       {/* Date Inputs */}
       <div className="w-full bg-gray-900 p-4 rounded-lg text-white">
         <label className="block mb-1">From:</label>
-        <input type="date" className="w-full p-2 rounded bg-gray-700"
+        <input  type="datetime-local"  className="w-full p-2 rounded bg-gray-700"
           value={start}
           onChange={(e) => setStart(e.target.value)}/>
         
         <label className="block mt-2 mb-1">To:</label>
-        <input type="date" className="w-full p-2 rounded bg-gray-700"
+        <input type="datetime-local" className="w-full p-2 rounded bg-gray-700"
           value={end}
           onChange={(e) => setEnd(e.target.value)}/>
 
