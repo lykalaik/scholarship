@@ -11,6 +11,9 @@ const Renewal = () => {
   const [selectedApplicant, setSelectedApplicant] = useState(null);
   const [email, setEmail] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [start, setStart] = useState("");
+  const [end, setEnd] = useState("");
+  const [slots, setSlots] = useState("");
 
   useEffect(() => {
     fetch_renewal();
@@ -201,19 +204,47 @@ const Renewal = () => {
     app.full_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const openApplicationModal = () => {
+    const modal = document.getElementById("my_modal_3");
+    if (modal) {
+      modal.showModal();
+    }
+  };
+
+  const closeApplicationModal = () => {
+    const modal = document.getElementById("my_modal_3");
+    if (modal) {
+      modal.close();
+    }
+  };
+
+  const updateDate = async () => {
+    try {
+      const { error } = await supabase
+        .from("users")
+        .update({ start, end, slots })
+        .eq("email", "admin@gmail.com");
+      if (error) throw error;
+      window.location.reload();
+    } catch (error) {
+      alert("Failed to update status.");
+      console.error("Error updating status:", error.message);
+    }
+  };
+
   return (
     <>
       <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-inter">
         <Sidebar />
         <main className="flex-1 p-4 lg:p-8 ml-0 lg:ml-64 transition-all duration-300">
           <div className="lg:flex lg:justify-between mb-5">
-          <div className="flex gap-2">
-          <div className="flex gap-2 items-center">
-            <div className="text-lg text-gray-700">
-             Total Number of Renewals: {filteredApplicants.length} 
+            <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
+                <div className="text-lg text-gray-700">
+                  Total Number of Renewals: {filteredApplicants.length}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
             <div className="flex gap-2">
               <label className="input input-bordered flex items-center gap-2 w-full">
                 <input
@@ -236,25 +267,32 @@ const Renewal = () => {
                   />
                 </svg>
               </label>
+              <button
+                className="btn btn-neutral"
+                onClick={openApplicationModal}
+              >
+                Set Application Date
+              </button>
             </div>
           </div>
+
           <div className="card rounded shadow-xl bordered p-5 bg-white">
             <div className="overflow-x-auto">
-              <table className="table table-zebra">
+              <table className="table w-full">
                 <thead>
                   <tr>
-                    <th>Name of Scholar</th>
-                    <th>View Submission</th>
+                    <th className="text-left">Name of Scholar</th>
+                    <th className="text-right">View Submission</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredApplicants && filteredApplicants.length > 0 ? (
                     filteredApplicants.map((app) => (
                       <tr key={app.id}>
-                        <td>{app.full_name}</td>
-                        <td>
+                        <td className="text-left">{app.full_name}</td>
+                        <td className="text-right">
                           <button
-                            className="btn btn-sm btn-primary text-white"
+                            className="btn btn-sm btn-neutral text-white"
                             onClick={() => openModal(app)}
                           >
                             View
@@ -354,6 +392,56 @@ const Renewal = () => {
               <button onClick={accepted} className="btn btn-primary text-white">
                 Accept
               </button>
+            </div>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog id="my_modal_3" className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg mb-4">Set Application Date</h3>
+          <div className="divider"></div>
+          <button
+            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-5"
+            onClick={closeApplicationModal}
+          >
+            ✕
+          </button>
+
+          {/* Calendar Selection */}
+          <div className="flex flex-col md:flex-row justify-between">
+            {/* Date Inputs */}
+            <div className="w-full bg-gray-900 p-4 rounded-lg text-white">
+              <label className="block mb-1">From:</label>
+              <input
+                type="datetime-local"
+                className="w-full p-2 rounded bg-gray-700"
+                value={start}
+                onChange={(e) => setStart(e.target.value)}
+              />
+
+              <label className="block mt-2 mb-1">To:</label>
+              <input
+                type="datetime-local"
+                className="w-full p-2 rounded bg-gray-700"
+                value={end}
+                onChange={(e) => setEnd(e.target.value)}
+              />
+
+              <label className="block mt-2 mb-1">Number of Slots:</label>
+              <input
+                type="number"
+                placeholder="e.g. 123"
+                className="w-full p-2 rounded bg-gray-700"
+                value={slots}
+                onChange={(e) => setSlots(e.target.value)}
+              />
+
+              <div className="flex justify-center mt-7">
+                <button className="btn bg-white w-1/4" onClick={updateDate}>
+                  Apply
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -80,10 +80,11 @@ const Scholars = () => {
 
   const filteredScholars = scholars.filter(
     (scholar) =>
-      (!scholarshipType || scholar.scholarship_type === scholarshipType) &&
-      scholar.full_name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      ((!scholarshipType || scholar.scholarship_type === scholarshipType) &&
+        scholar.full_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
       scholar.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      scholar.scholarship_type?.toLowerCase().trim() === searchQuery.toLowerCase().trim()
+      scholar.scholarship_type?.toLowerCase().trim() ===
+        searchQuery.toLowerCase().trim()
   );
 
   return (
@@ -92,13 +93,13 @@ const Scholars = () => {
         <Sidebar />
         <main className="flex-1 p-4 lg:p-8 ml-0 lg:ml-64 transition-all duration-300">
           <div className="lg:flex lg:justify-between mb-3">
-          <div className="flex gap-2">
-          <div className="flex gap-2 items-center">
-            <div className="text-lg text-gray-700">
-             Total Number of Scholars: {filteredScholars.length} 
+            <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
+                <div className="text-lg text-gray-700">
+                  Total Number of Scholars: {filteredScholars.length}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
             <div className="flex gap-2 justify-end">
               <input
                 type="text"
@@ -112,14 +113,14 @@ const Scholars = () => {
 
           <div className="card rounded shadow-xl bordered p-5 bg-white">
             <div className="overflow-x-auto">
-              <table className="table table-zebra">
+              <table className="table">
                 <thead>
                   <tr>
-                    <th>Name of Scholar</th>
-                    <th>Status</th>
-                    <th>Scholarship Type</th>
-                    <th>Renew</th>
-                    <th>Actions</th>
+                    <th className="text-left">Name of Scholar</th>
+                    <th className="text-left">Status</th>
+                    <th className="text-left">Scholarship Type</th>
+                    <th className="text-left">Renew</th>
+                    <th className="text-left">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -132,7 +133,7 @@ const Scholars = () => {
                         <td>{applicant.allowed_renewal}</td>
                         <td>
                           <button
-                            className="btn btn-sm btn-primary text-white"
+                            className="btn btn-sm btn-neutral text-white"
                             onClick={() => openModal(applicant)}
                           >
                             Add
@@ -142,7 +143,7 @@ const Scholars = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="9" className="text-center">
+                      <td colSpan="5" className="text-center">
                         No data available
                       </td>
                     </tr>
@@ -173,12 +174,15 @@ const Scholars = () => {
                 onChange={(e) => setAmount(e.target.value)}
               />
             </label>
-            <button
-              className="btn btn-primary text-white"
-              onClick={status_update}
-            >
-              Send
-            </button>
+
+            <div className="flex justify-center mt-3">
+              <button
+                className="btn btn-neutral w-1/3 text-white"
+                onClick={status_update}
+              >
+                Send
+              </button>
+            </div>
           </div>
         </div>
       </dialog>

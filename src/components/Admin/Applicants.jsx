@@ -56,7 +56,7 @@ const Applicants = () => {
     try {
       const { error } = await supabase
         .from("users")
-        .update({ start, end, slots, })
+        .update({ start, end, slots })
         .eq("email", "admin@gmail.com");
       if (error) throw error;
       window.location.reload();
@@ -339,20 +339,17 @@ const Applicants = () => {
                 </svg>
               </label>
               <button
-                className="btn btn-sm btn-primary"
+                className="btn btn-neutral"
                 onClick={openApplicationModal}
               >
-              Set Application Date
-              </button>
-              {/* <button className="btn btn-neutral text-white tracking-wide">
                 Set Application Date
-              </button> */}
+              </button>
             </div>
           </div>
 
           <div className="card rounded shadow-xl bordered p-5 bg-white">
             <div className="overflow-x-auto">
-              <table className="table table-zebra">
+              <table className="table">
                 <thead>
                   <tr>
                     <th>Scholar Name</th>
@@ -382,13 +379,10 @@ const Applicants = () => {
                         <td>{app.gpa}</td>
                         <td className="flex gap-2">
                           <button
-                            className="btn btn-sm btn-accent text-white"
+                            className="btn btn-sm btn-neutral text-white"
                             onClick={() => openModal(app)}
                           >
                             View
-                          </button>
-                          <button className="btn btn-sm btn-info text-white">
-                            PDS
                           </button>
                         </td>
                       </tr>
@@ -500,44 +494,54 @@ const Applicants = () => {
       </dialog>
 
       <dialog id="my_modal_3" className="modal">
-  <div className="modal-box">
-    <h3 className="font-bold text-lg mb-4">Set Application Date</h3>
-    <div className="divider"></div>
-    <button
-      className="btn btn-sm btn-circle btn-ghost absolute right-2 top-5"
-      onClick={closeApplicationModal}
-    >
-      ✕
-    </button>
+        <div className="modal-box">
+          <h3 className="font-bold text-lg mb-4">Set Application Date</h3>
+          <div className="divider"></div>
+          <button
+            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-5"
+            onClick={closeApplicationModal}
+          >
+            ✕
+          </button>
 
-    {/* Calendar Selection */}
-    <div className="flex flex-col md:flex-row justify-between">
-      {/* Date Inputs */}
-      <div className="w-full bg-gray-900 p-4 rounded-lg text-white">
-        <label className="block mb-1">From:</label>
-        <input  type="datetime-local"  className="w-full p-2 rounded bg-gray-700"
-          value={start}
-          onChange={(e) => setStart(e.target.value)}/>
-        
-        <label className="block mt-2 mb-1">To:</label>
-        <input type="datetime-local" className="w-full p-2 rounded bg-gray-700"
-          value={end}
-          onChange={(e) => setEnd(e.target.value)}/>
+          {/* Calendar Selection */}
+          <div className="flex flex-col md:flex-row justify-between">
+            {/* Date Inputs */}
+            <div className="w-full bg-gray-900 p-4 rounded-lg text-white">
+              <label className="block mb-1">From:</label>
+              <input
+                type="datetime-local"
+                className="w-full p-2 rounded bg-gray-700"
+                value={start}
+                onChange={(e) => setStart(e.target.value)}
+              />
 
-        <label className="block mt-2 mb-1">Number of Slots:</label>
-        <input type="number" placeholder="e.g. 123" className="w-full p-2 rounded bg-gray-700"
-          value={slots}
-          onChange={(e) => setSlots(e.target.value)}/>
-        
-        <div className="flex justify-end space-x-2 mt-4">
-          <button className="btn btn-secondary">Cancel</button>
-          <button className="btn btn-primary" onClick={updateDate}>Apply</button>
+              <label className="block mt-2 mb-1">To:</label>
+              <input
+                type="datetime-local"
+                className="w-full p-2 rounded bg-gray-700"
+                value={end}
+                onChange={(e) => setEnd(e.target.value)}
+              />
+
+              <label className="block mt-2 mb-1">Number of Slots:</label>
+              <input
+                type="number"
+                placeholder="e.g. 123"
+                className="w-full p-2 rounded bg-gray-700"
+                value={slots}
+                onChange={(e) => setSlots(e.target.value)}
+              />
+
+              <div className="flex justify-center mt-7">
+                <button className="btn bg-white w-1/4" onClick={updateDate}>
+                  Apply
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-</dialog>
-
+      </dialog>
     </>
   );
 };

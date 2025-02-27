@@ -65,8 +65,8 @@ const Apply = () => {
           .from("users")
           .select("*")
           .eq("email", "admin@gmail.com")
-          .single(); 
-        
+          .single();
+
         if (error) throw error;
 
         if (data) {
@@ -86,17 +86,14 @@ const Apply = () => {
     };
     const fetchScholars = async () => {
       try {
-        const { data, error } = await supabase
-          .from("scholars")
-          .select("*")
+        const { data, error } = await supabase.from("scholars").select("*");
 
        const scholars = data.length;
-       setTotal(parseInt(slots) - scholars);
+       setTotal(parseInt(slots) - scholars)
       } catch (error) {
         console.error("Error fetching data:", error.message);
       }
     };
-
 
     fetchData();
     fetchScholars();
@@ -378,7 +375,9 @@ const Apply = () => {
                   <SiGooglescholar className="text-yellow-400 mt-1" />
                   Scholarship Application Form
                 </span>
-                <span className="mt-3 lg:text-2xl sm:text-md font-semibold px-3 flex gap-2">Number of Slots:{total}</span>
+                <span className="mt-3 lg:text-2xl sm:text-md font-semibold px-3 flex gap-2">
+                  Number of Slots:{total}
+                </span>
               </div>
               <form onSubmit={handleConfirmSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -388,7 +387,6 @@ const Apply = () => {
                     className="input input-bordered border-gray-300 w-full"
                     required
                     onChange={(e) => setLastName(e.target.value)}
-
                   />
                   <input
                     type="text"

@@ -71,7 +71,9 @@ const News = () => {
 
       if (error) throw error;
 
-      alert(`${type === "news" ? "News" : "Announcement"} updated successfully!`);
+      alert(
+        `${type === "news" ? "News" : "Announcement"} updated successfully!`
+      );
       setShowModal(false);
       type === "news" ? fetch_news() : fetch_announcements();
     } catch (error) {
@@ -154,7 +156,9 @@ const News = () => {
 
       if (error) throw error;
 
-      alert(`${type === "news" ? "News" : "Announcement"} deleted successfully!`);
+      alert(
+        `${type === "news" ? "News" : "Announcement"} deleted successfully!`
+      );
       setShowConfirmDeleteModal(false);
       type === "news" ? fetch_news() : fetch_announcements();
     } catch (error) {
@@ -172,7 +176,7 @@ const News = () => {
             <button
               className={`px-4 py-2 font-bold ${
                 activeTab === "news"
-                  ? "border-b-2 border-blue-500 text-blue-500"
+                  ? "border-b-2 border-neutral text-neutral"
                   : "text-gray-500"
               }`}
               onClick={() => handleTabSwitch("news")}
@@ -182,7 +186,7 @@ const News = () => {
             <button
               className={`px-4 py-2 font-bold ${
                 activeTab === "announcements"
-                  ? "border-b-2 border-blue-500 text-blue-500"
+                  ? "border-b-2 border-neutral text-neutral"
                   : "text-gray-500"
               }`}
               onClick={() => handleTabSwitch("announcements")}
@@ -194,14 +198,17 @@ const News = () => {
           {activeTab === "news" ? (
             <div>
               <div className="flex justify-between mb-4">
-                <h1 className="lg:text-2xl font-extrabold">News Section</h1>
+                <h1 className="lg:text-2xl font-extrabold mt-2">
+                  News Section
+                </h1>
                 <button
-                  className="btn btn-primary"
+                  className="btn btn-neutral"
                   onClick={() => handleShowAddModal("news")}
                 >
                   Add News
                 </button>
               </div>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {newsData.map((item) => (
                   <div
@@ -212,19 +219,20 @@ const News = () => {
                       <img
                         src={item.picture}
                         alt={item.title}
-                        className="w-full h-48 object-cover rounded"
+                        className="w-full h-52 object-cover rounded"
                       />
                     )}
                     <h2 className="text-l font-semibold mb-2">{item.title}</h2>
-                    <div className="flex justify-end">
+                    <div className="divider"></div>
+                    <div className="flex justify-center">
                       <button
-                        className="btn btn-danger mr-2"
+                        className="btn btn-error text-white btn-sm mr-2"
                         onClick={() => confirmDelete(item, "news")}
                       >
                         Delete
                       </button>
                       <button
-                        className="btn btn-primary"
+                        className="btn btn-neutral btn-sm w-1/4"
                         onClick={() => handleEditItem(item, "news")}
                       >
                         Edit
@@ -237,11 +245,11 @@ const News = () => {
           ) : (
             <div>
               <div className="flex justify-between mb-4">
-                <h1 className="lg:text-2xl font-extrabold">
+                <h1 className="lg:text-2xl font-extrabold mt-2">
                   Announcements Section
                 </h1>
                 <button
-                  className="btn btn-primary"
+                  className="btn btn-neutral"
                   onClick={() => handleShowAddModal("announcements")}
                 >
                   Add Announcement
@@ -257,19 +265,20 @@ const News = () => {
                       <img
                         src={item.picture}
                         alt={item.title}
-                        className="w-full h-48 object-cover rounded"
+                        className="w-full h-52 object-cover rounded"
                       />
                     )}
                     <h2 className="text-l font-semibold mb-2">{item.title}</h2>
-                    <div className="flex justify-end">
+                    <div className="divider"></div>
+                    <div className="flex justify-center">
                       <button
-                        className="btn btn-danger mr-2"
+                        className="btn btn-error text-white btn-sm mr-2"
                         onClick={() => confirmDelete(item, "announcements")}
                       >
                         Delete
                       </button>
                       <button
-                        className="btn btn-primary"
+                        className="btn btn-neutral btn-sm w-1/4"
                         onClick={() => handleEditItem(item, "announcements")}
                       >
                         Edit
@@ -317,7 +326,10 @@ const News = () => {
                     <button className="btn" onClick={handleCloseModal}>
                       Close
                     </button>
-                    <button className="btn btn-primary" onClick={handleSaveEdit}>
+                    <button
+                      className="btn btn-primary"
+                      onClick={handleSaveEdit}
+                    >
                       Save
                     </button>
                   </div>
@@ -365,7 +377,10 @@ const News = () => {
                     >
                       Close
                     </button>
-                    <button className="btn btn-primary" onClick={handleAddSubmit}>
+                    <button
+                      className="btn btn-primary"
+                      onClick={handleAddSubmit}
+                    >
                       Add
                     </button>
                   </div>
@@ -379,7 +394,10 @@ const News = () => {
               <div className="modal modal-open">
                 <div className="modal-box">
                   <h2 className="text-xl font-bold mb-4">Confirm Deletion</h2>
-                  <p>Are you sure you want to delete this {type === "news" ? "news" : "announcement"}?</p>
+                  <p>
+                    Are you sure you want to delete this{" "}
+                    {type === "news" ? "news" : "announcement"}?
+                  </p>
                   <div className="modal-action">
                     <button
                       className="btn"
@@ -387,10 +405,7 @@ const News = () => {
                     >
                       Cancel
                     </button>
-                    <button
-                      className="btn btn-danger"
-                      onClick={handleDelete}
-                    >
+                    <button className="btn btn-danger" onClick={handleDelete}>
                       Delete
                     </button>
                   </div>
