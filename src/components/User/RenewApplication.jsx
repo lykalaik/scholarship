@@ -29,7 +29,6 @@ const RenewApplication = () => {
       if (error) throw error;
       setUserData(data);
     } catch (error) {
-      alert("An unexpected error occurred.");
       console.error("Error during registration:", error.message);
     }
   };

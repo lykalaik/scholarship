@@ -41,6 +41,7 @@ const Navbar = () => {
           .eq("email_address", email)
           .single();
         if (data && data.password === password) {
+          sessionStorage.setItem("role", "Scholar");
           sessionStorage.setItem("scholarData", data.full_name);
           sessionStorage.setItem("email", data.email_address);
           navigate("/user");
@@ -54,6 +55,7 @@ const Navbar = () => {
           .eq("email", email)
           .single();
         if (data && data.password === password) {
+          sessionStorage.setItem("role", "Admin");
           navigate("/admin");
         } else {
           alert("Invalid Credentials");

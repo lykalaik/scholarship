@@ -91,7 +91,7 @@ const Apply = () => {
           .select("*")
 
        const scholars = data.length;
-       setTotal(parseInt(slots) - scholars)
+       setTotal(parseInt(slots) - scholars);
       } catch (error) {
         console.error("Error fetching data:", error.message);
       }
