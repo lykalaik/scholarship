@@ -116,19 +116,18 @@ const Archive = () => {
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-inter">
       <Sidebar />
-      <main className="flex-1 lg:p-8 lg:ml-64 transition-all duration-300">
-        <div className="lg:flex lg:justify-between mb-5">
-          <div className="flex gap-2">
-            <div className="flex gap-2 items-center">
-              <div className="text-lg text-gray-700">
-                Total Number of Scholars: {filteredScholars.length}
-              </div>
+      <main className="flex-1 lg:p-8 lg:ml-64 transition-all duration-300 overflow-x-auto">
+        <div className="flex flex-wrap justify-between mb-5 gap-4">
+          <div className="flex gap-2 items-center w-full lg:w-auto">
+            <div className="text-lg text-gray-700">
+              Total Number of Scholars: {filteredScholars.length}
             </div>
           </div>
-          <div className="flex gap-2">
+
+          <div className="flex gap-2 w-full lg:w-auto items-center">
             <input
               type="text"
-              className="input input-bordered w-100"
+              className="input input-bordered w-full sm:w-48 lg:w-64"
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -141,62 +140,65 @@ const Archive = () => {
             </button>
           </div>
         </div>
-        <div className="card w-full rounded shadow-xl bordered p-5 bg-white overflow-x-auto">
-          <table className="table w-full">
-            <thead>
-              <tr>
-                <th>Name of Scholar</th>
-                <th>Address</th>
-                <th>Contact No.</th>
-                <th>Name of School</th>
-                <th>Course</th>
-                <th>Sex</th>
-                <th>Status</th>
-                <th>Scholarship Type</th>
-                <th>Allow Renewal?</th>
-                <th>Attachments</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredScholars.map((applicant) => (
-                <tr key={applicant.id}>
-                  <td>{applicant.full_name}</td>
-                  <td>{applicant.address}</td>
-                  <td>{applicant.contact_no}</td>
-                  <td>{applicant.school}</td>
-                  <td>{applicant.course}</td>
-                  <td>{applicant.sex}</td>
-                  <td>{applicant.status}</td>
-                  <td>{applicant.scholarship_type}</td>
-                  <td>
-                    <button
-                      className={`btn btn-sm text-white ${
-                        applicant.allowed_renewal === "Yes"
-                          ? "btn-success"
-                          : "btn-error"
-                      }`}
-                      onClick={() =>
-                        toggleAllowedRenewal(
-                          applicant.id,
-                          applicant.allowed_renewal
-                        )
-                      }
-                    >
-                      {applicant.allowed_renewal === "Yes" ? "Yes" : "No"}
-                    </button>
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-sm text-white btn-neutral"
-                      onClick={() => handleViewClick(applicant)}
-                    >
-                      View
-                    </button>
-                  </td>
+
+        <div className="card w-full rounded shadow-xl bordered p-5 bg-white">
+          <div className="overflow-x-auto max-w-full">
+            <table className="table min-w-full table-auto">
+              <thead>
+                <tr>
+                  <th>Name of Scholar</th>
+                  <th>Address</th>
+                  <th>Contact No.</th>
+                  <th>Name of School</th>
+                  <th>Course</th>
+                  <th>Sex</th>
+                  <th>Status</th>
+                  <th>Scholarship Type</th>
+                  <th>Allow Renewal?</th>
+                  <th>Attachments</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredScholars.map((applicant) => (
+                  <tr key={applicant.id}>
+                    <td>{applicant.full_name}</td>
+                    <td>{applicant.address}</td>
+                    <td>{applicant.contact_no}</td>
+                    <td>{applicant.school}</td>
+                    <td>{applicant.course}</td>
+                    <td>{applicant.sex}</td>
+                    <td>{applicant.status}</td>
+                    <td>{applicant.scholarship_type}</td>
+                    <td>
+                      <button
+                        className={`btn btn-sm text-white ${
+                          applicant.allowed_renewal === "Yes"
+                            ? "btn-primary"
+                            : "btn-error"
+                        }`}
+                        onClick={() =>
+                          toggleAllowedRenewal(
+                            applicant.id,
+                            applicant.allowed_renewal
+                          )
+                        }
+                      >
+                        {applicant.allowed_renewal === "Yes" ? "Yes" : "No"}
+                      </button>
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-sm text-white btn-neutral"
+                        onClick={() => handleViewClick(applicant)}
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Modal for Scholar Details */}

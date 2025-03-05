@@ -1,88 +1,48 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import Navbar from "./Navbar.jsx";
 import { MdOutlineMenuBook } from "react-icons/md";
 import supabase from "../supabaseClient.jsx";
+const LazyCarousel = lazy(() => import("./Carousel.jsx"));
 
 const Home = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [newsData, setNewsData] = useState([]);
-  const [showModal, setShowModal] = useState(false); // State for modal visibility
-  const [selectedNews, setSelectedNews] = useState(null); // State for selected news item
-  const [imagesData, setImages] = useState([]); // Store image data in state
-
-  const autoScrollInterval = 1500;
+  const [showModal, setShowModal] = useState(false);
+  const [selectedNews, setSelectedNews] = useState(null);
+  const [imagesData, setImages] = useState([]);
 
   useEffect(() => {
     fetch_news();
     fetch_newsimage();
   }, []);
 
-  // Fetch news data
   const fetch_news = async () => {
     try {
       const { data, error } = await supabase.from("news").select("*");
       if (error) throw error;
       setNewsData(data);
     } catch (error) {
-      alert("An unexpected error occurred.");
       console.error("Error fetching news:", error.message);
     }
   };
 
-  // Fetch image URLs for the carousel
   const fetch_newsimage = async () => {
     try {
       const { data, error } = await supabase.from("news").select("picture");
       if (error) throw error;
-      setImages(data); // Store image data array correctly
+      setImages(data);
     } catch (error) {
-      alert("An unexpected error occurred.");
       console.error("Error fetching images:", error.message);
     }
   };
-
-  // Auto-scroll functionality for the carousel
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % imagesData.length);
-    }, autoScrollInterval);
-
-    return () => clearInterval(interval);
-  }, [imagesData.length]);
-
-  // Modal handling for selected news
-  const handleReadMore = (news) => {
-    setSelectedNews(news);
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => setShowModal(false);
 
   return (
     <>
       <Navbar />
       <div className="mb-10 p-5">
-        {/* Responsive Carousel */}
-        <div className="carousel w-full rounded overflow-hidden mb-8">
-          {imagesData.length > 0 ? (
-            imagesData.map((image, index) => (
-              <div
-                key={index}
-                className={`carousel-item w-full ${
-                  index === currentIndex ? "block" : "hidden"
-                }`}
-              >
-                <img
-                  src={image.picture}
-                  className="w-full max-h-[calc(100vh-150px)] h-auto object-cover"
-                  alt={`Slide ${index + 1}`}
-                />
-              </div>
-            ))
-          ) : (
-            <p>Loading images...</p> // Fallback if images are still loading
-          )}
-        </div>
+        {/* Lazy Load Carousel */}
+        <Suspense fallback={<p>Loading carousel...</p>}>
+          <LazyCarousel imagesData={imagesData} />
+        </Suspense>
 
         <div className="divider my-5 text-black text-xl sm:text-2xl md:text-3xl font-bold tracking-wider text-center">
           News and Updates
@@ -110,7 +70,10 @@ const Home = () => {
                 <div className="flex justify-center mt-5">
                   <button
                     className="btn btn-neutral flex w-1/2 items-center justify-center gap-2 rounded-full"
-                    onClick={() => handleReadMore(news)}
+                    onClick={() => {
+                      setSelectedNews(news);
+                      setShowModal(true);
+                    }}
                   >
                     <MdOutlineMenuBook size={20} />
                     <span>Read More</span>
@@ -127,7 +90,7 @@ const Home = () => {
             <div className="modal modal-open">
               <div className="modal-box relative flex flex-col items-center">
                 <button
-                  onClick={handleCloseModal}
+                  onClick={() => setShowModal(false)}
                   className="absolute top-3 right-4 font-bold text-black"
                 >
                   ✕

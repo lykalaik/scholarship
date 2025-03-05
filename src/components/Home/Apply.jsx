@@ -375,8 +375,8 @@ const Apply = () => {
                   <SiGooglescholar className="text-yellow-400 mt-1" />
                   Scholarship Application Form
                 </span>
-                <span className="mt-3 lg:text-2xl sm:text-md font-semibold px-3 flex gap-2">
-                  Number of Slots:{total}
+                <span className="mt-2 lg:text-lg sm:text-md font-semibold px-3 flex gap-2">
+                  Number of Slots: {total}
                 </span>
               </div>
               <form onSubmit={handleConfirmSubmit}>
@@ -731,12 +731,12 @@ const Apply = () => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row justify-end mt-5 gap-3">
-                  <button className="btn btn-error text-white w-full sm:w-1/5">
+                  <button className="btn btn-error text-white w-full sm:w-1/6">
                     Save as PDS
                   </button>
                   <button
                     type="submit"
-                    className="btn btn-neutral w-full sm:w-1/5"
+                    className="btn btn-neutral w-full sm:w-1/6"
                   >
                     Submit Application
                   </button>

@@ -282,7 +282,7 @@ const RenewApplication = () => {
           Scholarship
         </h1>
         {renewalstatus && (
-          <h1 className="text-2xl flex gap-2 font-bold">
+          <h1 className="text-lg flex gap-2 font-bold">
             Renewal Status: {renewalstatus}
           </h1>
         )}

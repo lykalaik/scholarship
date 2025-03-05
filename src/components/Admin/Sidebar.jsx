@@ -112,7 +112,7 @@ const Sidebar = () => {
 
           <button
             onClick={() => openModal()}
-            className="flex items-center text-sm hover:bg-gray-700 cursor-pointer rounded p-2 mt-5 mb-4"
+            className="flex items-center text-sm hover:bg-gray-700 cursor-pointer rounded p-2 mt-1 w-full mb-4"
           >
             <RiLogoutBoxRFill className="mr-3" size={18} />
             Logout
