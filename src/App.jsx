@@ -11,16 +11,25 @@ import EmailForm from "./components/Admin/Email.jsx";
 import News from "./components/Admin/News.jsx";
 import Analytics from "./components/Admin/Analytics.jsx";
 import { Routes, Route } from "react-router-dom";
+import ScholarRoute from "./components/ScholarRoute.jsx";
+import AdminRoute from "./components/AdminRoute.jsx";
+import Unauthorized from "./components/Unathorized.jsx";
 
 const App = () => {
   return (
     <>
       <Routes>
         <Route index element={<Home />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/apply" element={<Apply />} />
         <Route path="/about" element={<About />} />
         <Route path="/track" element={<Track />} />
+
+        <Route element={<ScholarRoute />}>
         <Route path="/user" element={<UserDashboard />} />
+        </Route>
+
+        <Route element={<AdminRoute />}>
         <Route path="/archive" element={<Archive />} />
         <Route path="/admin" element={<Applicants />} />
         <Route path="/scholars" element={<Scholars />} />
@@ -28,6 +37,7 @@ const App = () => {
         <Route path="/email" element={<EmailForm />} />
         <Route path="/news" element={<News />} />
         <Route path="/analytics" element={<Analytics />} />
+        </Route>
       </Routes>
     </>
   );

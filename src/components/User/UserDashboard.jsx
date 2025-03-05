@@ -33,7 +33,6 @@ const UserDashboard = () => {
       if (error) throw error;
       setUserData(data);
     } catch (error) {
-      alert("An unexpected error occurred.");
       console.error("Error during registration:", error.message);
     }
   };
@@ -49,7 +48,6 @@ const UserDashboard = () => {
       console.log(data);
       setRenewalData(data);
     } catch (error) {
-      alert("An unexpected error occurred.");
       console.error("Error during registration:", error.message);
     }
   };
@@ -65,7 +63,6 @@ const UserDashboard = () => {
       console.log(data);
       setrProfileData(data);
     } catch (error) {
-      alert("An unexpected error occurred.");
       console.error("Error during registration:", error.message);
     }
   };
@@ -76,7 +73,6 @@ const UserDashboard = () => {
       if (error) throw error;
       setAnnouncements(data); // Store fetched announcements
     } catch (error) {
-      alert("An unexpected error occurred.");
       console.error("Error during fetching announcements:", error.message);
     }
   };
