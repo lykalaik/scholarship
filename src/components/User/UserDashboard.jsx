@@ -6,6 +6,7 @@ import { FaUser } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import supabase from "../supabaseClient";
 import { MdManageAccounts } from "react-icons/md";
+import { RiLockPasswordFill } from "react-icons/ri";
 
 const UserDashboard = () => {
   const [userData, setUserData] = useState([]);
@@ -17,6 +18,17 @@ const UserDashboard = () => {
   const [profileData, setrProfileData] = useState([]);
   const [selectedImage, setSelectedImage] = useState("");
   const [renewalData, setRenewalData] = useState([]);
+
+  const [changePasswordModal, setChangePasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const openChangePasswordModal = () => setChangePasswordModal(true);
+  const closeChangePasswordModal = () => setChangePasswordModal(false);
 
   useEffect(() => {
     fetch_data();
@@ -34,6 +46,42 @@ const UserDashboard = () => {
       setUserData(data);
     } catch (error) {
       console.error("Error during registration:", error.message);
+    }
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    // Check if match
+    if (newPassword !== confirmNewPassword) {
+      alert("New passwords do not match!");
+      return;
+    }
+    try {
+      // current
+      const { data, error } = await supabase
+        .from("scholars")
+        .select("password")
+        .eq("full_name", scholarName)
+        .single();
+      if (error) throw error;
+
+      // Compare
+      if (data.password !== currentPassword) {
+        alert("Current password is incorrect!");
+        return;
+      }
+
+      // Update
+      const { error: updateError } = await supabase
+        .from("scholars")
+        .update({ password: newPassword })
+        .eq("full_name", scholarName);
+      if (updateError) throw updateError;
+      alert("Password updated successfully!");
+      closeChangePasswordModal();
+    } catch (err) {
+      console.error("Error updating password:", err.message);
+      alert("Failed to update password.");
     }
   };
 
@@ -202,6 +250,13 @@ const UserDashboard = () => {
             <RiFundsBoxFill className="mt-1" />
             Track Fundings
           </h1>
+          <button
+            className="btn btn-sm btn-neutral"
+            onClick={openChangePasswordModal}
+          >
+            <RiLockPasswordFill />
+            Change Password
+          </button>
         </div>
         <div className="card rounded shadow-xl border p-5">
           <div className="overflow-x-auto">
@@ -275,7 +330,7 @@ const UserDashboard = () => {
       {/* Profile Modal */}
       {profileModal && (
         <div className="modal modal-open">
-          <div className="modal-box w-full max-w-4xl">
+          <div className="modal-box w-full max-w-6xl">
             <form method="dialog">
               <button
                 className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
@@ -517,6 +572,83 @@ const UserDashboard = () => {
                   !renewalData?.clearance && <p>No images submitted.</p>}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {changePasswordModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h2 className="text-xl font-bold">Change Password</h2>
+            <form onSubmit={handleChangePassword}>
+              <div className="mt-4 relative">
+                <label className="block font-semibold">Current Password</label>
+                <input
+                  type={showCurrentPassword ? "text" : "password"}
+                  className="input input-bordered w-full"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-9 text-gray-600"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                >
+                  {showCurrentPassword ? "👁️" : "🔒"}
+                </button>
+              </div>
+
+              <div className="mt-4 relative">
+                <label className="block font-semibold">New Password</label>
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  className="input input-bordered w-full"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-9 text-gray-600"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                >
+                  {showNewPassword ? "👁️" : "🔒"}
+                </button>
+              </div>
+
+              <div className="mt-4 relative">
+                <label className="block font-semibold">
+                  Confirm New Password
+                </label>
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  className="input input-bordered w-full"
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-9 text-gray-600"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? "👁️" : "🔒"}
+                </button>
+                <div className="modal-action">
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={closeChangePasswordModal}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-neutral">
+                    Update
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
       )}
