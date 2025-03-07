@@ -17,6 +17,7 @@ const Renewal = () => {
 
   useEffect(() => {
     fetch_renewal();
+    fetch_user();
   }, []);
 
   const fetch_renewal = async () => {
@@ -32,6 +33,23 @@ const Renewal = () => {
       console.error("Error during registration:", error.message);
     }
   };
+
+  const fetch_user = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("deadline")
+        .select("*")
+        .eq("type", "renewal");
+      if (error) throw error;
+      setStart(data[0].start);
+      setEnd(data[0].end);
+      setSlots(data[0].slots);
+    } catch (error) {
+      alert("An unexpected error occurred.");
+      console.error("Error during registration:", error.message);
+    }
+  };
+
 
   const openModal = (applicant) => {
     setSelectedApplicant(applicant);
@@ -221,9 +239,9 @@ const Renewal = () => {
   const updateDate = async () => {
     try {
       const { error } = await supabase
-        .from("users")
+        .from("deadline")
         .update({ start, end, slots })
-        .eq("email", "admin@gmail.com");
+        .eq("type", "renewal");
       if (error) throw error;
       window.location.reload();
     } catch (error) {

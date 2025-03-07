@@ -39,9 +39,9 @@ const Applicants = () => {
   const fetch_user = async () => {
     try {
       const { data, error } = await supabase
-        .from("users")
+        .from("deadline")
         .select("*")
-        .eq("email", "admin@gmail.com");
+        .eq("type", "application");
       if (error) throw error;
       setStart(data[0].start);
       setEnd(data[0].end);
@@ -55,9 +55,9 @@ const Applicants = () => {
   const updateDate = async () => {
     try {
       const { error } = await supabase
-        .from("users")
+        .from("deadline")
         .update({ start, end, slots })
-        .eq("email", "admin@gmail.com");
+        .eq("type", "application");
       if (error) throw error;
       window.location.reload();
     } catch (error) {

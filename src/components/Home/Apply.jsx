@@ -7,13 +7,7 @@ import { AiOutlineFileDone } from "react-icons/ai";
 const Apply = () => {
   const [open, setOpen] = useState("");
   const [file, setFile] = useState("");
-  const [application_letter, setApplicationLetter] = useState("");
-  const [recommendation_letter, setRecommendationLetter] = useState("");
-  const [itr, setITR] = useState("");
-  const [copy_itr, setCopyITR] = useState("");
-  const [cedula, setCedula] = useState("");
-  const [voters, setVoters] = useState("");
-  const [recent_card, setRecentCard] = useState("");
+  const [docs, setDocs] = useState("");
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [idnumber, setIDNumber] = useState("");
@@ -63,100 +57,90 @@ const Apply = () => {
     const fetchData = async () => {
       try {
         const { data, error } = await supabase
-          .from("users")
+          .from("deadline")
           .select("*")
-          .eq("email", "admin@gmail.com")
+          .eq("type", "application")
           .single();
-
+  
         if (error) throw error;
-
         if (data) {
           setStart(data.start);
           setEnd(data.end);
           setSlots(data.slots);
           const today = new Date().toISOString().split("T")[0];
-          if (data.start <= today && data.end >= today) {
-            setOpen("Yes");
-          } else {
-            setOpen("No");
-          }
+          setOpen(data.start <= today && data.end >= today ? "Yes" : "No");
+          fetchScholars(data.slots);
         }
       } catch (error) {
         console.error("Error fetching data:", error.message);
       }
     };
-    const fetchScholars = async () => {
+  
+    const fetchScholars = async (slots) => {
       try {
         const { data, error } = await supabase.from("scholars").select("*");
-
-        const scholars = data.length;
-        setTotal(parseInt(slots) - scholars);
+  
+        if (error) throw error;
+        setTotal(slots - data.length);
       } catch (error) {
         console.error("Error fetching data:", error.message);
       }
     };
 
     fetchData();
-    fetchScholars();
   }, []);
-  const handleConfirmSubmit = async () => {
-    const requiredFields = {
-      last_name,
-      given_name,
-      middle_name,
-      age,
-      date_of_birth,
-      place_of_birth,
-      course,
-      year_level,
-      contact_number,
-      email_address,
-      sex,
-      civil_service,
-      religion,
-      height,
-      weight,
-      address,
-      number_family_members,
-      ethnicity,
-      father_address,
-      father_name,
-      father_number,
-      father_occupation,
-      mother_address,
-      mother_name,
-      mother_number,
-      mother_occupation,
-      elementary_awards,
-      elementary_school,
-      elementary_year,
-      secondary_awards,
-      secondary_school,
-      secondary_year,
-      availed_scholarship,
-      scholarship_year,
-      scholarship_name,
-      status,
-      application_letter,
-      recommendation_letter,
-      itr,
-      copy_itr,
-      cedula,
-      voters,
-      recent_card,
-    };
+  
+  const handleConfirmSubmit = async (e) => {
+    e.preventDefault();
     const { data, error } = await supabase
       .from("application")
       .insert([
         {
-          ...requiredFields,
+          last_name,
+          given_name,
+          middle_name,
+          age,
+          date_of_birth,
+          place_of_birth,
+          course,
+          year_level,
+          contact_number,
+          email_address,
+          sex,
+          civil_service,
+          religion,
+          height,
+          weight,
+          address,
+          number_family_members,
+          ethnicity,
+          father_address,
+          father_name,
+          father_number,
+          father_occupation,
+          mother_address,
+          mother_name,
+          mother_number,
+          mother_occupation,
+          elementary_awards,
+          elementary_school,
+          elementary_year,
+          secondary_awards,
+          secondary_school,
+          secondary_year,
+          availed_scholarship,
+          scholarship_year,
+          scholarship_name,
+          docs,
           status: "Pending",
         },
       ])
       .select();
     if (error) {
-      console.error("Error inserting data:", error);
-      alert("Error inserting data");
+      setSubmitShowModal(false);
+      setIDNumber(data[0].id);
+      setLoading(false);
+      setShowModal(true);
     } else {
       setSubmitShowModal(false);
       setIDNumber(data[0].id);
@@ -170,7 +154,7 @@ const Apply = () => {
   //   setSubmitShowModal(true);
   // };
 
-  const handleApplicationLetter = async (e) => {
+  const handleFileSubmit = async (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
     if (selectedFile) {
@@ -189,175 +173,15 @@ const Apply = () => {
           throw urlError;
         }
         console.log("Image URL:", publicURL.publicUrl);
-        setApplicationLetter(publicURL.publicUrl);
+        setDocs(publicURL.publicUrl);
       } catch (error) {
         console.error("Error uploading image:", error);
-        alert("Error uploading image: " + error.message);
+        alert("Error uploading file: " + error.message);
       }
     }
   };
 
-  const handleRecommendationLetter = async (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    if (selectedFile) {
-      try {
-        const filePath = `${selectedFile.name}`;
-        const { data, error } = await supabase.storage
-          .from("Applicant_Storage")
-          .upload(filePath, selectedFile);
-        if (error) {
-          throw error;
-        }
-        const { data: publicURL, error: urlError } = supabase.storage
-          .from("Applicant_Storage")
-          .getPublicUrl(filePath);
-        if (urlError) {
-          throw urlError;
-        }
-        console.log("Image URL:", publicURL.publicUrl);
-        setRecommendationLetter(publicURL.publicUrl);
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        alert("Error uploading image: " + error.message);
-      }
-    }
-  };
-
-  const handleITR = async (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    if (selectedFile) {
-      try {
-        const filePath = `${selectedFile.name}`;
-        const { data, error } = await supabase.storage
-          .from("Applicant_Storage")
-          .upload(filePath, selectedFile);
-        if (error) {
-          throw error;
-        }
-        const { data: publicURL, error: urlError } = supabase.storage
-          .from("Applicant_Storage")
-          .getPublicUrl(filePath);
-        if (urlError) {
-          throw urlError;
-        }
-        console.log("Image URL:", publicURL.publicUrl);
-        setITR(publicURL.publicUrl);
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        alert("Error uploading image: " + error.message);
-      }
-    }
-  };
-
-  const handleCopyITR = async (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    if (selectedFile) {
-      try {
-        const filePath = `${selectedFile.name}`;
-        const { data, error } = await supabase.storage
-          .from("Applicant_Storage")
-          .upload(filePath, selectedFile);
-        if (error) {
-          throw error;
-        }
-        const { data: publicURL, error: urlError } = supabase.storage
-          .from("Applicant_Storage")
-          .getPublicUrl(filePath);
-        if (urlError) {
-          throw urlError;
-        }
-        console.log("Image URL:", publicURL.publicUrl);
-        setCopyITR(publicURL.publicUrl);
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        alert("Error uploading image: " + error.message);
-      }
-    }
-  };
-
-  const handleCedula = async (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    if (selectedFile) {
-      try {
-        const filePath = `${selectedFile.name}`;
-        const { data, error } = await supabase.storage
-          .from("Applicant_Storage")
-          .upload(filePath, selectedFile);
-        if (error) {
-          throw error;
-        }
-        const { data: publicURL, error: urlError } = supabase.storage
-          .from("Applicant_Storage")
-          .getPublicUrl(filePath);
-        if (urlError) {
-          throw urlError;
-        }
-        console.log("Image URL:", publicURL.publicUrl);
-        setCedula(publicURL.publicUrl);
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        alert("Error uploading image: " + error.message);
-      }
-    }
-  };
-
-  const handleVoters = async (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    if (selectedFile) {
-      try {
-        const filePath = `${selectedFile.name}`;
-        const { data, error } = await supabase.storage
-          .from("Applicant_Storage")
-          .upload(filePath, selectedFile);
-        if (error) {
-          throw error;
-        }
-        const { data: publicURL, error: urlError } = supabase.storage
-          .from("Applicant_Storage")
-          .getPublicUrl(filePath);
-        if (urlError) {
-          throw urlError;
-        }
-        console.log("Image URL:", publicURL.publicUrl);
-        setVoters(publicURL.publicUrl);
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        alert("Error uploading image: " + error.message);
-      }
-    }
-  };
-
-  const handleRecord = async (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    if (selectedFile) {
-      try {
-        const filePath = `${selectedFile.name}`;
-        const { data, error } = await supabase.storage
-          .from("Applicant_Storage")
-          .upload(filePath, selectedFile);
-        if (error) {
-          throw error;
-        }
-        const { data: publicURL, error: urlError } = supabase.storage
-          .from("Applicant_Storage")
-          .getPublicUrl(filePath);
-        if (urlError) {
-          throw urlError;
-        }
-        console.log("Image URL:", publicURL.publicUrl);
-        setRecentCard(publicURL.publicUrl);
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        alert("Error uploading image: " + error.message);
-      }
-    }
-  };
+  
 
   const showid = () => {
     setShowModal(false);
@@ -685,44 +509,20 @@ const Apply = () => {
 
                 <div className="flex flex-col items-start">
                   <span className="text-red-500 text-sm sm:text-base mt-3">
-                    *Note: Filename for images should be
-                    "LASTNAME_FIRSTNAME_FILENAME".
+                    *Note: Submit the following in 1 PDF Format.
                   </span>
                   <span className="text-red-500 text-sm sm:text-base mt-1">
-                    Example: "DELACRUZ_JUAN_1x1Picture"
+                    Application Letter, 1x1 Picture, Latest Community Tax / Cedula, Recent Scholastic Records, <br/>
+                    Recommendation Letter,  Copy of Income Tax of Applicant's Parents and Voter's Registration Certificate <br/>
+                    Filename format : "LastName_Documents".
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                   {[
                     {
-                      label: "*Application Letter",
-                      handler: handleApplicationLetter,
-                    },
-                    {
-                      label: "*Recommendation Letter from Baranggay Official",
-                      handler: handleRecommendationLetter,
-                    },
-                    {
-                      label: "*1x1 Picture",
-                      handler: handleITR,
-                    },
-                    {
-                      label:
-                        "*Copy of Income Tax Return of the Applicant's Parents",
-                      handler: handleCopyITR,
-                    },
-                    {
-                      label: "*Latest Community Tax / Cedula",
-                      handler: handleCedula,
-                    },
-                    {
-                      label: "*Voter's Registration Certificate",
-                      handler: handleVoters,
-                    },
-                    {
-                      label: "*Recent Scholastic Records",
-                      handler: handleRecord,
+                      label: "Submit PDF here.",
+                      handler: handleFileSubmit,
                     },
                   ].map((item, index) => (
                     <div key={index}>
