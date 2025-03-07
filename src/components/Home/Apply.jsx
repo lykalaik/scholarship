@@ -2,6 +2,7 @@ import Navbar from "./Navbar.jsx";
 import { SiGooglescholar } from "react-icons/si";
 import supabase from "../supabaseClient.jsx";
 import { useState, useEffect } from "react";
+import { AiOutlineFileDone } from "react-icons/ai";
 
 const Apply = () => {
   const [open, setOpen] = useState("");
@@ -88,8 +89,8 @@ const Apply = () => {
       try {
         const { data, error } = await supabase.from("scholars").select("*");
 
-       const scholars = data.length;
-       setTotal(parseInt(slots) - scholars)
+        const scholars = data.length;
+        setTotal(parseInt(slots) - scholars);
       } catch (error) {
         console.error("Error fetching data:", error.message);
       }
@@ -460,13 +461,16 @@ const Apply = () => {
                     required
                     onChange={(e) => setEmailAddress(e.target.value)}
                   />
-                  <input
-                    type="text"
-                    placeholder="Sex"
+                  <select
                     className="input input-bordered border-gray-300 w-full"
                     required
                     onChange={(e) => setSex(e.target.value)}
-                  />
+                  >
+                    <option value="">Select Sex</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
@@ -648,13 +652,18 @@ const Apply = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <input
-                    type="text"
-                    placeholder="Have you availed any scholarship grants?"
+                  <select
                     className="input input-bordered border-gray-300 w-full"
                     required
                     onChange={(e) => setAvailedScholarship(e.target.value)}
-                  />
+                  >
+                    <option value="">
+                      Have you availed any scholarship grants?
+                    </option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+
                   <input
                     type="text"
                     placeholder="If yes, what year?"
@@ -731,13 +740,11 @@ const Apply = () => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row justify-end mt-5 gap-3">
-                  <button className="btn btn-error text-white w-full sm:w-1/6">
-                    Save as PDS
-                  </button>
                   <button
                     type="submit"
                     className="btn btn-neutral w-full sm:w-1/6"
                   >
+                    <AiOutlineFileDone size={20} />
                     Submit Application
                   </button>
                 </div>

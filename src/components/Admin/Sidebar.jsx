@@ -10,9 +10,13 @@ import {
 } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { MdAccountBox } from "react-icons/md";
+import ChangePassword from "./ChangePassword";
+import ReactDOM from "react-dom";
 
 const Sidebar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const openModal = () => {
@@ -108,11 +112,27 @@ const Sidebar = () => {
                 <FaChartBar className="mr-3" /> Analytics
               </li>
             </NavLink>
+            <NavLink to="">
+              <li
+                className="p-2 hover:bg-gray-700 rounded cursor-pointer flex items-center"
+                onClick={() => setIsModalOpen(true)}
+              >
+                <MdAccountBox className="mr-3" /> Account
+              </li>
+            </NavLink>
           </ul>
 
+          {isModalOpen &&
+            ReactDOM.createPortal(
+              <ChangePassword
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+              />,
+              document.body
+            )}
           <button
             onClick={() => openModal()}
-            className="flex items-center text-sm hover:bg-gray-700 cursor-pointer rounded p-2 mt-1 w-full mb-4"
+            className="flex items-center text-sm hover:bg-gray-700 cursor-pointer rounded p-2 mt-1 w-full mb-4 text-red-400"
           >
             <RiLogoutBoxRFill className="mr-3" size={18} />
             Logout

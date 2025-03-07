@@ -56,6 +56,7 @@ const Navbar = () => {
           .single();
         if (data && data.password === password) {
           sessionStorage.setItem("role", "Admin");
+          sessionStorage.setItem("email", data.email);
           navigate("/admin");
         } else {
           alert("Invalid Credentials");
