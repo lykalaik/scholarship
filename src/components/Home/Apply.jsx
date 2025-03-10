@@ -90,69 +90,74 @@ const Apply = () => {
     fetchData();
   }, []);
   
-  const handleConfirmSubmit = async (e) => {
-    e.preventDefault();
-    const { data, error } = await supabase
-      .from("application")
-      .insert([
-        {
-          last_name,
-          given_name,
-          middle_name,
-          age,
-          date_of_birth,
-          place_of_birth,
-          course,
-          year_level,
-          contact_number,
-          email_address,
-          sex,
-          civil_service,
-          religion,
-          height,
-          weight,
-          address,
-          number_family_members,
-          ethnicity,
-          father_address,
-          father_name,
-          father_number,
-          father_occupation,
-          mother_address,
-          mother_name,
-          mother_number,
-          mother_occupation,
-          elementary_awards,
-          elementary_school,
-          elementary_year,
-          secondary_awards,
-          secondary_school,
-          secondary_year,
-          availed_scholarship,
-          scholarship_year,
-          scholarship_name,
-          docs,
-          status: "Pending",
-        },
-      ])
-      .select();
-    if (error) {
+  const handleConfirmSubmit = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("application")
+        .insert([
+          {
+            last_name,
+            given_name,
+            middle_name,
+            age,
+            date_of_birth,
+            place_of_birth,
+            course,
+            year_level,
+            contact_number,
+            email_address,
+            sex,
+            civil_service,
+            religion,
+            height,
+            weight,
+            address,
+            number_family_members,
+            ethnicity,
+            father_address,
+            father_name,
+            father_number,
+            father_occupation,
+            mother_address,
+            mother_name,
+            mother_number,
+            mother_occupation,
+            elementary_awards,
+            elementary_school,
+            elementary_year,
+            secondary_awards,
+            secondary_school,
+            secondary_year,
+            availed_scholarship,
+            scholarship_year,
+            scholarship_name,
+            docs,
+            status: "Pending",
+          },
+        ])
+        .select();
+        
       setSubmitShowModal(false);
-      setIDNumber(data[0].id);
+      if (error) {
+        console.error("Error submitting application:", error);
+        alert("Error submitting application: " + error.message);
+      } else {
+        setIDNumber(data[0].id);
+        setShowModal(true);
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      alert("An unexpected error occurred");
+    } finally {
       setLoading(false);
-      setShowModal(true);
-    } else {
-      setSubmitShowModal(false);
-      setIDNumber(data[0].id);
-      setLoading(false);
-      setShowModal(true);
     }
   };
 
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   setSubmitShowModal(true);
-  // };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSubmitShowModal(true);
+  };
 
   const handleFileSubmit = async (e) => {
     const selectedFile = e.target.files[0];
@@ -181,11 +186,20 @@ const Apply = () => {
     }
   };
 
-  
-
   const showid = () => {
     setShowModal(false);
     window.location.reload();
+  };
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return "Not provided";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
+    } catch (e) {
+      return dateString;
+    }
   };
 
   return (
@@ -204,7 +218,7 @@ const Apply = () => {
                   Number of Slots: {total}
                 </span>
               </div>
-              <form onSubmit={handleConfirmSubmit}>
+              <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   <input
                     type="text"
@@ -577,21 +591,32 @@ const Apply = () => {
         </div>
       </div>
 
+      {/* Success Modal */}
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl mb-4">
-              Your application has been successfully submitted!
-            </h2>
-            <h3 className="text-xl mb-4">
-              Use this Application Number to track your status. Thank you for
-              your interest!
-            </h3>
-            <h3 className="text-xl font-semibold mb-4">
-              Application Number: {idnumber}
-            </h3>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <div className="flex flex-col items-center mb-4">
+              <div className="text-green-500 mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-center">Application Submitted Successfully!</h2>
+            </div>
+            <p className="text-center mb-4">
+              Your application has been successfully submitted and is now being processed.
+            </p>
+            <div className="p-4 border border-gray-200 rounded-lg bg-gray-50 mb-4">
+              <h3 className="text-xl font-semibold text-center mb-2">
+                Application Number
+              </h3>
+              <p className="text-2xl font-bold text-center text-blue-600">{idnumber}</p>
+              <p className="text-sm text-center text-gray-500 mt-2">
+                Please save this number to track your application status.
+              </p>
+            </div>
             <button
-              className="mt-4 btn bg-blue-700 border-blue-700 hover:bg-blue-500 text-white"
+              className="w-full btn bg-blue-700 border-blue-700 hover:bg-blue-600 text-white"
               onClick={showid}
             >
               Close
@@ -601,57 +626,158 @@ const Apply = () => {
       )}
 
       {/* Confirmation Modal */}
-      {/* {submitshowModal && (
-        <div className="modal modal-open">
-          <div className="modal-box">
-            <h2 className="text-2xl font-semibold mb-4">
-              Confirm Your Application Details
+      {submitshowModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full">
+            <h2 className="text-2xl font-bold mb-4 text-center">
+              Please Confirm Your Information
             </h2>
-            <div className="space-y-4">
-              <div className="flex justify-between">
-                <h6 className="font-semibold">Full Name:</h6>
-                <h6>{full_name}</h6>
+            <p className="text-center mb-6 text-gray-600">
+              Are you sure with the information you have provided? Please review before submitting.
+            </p>
+            <div className="overflow-y-auto max-h-96 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h3 className="font-semibold text-lg mb-2 border-b pb-1">Personal Information</h3>
+                  <div className="space-y-2">
+                    <div>
+                      <span className="font-medium">Name:</span> {last_name}, {given_name} {middle_name}
+                    </div>
+                    <div>
+                      <span className="font-medium">Age:</span> {age}
+                    </div>
+                    <div>
+                      <span className="font-medium">Date of Birth:</span> {formatDate(date_of_birth)}
+                    </div>
+                    <div>
+                      <span className="font-medium">Place of Birth:</span> {place_of_birth}
+                    </div>
+                    <div>
+                      <span className="font-medium">Sex:</span> {sex}
+                    </div>
+                    <div>
+                      <span className="font-medium">Address:</span> {address}
+                    </div>
+                    <div>
+                      <span className="font-medium">Contact:</span> {contact_number}
+                    </div>
+                    <div>
+                      <span className="font-medium">Email:</span> {email_address}
+                    </div>
+                    <div>
+                      <span className="font-medium">Religion:</span> {religion}
+                    </div>
+                    <div>
+                      <span className="font-medium">Ethnicity:</span> {ethnicity}
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="font-semibold text-lg mb-2 border-b pb-1">Educational Information</h3>
+                  <div className="space-y-2">
+                    <div>
+                      <span className="font-medium">Course:</span> {course}
+                    </div>
+                    <div>
+                      <span className="font-medium">Year Level:</span> {year_level}
+                    </div>
+                    <div>
+                      <span className="font-medium">Elementary School:</span> {elementary_school}
+                    </div>
+                    <div>
+                      <span className="font-medium">Elementary Year:</span> {elementary_year}
+                    </div>
+                    <div>
+                      <span className="font-medium">High School:</span> {secondary_school}
+                    </div>
+                    <div>
+                      <span className="font-medium">High School Year:</span> {secondary_year}
+                    </div>
+                    <div>
+                      <span className="font-medium">Previous Scholarship:</span> {availed_scholarship}
+                    </div>
+                    {availed_scholarship === "Yes" && (
+                      <>
+                        <div>
+                          <span className="font-medium">Scholarship Year:</span> {scholarship_year}
+                        </div>
+                        <div>
+                          <span className="font-medium">Scholarship Name:</span> {scholarship_name}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <h6 className="font-semibold">Address:</h6>
-                <h6>{address}</h6>
+              
+              <div className="mt-4">
+                <h3 className="font-semibold text-lg mb-2 border-b pb-1">Family Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div>
+                      <span className="font-medium">Father's Name:</span> {father_name}
+                    </div>
+                    <div>
+                      <span className="font-medium">Father's Occupation:</span> {father_occupation}
+                    </div>
+                    <div>
+                      <span className="font-medium">Father's Address:</span> {father_address}
+                    </div>
+                    <div>
+                      <span className="font-medium">Father's Contact:</span> {father_number}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div>
+                      <span className="font-medium">Mother's Name:</span> {mother_name}
+                    </div>
+                    <div>
+                      <span className="font-medium">Mother's Occupation:</span> {mother_occupation}
+                    </div>
+                    <div>
+                      <span className="font-medium">Mother's Address:</span> {mother_address}
+                    </div>
+                    <div>
+                      <span className="font-medium">Mother's Contact:</span> {mother_number}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <h6 className="font-semibold">Sex:</h6>
-                <h6>{sex}</h6>
-              </div>
-              <div className="flex justify-between">
-                <h6 className="font-semibold">Email Address:</h6>
-                <h6>{email_address}</h6>
-              </div>
-              <div className="flex justify-between">
-                <h6 className="font-semibold">GPA:</h6>
-                <h6>{gpa}</h6>
-              </div>
-              <div className="flex justify-between">
-                <h6 className="font-semibold">Mobile Number:</h6>
-                <h6>{mobile_number}</h6>
-              </div>
-              <div className="flex justify-between">
-                <h6 className="font-semibold">Last School Attended:</h6>
-                <h6>{school}</h6>
-              </div>
-              <div className="flex justify-between">
-                <h6 className="font-semibold">Course/Strand:</h6>
-                <h6>{course}</h6>
+              
+              <div className="mt-4">
+                <h3 className="font-semibold text-lg mb-2 border-b pb-1">Documents</h3>
+                <div>
+                  <span className="font-medium">Uploaded Files:</span> {file ? file.name : "No file uploaded"}
+                </div>
               </div>
             </div>
-            <div className="modal-action">
-              <button className="btn" onClick={() => setSubmitShowModal(false)}>
-                Cancel
+            
+            <div className="flex flex-col sm:flex-row gap-3 justify-end mt-4">
+              <button 
+                className="btn btn-outline"
+                onClick={() => setSubmitShowModal(false)}
+              >
+                Go Back & Edit
               </button>
-              <button className="btn btn-primary" onClick={handleConfirmSubmit}>
-                Confirm and Submit
+              <button 
+                className="btn btn-primary" 
+                onClick={handleConfirmSubmit}
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <span className="loading loading-spinner loading-sm"></span>
+                    Processing...
+                  </>
+                ) : (
+                  "Confirm & Submit"
+                )}
               </button>
             </div>
           </div>
         </div>
-      )} */}
+      )}
     </>
   );
 };

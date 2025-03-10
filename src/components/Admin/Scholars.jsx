@@ -8,6 +8,10 @@ const Scholars = () => {
   const [amount, setAmount] = useState("");
   const [scholarshipType, setScholarshipType] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     fetch_scholars();
@@ -23,13 +27,34 @@ const Scholars = () => {
       setScholars(data);
     } catch (error) {
       alert("An unexpected error occurred.");
-      console.error("Error during registration:", error.message);
+      console.error("Error during data fetch:", error.message);
     }
   };
 
+  const validateAmount = () => {
+    const numAmount = parseFloat(amount.replace(/,/g, ''));
+    if (isNaN(numAmount) || numAmount <= 0) {
+      setErrorMessage("Amount must be greater than 0");
+      return false;
+    }
+    setErrorMessage("");
+    return true;
+  };
+
+  const initiateConfirmation = () => {
+    if (!validateAmount()) return;
+    
+    setShowConfirmModal(true);
+    closeInputModal();
+  };
+
   const funding = async () => {
+    if (!validateAmount()) return;
+    
     try {
-      const { data } = await supabase.from("funding").insert([
+      setIsLoading(true);
+      
+      const { data, error } = await supabase.from("funding").insert([
         {
           full_name: selectedScholar.full_name,
           date_funded: formattedDate,
@@ -37,38 +62,60 @@ const Scholars = () => {
           scholarship_type: selectedScholar.scholarship_type,
         },
       ]);
-      alert("Funded Successfully");
-      window.location.reload();
+      
+      if (error) throw error;
+      
+      await status_update();
+      setShowConfirmModal(false);
+      setShowSuccessModal(true);
     } catch (error) {
-      alert("Error Adding Fund");
+      setErrorMessage("Error Adding Fund: " + error.message);
+      setIsLoading(false);
     }
   };
 
   const status_update = async () => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("scholars")
         .update([{ status: "Completed" }])
         .eq("id", selectedScholar.id);
-      funding();
+      
+      if (error) throw error;
+      
+      setIsLoading(false);
+      return true;
     } catch (error) {
-      alert("Error Status Update.");
+      setErrorMessage("Error updating status: " + error.message);
+      setIsLoading(false);
+      return false;
     }
   };
 
-  const openModal = (applicant) => {
-    const modal = document.getElementById("my_modal_4");
+  const openInputModal = (applicant) => {
+    const modal = document.getElementById("input_modal");
     if (modal) {
       modal.showModal();
       setSelectedScholar(applicant);
+      setAmount("");
+      setErrorMessage("");
     }
   };
 
-  const closeModal = () => {
-    const modal = document.getElementById("my_modal_4");
+  const closeInputModal = () => {
+    const modal = document.getElementById("input_modal");
     if (modal) {
       modal.close();
     }
+  };
+
+  const closeConfirmModal = () => {
+    setShowConfirmModal(false);
+  };
+
+  const closeSuccessModal = () => {
+    setShowSuccessModal(false);
+    window.location.reload();
   };
 
   const today = new Date();
@@ -86,6 +133,17 @@ const Scholars = () => {
       scholar.scholarship_type?.toLowerCase().trim() ===
         searchQuery.toLowerCase().trim()
   );
+
+  const formatAmount = (value) => {
+    // Remove non-digit characters
+    const digitsOnly = value.replace(/\D/g, '');
+    
+    // Format with commas
+    if (digitsOnly) {
+      return new Intl.NumberFormat('en-US').format(parseInt(digitsOnly));
+    }
+    return digitsOnly;
+  };
 
   return (
     <>
@@ -134,7 +192,7 @@ const Scholars = () => {
                         <td>
                           <button
                             className="btn btn-sm btn-neutral text-white"
-                            onClick={() => openModal(applicant)}
+                            onClick={() => openInputModal(applicant)}
                           >
                             Add
                           </button>
@@ -155,12 +213,13 @@ const Scholars = () => {
         </main>
       </div>
 
-      <dialog id="my_modal_4" className="modal">
+      {/* Input Modal */}
+      <dialog id="input_modal" className="modal">
         <div className="modal-box">
           <h3 className="font-bold text-lg mb-4">Send Scholar's Funding</h3>
           <button
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-5"
-            onClick={closeModal}
+            onClick={closeInputModal}
           >
             ✕
           </button>
@@ -171,21 +230,81 @@ const Scholars = () => {
                 type="text"
                 className="grow w-full"
                 placeholder="e.g, 21,000 (don't include peso sign)"
-                onChange={(e) => setAmount(e.target.value)}
+                value={amount}
+                onChange={(e) => setAmount(formatAmount(e.target.value))}
               />
             </label>
+
+            {errorMessage && (
+              <div className="text-error text-sm mt-1">{errorMessage}</div>
+            )}
 
             <div className="flex justify-center mt-3">
               <button
                 className="btn btn-neutral w-1/3 text-white"
-                onClick={status_update}
+                onClick={initiateConfirmation}
               >
-                Send
+                Continue
               </button>
             </div>
           </div>
         </div>
       </dialog>
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg">Confirm Funding</h3>
+            <div className="py-4">
+              <p>Are you sure you want to send ₱{amount} to {selectedScholar?.full_name}?</p>
+              <p className="text-sm text-gray-600 mt-2">
+                This action will mark the scholarship as "Completed".
+              </p>
+            </div>
+            <div className="modal-action">
+              <button className="btn btn-outline" onClick={closeConfirmModal}>
+                Cancel
+              </button>
+              <button 
+                className="btn btn-neutral text-white" 
+                onClick={funding}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className="loading loading-spinner loading-sm"></span>
+                ) : (
+                  "Confirm"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <div className="flex items-center justify-center mb-4">
+              <div className="rounded-full bg-green-100 p-3">
+                <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+            </div>
+            <h3 className="text-lg font-bold text-center">Fund Sent Successfully!</h3>
+            <p className="py-4 text-center">
+              ₱{amount} has been successfully sent to {selectedScholar?.full_name}.
+            </p>
+            <div className="modal-action justify-center">
+              <button className="btn btn-neutral text-white" onClick={closeSuccessModal}>
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

@@ -1,112 +1,197 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import Navbar from "./Navbar.jsx";
+import { MdOutlineMenuBook } from "react-icons/md";
+import { IoNewspaperOutline } from "react-icons/io5";
+import { BsCalendarDate } from "react-icons/bs";
 import supabase from "../supabaseClient.jsx";
+const LazyCarousel = lazy(() => import("./Carousel.jsx"));
 
-const Track = () => {
-  const [statusData, setStatusData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
-  const [name, setName] = useState("");
+const Home = () => {
+  const [newsData, setNewsData] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedNews, setSelectedNews] = useState(null);
+  const [imagesData, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
-        const { data, error } = await supabase.from("application").select("*");
-        if (error) throw error;
-        setStatusData(data);
-        setFilteredData(data);
+        await Promise.all([fetch_news(), fetch_newsimage()]);
       } catch (error) {
         console.error("Error fetching data:", error.message);
+      } finally {
+        setLoading(false);
       }
     };
+    
     fetchData();
   }, []);
 
-  const track_status = (e) => {
-    e.preventDefault();
-    if (name) {
-      const filtered = statusData.filter(
-        (app) => app.id.toString().includes(name.toString()) // Convert both to string for comparison
-      );
-      setFilteredData(filtered);
-    } else {
-      setFilteredData(statusData);
+  const fetch_news = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("news")
+        .select("*")
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setNewsData(data);
+    } catch (error) {
+      console.error("Error fetching news:", error.message);
     }
   };
 
+  const fetch_newsimage = async () => {
+    try {
+      const { data, error } = await supabase.from("news").select("picture");
+      if (error) throw error;
+      setImages(data);
+    } catch (error) {
+      console.error("Error fetching images:", error.message);
+    }
+  };
+
+  // Function to format date
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
   return (
-    <>
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <div className="px-4 py-5">
-        <div className="flex justify-center mt-6 mb-6 font-extrabold">
-          <h1 className="text-xl md:text-2xl text-center tracking-wide">
-            - Search your Application Status here -
-          </h1>
-        </div>
-        <form className="flex flex-col md:flex-row justify-center gap-4 mb-8 px-4">
-          <label className="input input-bordered flex items-center gap-2 shadow-md w-full md:max-w-md">
-            <input
-              type="text"
-              className="grow p-2 text-sm md:text-base"
-              placeholder="Search Application Number"
-              onChange={(e) => setName(e.target.value)}
-            />
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 16 16"
-              fill="currentColor"
-              className="h-4 w-4 opacity-70"
-            >
-              <path
-                fillRule="evenodd"
-                d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </label>
-          <button
-            className="btn btn-neutral text-white w-full md:w-auto"
-            onClick={track_status}
-          >
-            Search
-          </button>
-        </form>
+      
+      <main className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Hero Section with Carousel */}
+        <section className="rounded-xl overflow-hidden shadow-lg mb-12">
+          <Suspense fallback={
+            <div className="w-full h-96 bg-gray-200 animate-pulse flex items-center justify-center">
+              <p className="text-gray-500">Loading carousel...</p>
+            </div>
+          }>
+            <LazyCarousel imagesData={imagesData} />
+          </Suspense>
+        </section>
 
-        <div className="divider"></div>
+        {/* News Section Header */}
+        <section className="mb-8">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <IoNewspaperOutline size={28} className="text-blue-600" />
+            <h2 className="text-3xl font-bold text-gray-800 tracking-wide">News and Updates</h2>
+          </div>
+          <div className="w-24 h-1 bg-blue-600 mx-auto rounded-full"></div>
+        </section>
 
-        <div className="container mx-auto mt-8 px-4 md:px-20">
-          {filteredData.length > 0 ? (
-            filteredData.map((app) => (
-              <div key={app.id} className="mb-3 p-4 rounded shadow-sm">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-                  <h1 className="text-base md:text-lg mb-2 md:mb-0 font-semibold">
-                    Applicant ID: {app.id}
-                  </h1>
-                  <h1 className="text-base md:text-lg font-semibold">
-                    Application Status:{" "}
-                    <span
-                      className={
-                        app.status === "Rejected"
-                          ? "text-red-600"
-                          : app.status === "Pending"
-                          ? "text-yellow-600"
-                          : "text-green-600"
-                      }
-                    >
-                      {app.status}
-                    </span>
-                  </h1>
+        {/* News Cards */}
+        <section className="mb-16">
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map(item => (
+                <div key={item} className="bg-white rounded-lg shadow-md h-96 animate-pulse">
+                  <div className="w-full h-52 bg-gray-300"></div>
+                  <div className="p-5">
+                    <div className="h-6 bg-gray-300 rounded w-3/4 mb-4"></div>
+                    <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
+                    <div className="h-4 bg-gray-300 rounded w-5/6"></div>
+                  </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           ) : (
-            <p className="flex justify-center content-center text-gray-600 mt-6">
-              No applications found.
-            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {newsData.map((news, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-xl transition-all duration-300 h-full flex flex-col overflow-hidden"
+                >
+                  <div className="relative">
+                    <figure className="w-full h-56">
+                      <img
+                        src={news.picture}
+                        className="w-full h-full object-cover"
+                        alt={news.title}
+                        loading="lazy"
+                      />
+                    </figure>
+                    {news.created_at && (
+                      <div className="absolute bottom-0 right-0 bg-blue-600 text-white px-3 py-1 text-sm font-medium flex items-center gap-1">
+                        <BsCalendarDate />
+                        <span>{formatDate(news.created_at)}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="p-5 flex flex-col flex-grow">
+                    <h3 className="text-xl font-bold text-gray-800 mb-3 line-clamp-2">
+                      {news.title}
+                    </h3>
+                    <p className="text-gray-600 mb-4 line-clamp-3 flex-grow">{news.summary}</p>
+                    
+                    <button
+                      className="btn bg-blue-600 hover:bg-blue-700 text-white border-none flex items-center justify-center gap-2 rounded-full self-center px-6 transform transition-transform hover:scale-105"
+                      onClick={() => {
+                        setSelectedNews(news);
+                        setShowModal(true);
+                      }}
+                    >
+                      <MdOutlineMenuBook size={20} />
+                      <span>Read More</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
+        </section>
+      </main>
+
+      {/* Modal with improved styling */}
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-70 z-50 p-4">
+          <div 
+            className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto overflow-x-hidden relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-full text-gray-800"
+              aria-label="Close"
+            >
+              ✕
+            </button>
+
+            <div className="p-6">
+              <h2 className="font-bold text-2xl text-gray-800 mb-4">
+                {selectedNews?.title}
+              </h2>
+              
+              {selectedNews?.created_at && (
+                <div className="flex items-center gap-2 text-gray-500 mb-4">
+                  <BsCalendarDate />
+                  <span>{formatDate(selectedNews.created_at)}</span>
+                </div>
+              )}
+              
+              <div className="rounded-lg overflow-hidden mb-6">
+                <img
+                  src={selectedNews?.picture}
+                  alt={selectedNews?.title}
+                  className="w-full max-h-[400px] object-cover"
+                />
+              </div>
+              
+              <div className="prose max-w-none">
+                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                  {selectedNews?.body}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </>
+      )}
+    </div>
   );
 };
 
-export default Track;
+export default Home;

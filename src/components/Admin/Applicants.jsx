@@ -16,6 +16,8 @@ const Applicants = () => {
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [slots, setSlots] = useState("");
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
     fetch_applicants();
@@ -52,6 +54,39 @@ const Applicants = () => {
     }
   };
 
+  const openConfirmModal = () => {
+    setShowConfirmModal(true);
+    const modal = document.getElementById("confirm_modal");
+    if (modal) {
+      modal.showModal();
+    }
+  };
+
+  const closeConfirmModal = () => {
+    const modal = document.getElementById("confirm_modal");
+    if (modal) {
+      modal.close();
+    }
+    setShowConfirmModal(false);
+  };
+
+  const openSuccessModal = () => {
+    setShowSuccessModal(true);
+    const modal = document.getElementById("success_modal");
+    if (modal) {
+      modal.showModal();
+    }
+  };
+
+  const closeSuccessModal = () => {
+    const modal = document.getElementById("success_modal");
+    if (modal) {
+      modal.close();
+    }
+    setShowSuccessModal(false);
+    window.location.reload();
+  };
+
   const updateDate = async () => {
     try {
       const { error } = await supabase
@@ -59,10 +94,13 @@ const Applicants = () => {
         .update({ start, end, slots })
         .eq("type", "application");
       if (error) throw error;
-      window.location.reload();
+      
+      closeConfirmModal();
+      openSuccessModal();
     } catch (error) {
       alert("Failed to update status.");
       console.error("Error updating status:", error.message);
+      closeConfirmModal();
     }
   };
 
@@ -401,6 +439,7 @@ const Applicants = () => {
         </main>
       </div>
 
+      {/* Applicant Documents Modal */}
       <dialog id="my_modal_4" className="modal">
         <div className="modal-box w-11/12 max-w-5xl">
           <h3 className="font-bold text-lg mb-4">
@@ -493,6 +532,7 @@ const Applicants = () => {
         </div>
       </dialog>
 
+      {/* Application Date Setting Modal */}
       <dialog id="my_modal_3" className="modal">
         <div className="modal-box">
           <h3 className="font-bold text-lg mb-4">Set Application Date</h3>
@@ -534,11 +574,57 @@ const Applicants = () => {
               />
 
               <div className="flex justify-center mt-7">
-                <button className="btn bg-white w-1/4" onClick={updateDate}>
+                <button className="btn bg-white w-1/4" onClick={openConfirmModal}>
                   Apply
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      </dialog>
+
+      {/* Confirmation Modal */}
+      <dialog id="confirm_modal" className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">Confirm Changes</h3>
+          <div className="divider"></div>
+          <p>Are you sure you want to update the application date and slots?</p>
+          
+          <div className="bg-gray-100 p-4 rounded-lg mt-4">
+            <p><span className="font-bold">From:</span> {new Date(start).toLocaleString()}</p>
+            <p><span className="font-bold">To:</span> {new Date(end).toLocaleString()}</p>
+            <p><span className="font-bold">Available Slots:</span> {slots}</p>
+          </div>
+
+          <div className="flex justify-end gap-3 mt-6">
+            <button className="btn btn-outline" onClick={closeConfirmModal}>
+              Cancel
+            </button>
+            <button className="btn btn-primary" onClick={updateDate}>
+              Confirm
+            </button>
+          </div>
+        </div>
+      </dialog>
+
+      {/* Success Modal */}
+      <dialog id="success_modal" className="modal">
+        <div className="modal-box">
+          <div className="flex flex-col items-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-10 h-10 text-green-500">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            
+            <h3 className="font-bold text-xl text-center">Updated Successfully!</h3>
+            <p className="text-center mt-2">
+              The application date and slot information have been updated.
+            </p>
+            
+            <button className="btn btn-primary mt-6 w-full" onClick={closeSuccessModal}>
+              OK
+            </button>
           </div>
         </div>
       </dialog>
