@@ -1,197 +1,194 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "./Navbar.jsx";
-import { MdOutlineMenuBook } from "react-icons/md";
-import { IoNewspaperOutline } from "react-icons/io5";
-import { BsCalendarDate } from "react-icons/bs";
 import supabase from "../supabaseClient.jsx";
-const LazyCarousel = lazy(() => import("./Carousel.jsx"));
 
-const Home = () => {
-  const [newsData, setNewsData] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [selectedNews, setSelectedNews] = useState(null);
-  const [imagesData, setImages] = useState([]);
-  const [loading, setLoading] = useState(true);
+const Track = () => {
+  const [statusData, setStatusData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [name, setName] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasSearched, setHasSearched] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
+      setIsLoading(true);
       try {
-        await Promise.all([fetch_news(), fetch_newsimage()]);
+        const { data, error } = await supabase.from("application").select("*");
+        if (error) throw error;
+        setStatusData(data);
+        setFilteredData(data);
       } catch (error) {
         console.error("Error fetching data:", error.message);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
-    
     fetchData();
   }, []);
 
-  const fetch_news = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("news")
-        .select("*")
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      setNewsData(data);
-    } catch (error) {
-      console.error("Error fetching news:", error.message);
+  const track_status = (e) => {
+    e.preventDefault();
+    setHasSearched(true);
+    if (name) {
+      const filtered = statusData.filter(
+        (app) => app.id.toString().includes(name.toString()) // Convert both to string for comparison
+      );
+      setFilteredData(filtered);
+    } else {
+      setFilteredData(statusData);
     }
   };
 
-  const fetch_newsimage = async () => {
-    try {
-      const { data, error } = await supabase.from("news").select("picture");
-      if (error) throw error;
-      setImages(data);
-    } catch (error) {
-      console.error("Error fetching images:", error.message);
+  // Get status badge style based on status
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "Approved":
+        return "bg-green-100 text-green-800 border-green-300";
+      case "Pending":
+        return "bg-yellow-100 text-yellow-800 border-yellow-300";
+      case "Rejected":
+        return "bg-red-100 text-red-800 border-red-300";
+      default:
+        return "bg-blue-100 text-blue-800 border-blue-300";
     }
-  };
-
-  // Function to format date
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
       <Navbar />
-      
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Hero Section with Carousel */}
-        <section className="rounded-xl overflow-hidden shadow-lg mb-12">
-          <Suspense fallback={
-            <div className="w-full h-96 bg-gray-200 animate-pulse flex items-center justify-center">
-              <p className="text-gray-500">Loading carousel...</p>
-            </div>
-          }>
-            <LazyCarousel imagesData={imagesData} />
-          </Suspense>
-        </section>
-
-        {/* News Section Header */}
-        <section className="mb-8">
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <IoNewspaperOutline size={28} className="text-blue-600" />
-            <h2 className="text-3xl font-bold text-gray-800 tracking-wide">News and Updates</h2>
+      <div className="min-h-screen bg-gradient-to-b from-base-100 to-base-200 px-4 py-8 sm:py-12">
+        <div className="max-w-4xl mx-auto">
+          {/* Header Section */}
+          <div className="text-center mb-8">
+            <h1 className="text-2xl md:text-3xl font-bold text-primary mb-3">
+              Application Status Tracker
+            </h1>
+            <div className="w-16 h-1 bg-primary mx-auto mb-4"></div>
+            <p className="text-base-content/70 max-w-xl mx-auto">
+              Enter your application number below to check the current status of your submission.
+            </p>
           </div>
-          <div className="w-24 h-1 bg-blue-600 mx-auto rounded-full"></div>
-        </section>
 
-        {/* News Cards */}
-        <section className="mb-16">
-          {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map(item => (
-                <div key={item} className="bg-white rounded-lg shadow-md h-96 animate-pulse">
-                  <div className="w-full h-52 bg-gray-300"></div>
-                  <div className="p-5">
-                    <div className="h-6 bg-gray-300 rounded w-3/4 mb-4"></div>
-                    <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
-                    <div className="h-4 bg-gray-300 rounded w-5/6"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {newsData.map((news, index) => (
-                <div
-                  key={index}
-                  className="bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-xl transition-all duration-300 h-full flex flex-col overflow-hidden"
+          {/* Search Form */}
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <form onSubmit={track_status} className="space-y-4">
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <label className="input input-bordered flex items-center gap-2 shadow-md w-full">
+                  <input
+                    type="text"
+                    className="grow p-2 text-sm md:text-base"
+                    placeholder="Enter Application Number"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    aria-label="Application ID"
+                  />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 16 16"
+                    fill="currentColor"
+                    className="h-4 w-4 opacity-70"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </label>
+                <button
+                  type="submit"
+                  className="btn btn-primary text-white w-full sm:w-auto min-w-[120px]"
                 >
-                  <div className="relative">
-                    <figure className="w-full h-56">
-                      <img
-                        src={news.picture}
-                        className="w-full h-full object-cover"
-                        alt={news.title}
-                        loading="lazy"
-                      />
-                    </figure>
-                    {news.created_at && (
-                      <div className="absolute bottom-0 right-0 bg-blue-600 text-white px-3 py-1 text-sm font-medium flex items-center gap-1">
-                        <BsCalendarDate />
-                        <span>{formatDate(news.created_at)}</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                    className="w-5 h-5 mr-2"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                    />
+                  </svg>
+                  Search
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Results Section */}
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h2 className="text-xl font-semibold mb-4 text-primary">
+              Search Results
+            </h2>
+            
+            {isLoading ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+              </div>
+            ) : (
+              <>
+                {filteredData.length > 0 ? (
+                  <div className="space-y-4">
+                    {filteredData.map((app) => (
+                      <div 
+                        key={app.id} 
+                        className="p-4 rounded-lg border border-base-300 transition-all duration-200 hover:shadow-md"
+                      >
+                        <div className="flex flex-col sm:flex-row justify-between gap-3">
+                          <div>
+                            <div className="text-sm text-base-content/60 mb-1">Application ID</div>
+                            <div className="font-semibold text-lg">{app.id}</div>
+                          </div>
+                          
+                          <div className="flex items-center">
+                            <div className="text-sm text-base-content/60 mr-2 sm:hidden">Status:</div>
+                            <span 
+                              className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusBadge(app.status)}`}
+                            >
+                              {app.status}
+                            </span>
+                          </div>
+                        </div>
                       </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-12 text-center">
+                    {hasSearched ? (
+                      <div className="space-y-2">
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          className="h-12 w-12 mx-auto text-base-content/30" 
+                          fill="none" 
+                          viewBox="0 0 24 24" 
+                          stroke="currentColor"
+                        >
+                          <path 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
+                            strokeWidth={1.5} 
+                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                          />
+                        </svg>
+                        <p className="text-base-content/60 text-lg">No applications found with ID: <span className="font-semibold">{name}</span></p>
+                        <p className="text-base-content/50 text-sm">Please check your application number and try again.</p>
+                      </div>
+                    ) : (
+                      <p className="text-base-content/50">Enter an application number to see results.</p>
                     )}
                   </div>
-                  
-                  <div className="p-5 flex flex-col flex-grow">
-                    <h3 className="text-xl font-bold text-gray-800 mb-3 line-clamp-2">
-                      {news.title}
-                    </h3>
-                    <p className="text-gray-600 mb-4 line-clamp-3 flex-grow">{news.summary}</p>
-                    
-                    <button
-                      className="btn bg-blue-600 hover:bg-blue-700 text-white border-none flex items-center justify-center gap-2 rounded-full self-center px-6 transform transition-transform hover:scale-105"
-                      onClick={() => {
-                        setSelectedNews(news);
-                        setShowModal(true);
-                      }}
-                    >
-                      <MdOutlineMenuBook size={20} />
-                      <span>Read More</span>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-      </main>
-
-      {/* Modal with improved styling */}
-      {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-70 z-50 p-4">
-          <div 
-            className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto overflow-x-hidden relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-full text-gray-800"
-              aria-label="Close"
-            >
-              ✕
-            </button>
-
-            <div className="p-6">
-              <h2 className="font-bold text-2xl text-gray-800 mb-4">
-                {selectedNews?.title}
-              </h2>
-              
-              {selectedNews?.created_at && (
-                <div className="flex items-center gap-2 text-gray-500 mb-4">
-                  <BsCalendarDate />
-                  <span>{formatDate(selectedNews.created_at)}</span>
-                </div>
-              )}
-              
-              <div className="rounded-lg overflow-hidden mb-6">
-                <img
-                  src={selectedNews?.picture}
-                  alt={selectedNews?.title}
-                  className="w-full max-h-[400px] object-cover"
-                />
-              </div>
-              
-              <div className="prose max-w-none">
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {selectedNews?.body}
-                </p>
-              </div>
-            </div>
+                )}
+              </>
+            )}
           </div>
         </div>
-      )}
-    </div>
+      </div>
+    </>
   );
 };
 
-export default Home;
+export default Track;
