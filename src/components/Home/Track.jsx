@@ -8,6 +8,7 @@ const Track = () => {
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [hasSearched, setHasSearched] = useState(false);
+  const [total, setTotal] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,6 +25,38 @@ const Track = () => {
       }
     };
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchSlots = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("deadline")
+          .select("*")
+          .eq("type", "application")
+          .single();
+
+        if (error) throw error;
+        if (data) {
+          fetchScholars(data.slots);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error.message);
+      }
+    };
+
+    const fetchScholars = async (slots) => {
+      try {
+        const { data, error } = await supabase.from("scholars").select("*");
+
+        if (error) throw error;
+        setTotal(slots - data.length);
+      } catch (error) {
+        console.error("Error fetching data:", error.message);
+      }
+    };
+
+    fetchSlots();
   }, []);
 
   const track_status = (e) => {
@@ -65,8 +98,12 @@ const Track = () => {
             </h1>
             <div className="w-16 h-1 bg-primary mx-auto mb-4"></div>
             <p className="text-base-content/70 max-w-xl mx-auto">
-              Enter your application number below to check the current status of your submission.
+              Enter your application number below to check the current status of
+              your submission.
             </p>
+            <span className="mt-2 lg:text-lg sm:text-md font-semibold px-3 flex gap-2">
+              Number of Slots: {total}
+            </span>
           </div>
 
           {/* Search Form */}
@@ -124,7 +161,7 @@ const Track = () => {
             <h2 className="text-xl font-semibold mb-4 text-primary">
               Search Results
             </h2>
-            
+
             {isLoading ? (
               <div className="flex justify-center items-center py-12">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
@@ -134,20 +171,28 @@ const Track = () => {
                 {filteredData.length > 0 ? (
                   <div className="space-y-4">
                     {filteredData.map((app) => (
-                      <div 
-                        key={app.id} 
+                      <div
+                        key={app.id}
                         className="p-4 rounded-lg border border-base-300 transition-all duration-200 hover:shadow-md"
                       >
                         <div className="flex flex-col sm:flex-row justify-between gap-3">
                           <div>
-                            <div className="text-sm text-base-content/60 mb-1">Application ID</div>
-                            <div className="font-semibold text-lg">{app.id}</div>
+                            <div className="text-sm text-base-content/60 mb-1">
+                              Application ID
+                            </div>
+                            <div className="font-semibold text-lg">
+                              {app.id}
+                            </div>
                           </div>
-                          
+
                           <div className="flex items-center">
-                            <div className="text-sm text-base-content/60 mr-2 sm:hidden">Status:</div>
-                            <span 
-                              className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusBadge(app.status)}`}
+                            <div className="text-sm text-base-content/60 mr-2 sm:hidden">
+                              Status:
+                            </div>
+                            <span
+                              className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusBadge(
+                                app.status
+                              )}`}
                             >
                               {app.status}
                             </span>
@@ -160,25 +205,32 @@ const Track = () => {
                   <div className="py-12 text-center">
                     {hasSearched ? (
                       <div className="space-y-2">
-                        <svg 
-                          xmlns="http://www.w3.org/2000/svg" 
-                          className="h-12 w-12 mx-auto text-base-content/30" 
-                          fill="none" 
-                          viewBox="0 0 24 24" 
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-12 w-12 mx-auto text-base-content/30"
+                          fill="none"
+                          viewBox="0 0 24 24"
                           stroke="currentColor"
                         >
-                          <path 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                            strokeWidth={1.5} 
-                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.5}
+                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                           />
                         </svg>
-                        <p className="text-base-content/60 text-lg">No applications found with ID: <span className="font-semibold">{name}</span></p>
-                        <p className="text-base-content/50 text-sm">Please check your application number and try again.</p>
+                        <p className="text-base-content/60 text-lg">
+                          No applications found with ID:{" "}
+                          <span className="font-semibold">{name}</span>
+                        </p>
+                        <p className="text-base-content/50 text-sm">
+                          Please check your application number and try again.
+                        </p>
                       </div>
                     ) : (
-                      <p className="text-base-content/50">Enter an application number to see results.</p>
+                      <p className="text-base-content/50">
+                        Enter an application number to see results.
+                      </p>
                     )}
                   </div>
                 )}

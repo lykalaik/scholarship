@@ -12,17 +12,61 @@ const Scholars = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [semester, setSemester] = useState("");
+  const [schoolYear, setSchoolYear] = useState("");
+  const [schoolYears, setSchoolYears] = useState([]); // Store school years dynamically
 
   useEffect(() => {
     fetch_scholars();
+  }, [semester, schoolYear]); // Runs when semester or schoolYear changes
+
+  useEffect(() => {
+    fetch_school_years();
   }, []);
 
-  const fetch_scholars = async () => {
+  const fetch_school_years = async () => {
     try {
       const { data, error } = await supabase
         .from("scholars")
+        .select("school_year");
+
+      if (error) throw error;
+
+      // Filter out null values and get distinct school years
+      const distinctSchoolYears = Array.from(
+        new Set(
+          data
+            .filter((item) => item.school_year !== null)
+            .map((item) => item.school_year)
+        )
+      );
+
+      console.log("Fetched school years:", distinctSchoolYears);
+      setSchoolYears(distinctSchoolYears);
+    } catch (error) {
+      console.error("Error fetching school years:", error.message);
+    }
+  };
+
+  const fetch_scholars = async () => {
+    try {
+      let query = supabase
+        .from("scholars")
         .select("*")
         .neq("status", "Completed");
+
+      // Apply semester filter if selected
+      if (semester) {
+        query = query.eq("semester", semester);
+      }
+
+      // Apply school year filter if selected
+      if (schoolYear) {
+        query = query.eq("school_year", schoolYear);
+      }
+
+      const { data, error } = await query;
+
       if (error) throw error;
       setScholars(data);
     } catch (error) {
@@ -32,7 +76,7 @@ const Scholars = () => {
   };
 
   const validateAmount = () => {
-    const numAmount = parseFloat(amount.replace(/,/g, ''));
+    const numAmount = parseFloat(amount.replace(/,/g, ""));
     if (isNaN(numAmount) || numAmount <= 0) {
       setErrorMessage("Amount must be greater than 0");
       return false;
@@ -43,17 +87,17 @@ const Scholars = () => {
 
   const initiateConfirmation = () => {
     if (!validateAmount()) return;
-    
+
     setShowConfirmModal(true);
     closeInputModal();
   };
 
   const funding = async () => {
     if (!validateAmount()) return;
-    
+
     try {
       setIsLoading(true);
-      
+
       const { data, error } = await supabase.from("funding").insert([
         {
           full_name: selectedScholar.full_name,
@@ -62,9 +106,9 @@ const Scholars = () => {
           scholarship_type: selectedScholar.scholarship_type,
         },
       ]);
-      
+
       if (error) throw error;
-      
+
       await status_update();
       setShowConfirmModal(false);
       setShowSuccessModal(true);
@@ -80,9 +124,9 @@ const Scholars = () => {
         .from("scholars")
         .update([{ status: "Completed" }])
         .eq("id", selectedScholar.id);
-      
+
       if (error) throw error;
-      
+
       setIsLoading(false);
       return true;
     } catch (error) {
@@ -136,11 +180,11 @@ const Scholars = () => {
 
   const formatAmount = (value) => {
     // Remove non-digit characters
-    const digitsOnly = value.replace(/\D/g, '');
-    
+    const digitsOnly = value.replace(/\D/g, "");
+
     // Format with commas
     if (digitsOnly) {
-      return new Intl.NumberFormat('en-US').format(parseInt(digitsOnly));
+      return new Intl.NumberFormat("en-US").format(parseInt(digitsOnly));
     }
     return digitsOnly;
   };
@@ -159,6 +203,33 @@ const Scholars = () => {
               </div>
             </div>
             <div className="flex gap-2 justify-end">
+              {/* Semester Filter */}
+              <select
+                className="select select-bordered"
+                value={semester}
+                onChange={(e) => setSemester(e.target.value)}
+              >
+                <option value="">Select Semester</option>
+                <option value="1st Sem">1st Semester</option>
+                <option value="2nd Sem">2nd Semester</option>
+              </select>
+              {/* School Year Filter */}
+              <select
+                className="select select-bordered"
+                value={schoolYear}
+                onChange={(e) => setSchoolYear(e.target.value)}
+              >
+                <option value="">Select School Year</option>
+                {schoolYears.length > 0 ? (
+                  schoolYears.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))
+                ) : (
+                  <option>Loading...</option>
+                )}
+              </select>
               <input
                 type="text"
                 placeholder="Search..."
@@ -257,7 +328,10 @@ const Scholars = () => {
           <div className="modal-box">
             <h3 className="font-bold text-lg">Confirm Funding</h3>
             <div className="py-4">
-              <p>Are you sure you want to send ₱{amount} to {selectedScholar?.full_name}?</p>
+              <p>
+                Are you sure you want to send ₱{amount} to{" "}
+                {selectedScholar?.full_name}?
+              </p>
               <p className="text-sm text-gray-600 mt-2">
                 This action will mark the scholarship as "Completed".
               </p>
@@ -266,8 +340,8 @@ const Scholars = () => {
               <button className="btn btn-outline" onClick={closeConfirmModal}>
                 Cancel
               </button>
-              <button 
-                className="btn btn-neutral text-white" 
+              <button
+                className="btn btn-neutral text-white"
                 onClick={funding}
                 disabled={isLoading}
               >
@@ -288,17 +362,34 @@ const Scholars = () => {
           <div className="modal-box">
             <div className="flex items-center justify-center mb-4">
               <div className="rounded-full bg-green-100 p-3">
-                <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                <svg
+                  className="h-8 w-8 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  ></path>
                 </svg>
               </div>
             </div>
-            <h3 className="text-lg font-bold text-center">Fund Sent Successfully!</h3>
+            <h3 className="text-lg font-bold text-center">
+              Fund Sent Successfully!
+            </h3>
             <p className="py-4 text-center">
-              ₱{amount} has been successfully sent to {selectedScholar?.full_name}.
+              ₱{amount} has been successfully sent to{" "}
+              {selectedScholar?.full_name}.
             </p>
             <div className="modal-action justify-center">
-              <button className="btn btn-neutral text-white" onClick={closeSuccessModal}>
+              <button
+                className="btn btn-neutral text-white"
+                onClick={closeSuccessModal}
+              >
                 Done
               </button>
             </div>
