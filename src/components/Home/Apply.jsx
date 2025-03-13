@@ -1,5 +1,4 @@
 import Navbar from "./Navbar.jsx";
-import { SiGooglescholar } from "react-icons/si";
 import supabase from "../supabaseClient.jsx";
 import { useState, useEffect } from "react";
 import { AiOutlineFileDone } from "react-icons/ai";
@@ -61,7 +60,7 @@ const Apply = () => {
           .select("*")
           .eq("type", "application")
           .single();
-  
+
         if (error) throw error;
         if (data) {
           setStart(data.start);
@@ -75,11 +74,11 @@ const Apply = () => {
         console.error("Error fetching data:", error.message);
       }
     };
-  
+
     const fetchScholars = async (slots) => {
       try {
         const { data, error } = await supabase.from("scholars").select("*");
-  
+
         if (error) throw error;
         setTotal(slots - data.length);
       } catch (error) {
@@ -89,7 +88,7 @@ const Apply = () => {
 
     fetchData();
   }, []);
-  
+
   const handleConfirmSubmit = async () => {
     setLoading(true);
     try {
@@ -137,7 +136,7 @@ const Apply = () => {
           },
         ])
         .select();
-        
+
       setSubmitShowModal(false);
       if (error) {
         console.error("Error submitting application:", error);
@@ -209,7 +208,7 @@ const Apply = () => {
         <div className="card bg-base-100 shadow-2xl p-5 border border-gray-300 px-10 py-10">
           {open === "Yes" ? (
             <div>
-              <div className="mb-6 flex justify-between">
+              {/* <div className="mb-6 flex justify-between">
                 <span className="mt-3 lg:text-2xl sm:text-md font-semibold px-3 flex gap-2">
                   <SiGooglescholar className="text-yellow-400 mt-1" />
                   Scholarship Application Form
@@ -217,7 +216,12 @@ const Apply = () => {
                 <span className="mt-2 lg:text-lg sm:text-md font-semibold px-3 flex gap-2">
                   Number of Slots: {total}
                 </span>
-              </div>
+              </div> */}
+              <img
+                src="header.png"
+                alt="header"
+                className="w-full sm:w-3/4 md:w-2/3 lg:w-full h-auto max-w-full object-contain mb-4"
+              />
               <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   <input
@@ -519,6 +523,12 @@ const Apply = () => {
                   onChange={(e) => setScholarshipName(e.target.value)}
                 />
 
+                <img
+                  src="footer.png"
+                  alt="header"
+                  className="w-full sm:w-3/4 md:w-2/3 lg:w-full h-auto max-w-full object-contain mb-4"
+                />
+
                 <div className="divider"></div>
 
                 <div className="flex flex-col items-start">
@@ -526,8 +536,10 @@ const Apply = () => {
                     *Note: Submit the following in 1 PDF Format.
                   </span>
                   <span className="text-red-500 text-sm sm:text-base mt-1">
-                    Application Letter, 1x1 Picture, Latest Community Tax / Cedula, Recent Scholastic Records, <br/>
-                    Recommendation Letter,  Copy of Income Tax of Applicant's Parents and Voter's Registration Certificate <br/>
+                    Application Letter, 1x1 Picture, Latest Community Tax /
+                    Cedula, Recent Scholastic Records, <br />
+                    Recommendation Letter, Copy of Income Tax of Applicant's
+                    Parents and Voter's Registration Certificate <br />
                     Filename format : "LastName_Documents".
                   </span>
                 </div>
@@ -597,20 +609,36 @@ const Apply = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
             <div className="flex flex-col items-center mb-4">
               <div className="text-green-500 mb-2">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-16 w-16"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-center">Application Submitted Successfully!</h2>
+              <h2 className="text-2xl font-bold text-center">
+                Application Submitted Successfully!
+              </h2>
             </div>
             <p className="text-center mb-4">
-              Your application has been successfully submitted and is now being processed.
+              Your application has been successfully submitted and is now being
+              processed.
             </p>
             <div className="p-4 border border-gray-200 rounded-lg bg-gray-50 mb-4">
               <h3 className="text-xl font-semibold text-center mb-2">
                 Application Number
               </h3>
-              <p className="text-2xl font-bold text-center text-blue-600">{idnumber}</p>
+              <p className="text-2xl font-bold text-center text-blue-600">
+                {idnumber}
+              </p>
               <p className="text-sm text-center text-gray-500 mt-2">
                 Please save this number to track your application status.
               </p>
@@ -633,24 +661,30 @@ const Apply = () => {
               Please Confirm Your Information
             </h2>
             <p className="text-center mb-6 text-gray-600">
-              Are you sure with the information you have provided? Please review before submitting.
+              Are you sure with the information you have provided? Please review
+              before submitting.
             </p>
             <div className="overflow-y-auto max-h-96 mb-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h3 className="font-semibold text-lg mb-2 border-b pb-1">Personal Information</h3>
+                  <h3 className="font-semibold text-lg mb-2 border-b pb-1">
+                    Personal Information
+                  </h3>
                   <div className="space-y-2">
                     <div>
-                      <span className="font-medium">Name:</span> {last_name}, {given_name} {middle_name}
+                      <span className="font-medium">Name:</span> {last_name},{" "}
+                      {given_name} {middle_name}
                     </div>
                     <div>
                       <span className="font-medium">Age:</span> {age}
                     </div>
                     <div>
-                      <span className="font-medium">Date of Birth:</span> {formatDate(date_of_birth)}
+                      <span className="font-medium">Date of Birth:</span>{" "}
+                      {formatDate(date_of_birth)}
                     </div>
                     <div>
-                      <span className="font-medium">Place of Birth:</span> {place_of_birth}
+                      <span className="font-medium">Place of Birth:</span>{" "}
+                      {place_of_birth}
                     </div>
                     <div>
                       <span className="font-medium">Sex:</span> {sex}
@@ -659,109 +693,135 @@ const Apply = () => {
                       <span className="font-medium">Address:</span> {address}
                     </div>
                     <div>
-                      <span className="font-medium">Contact:</span> {contact_number}
+                      <span className="font-medium">Contact:</span>{" "}
+                      {contact_number}
                     </div>
                     <div>
-                      <span className="font-medium">Email:</span> {email_address}
+                      <span className="font-medium">Email:</span>{" "}
+                      {email_address}
                     </div>
                     <div>
                       <span className="font-medium">Religion:</span> {religion}
                     </div>
                     <div>
-                      <span className="font-medium">Ethnicity:</span> {ethnicity}
+                      <span className="font-medium">Ethnicity:</span>{" "}
+                      {ethnicity}
                     </div>
                   </div>
                 </div>
-                
+
                 <div>
-                  <h3 className="font-semibold text-lg mb-2 border-b pb-1">Educational Information</h3>
+                  <h3 className="font-semibold text-lg mb-2 border-b pb-1">
+                    Educational Information
+                  </h3>
                   <div className="space-y-2">
                     <div>
                       <span className="font-medium">Course:</span> {course}
                     </div>
                     <div>
-                      <span className="font-medium">Year Level:</span> {year_level}
+                      <span className="font-medium">Year Level:</span>{" "}
+                      {year_level}
                     </div>
                     <div>
-                      <span className="font-medium">Elementary School:</span> {elementary_school}
+                      <span className="font-medium">Elementary School:</span>{" "}
+                      {elementary_school}
                     </div>
                     <div>
-                      <span className="font-medium">Elementary Year:</span> {elementary_year}
+                      <span className="font-medium">Elementary Year:</span>{" "}
+                      {elementary_year}
                     </div>
                     <div>
-                      <span className="font-medium">High School:</span> {secondary_school}
+                      <span className="font-medium">High School:</span>{" "}
+                      {secondary_school}
                     </div>
                     <div>
-                      <span className="font-medium">High School Year:</span> {secondary_year}
+                      <span className="font-medium">High School Year:</span>{" "}
+                      {secondary_year}
                     </div>
                     <div>
-                      <span className="font-medium">Previous Scholarship:</span> {availed_scholarship}
+                      <span className="font-medium">Previous Scholarship:</span>{" "}
+                      {availed_scholarship}
                     </div>
                     {availed_scholarship === "Yes" && (
                       <>
                         <div>
-                          <span className="font-medium">Scholarship Year:</span> {scholarship_year}
+                          <span className="font-medium">Scholarship Year:</span>{" "}
+                          {scholarship_year}
                         </div>
                         <div>
-                          <span className="font-medium">Scholarship Name:</span> {scholarship_name}
+                          <span className="font-medium">Scholarship Name:</span>{" "}
+                          {scholarship_name}
                         </div>
                       </>
                     )}
                   </div>
                 </div>
               </div>
-              
+
               <div className="mt-4">
-                <h3 className="font-semibold text-lg mb-2 border-b pb-1">Family Information</h3>
+                <h3 className="font-semibold text-lg mb-2 border-b pb-1">
+                  Family Information
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <div>
-                      <span className="font-medium">Father's Name:</span> {father_name}
+                      <span className="font-medium">Father's Name:</span>{" "}
+                      {father_name}
                     </div>
                     <div>
-                      <span className="font-medium">Father's Occupation:</span> {father_occupation}
+                      <span className="font-medium">Father's Occupation:</span>{" "}
+                      {father_occupation}
                     </div>
                     <div>
-                      <span className="font-medium">Father's Address:</span> {father_address}
+                      <span className="font-medium">Father's Address:</span>{" "}
+                      {father_address}
                     </div>
                     <div>
-                      <span className="font-medium">Father's Contact:</span> {father_number}
+                      <span className="font-medium">Father's Contact:</span>{" "}
+                      {father_number}
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div>
-                      <span className="font-medium">Mother's Name:</span> {mother_name}
+                      <span className="font-medium">Mother's Name:</span>{" "}
+                      {mother_name}
                     </div>
                     <div>
-                      <span className="font-medium">Mother's Occupation:</span> {mother_occupation}
+                      <span className="font-medium">Mother's Occupation:</span>{" "}
+                      {mother_occupation}
                     </div>
                     <div>
-                      <span className="font-medium">Mother's Address:</span> {mother_address}
+                      <span className="font-medium">Mother's Address:</span>{" "}
+                      {mother_address}
                     </div>
                     <div>
-                      <span className="font-medium">Mother's Contact:</span> {mother_number}
+                      <span className="font-medium">Mother's Contact:</span>{" "}
+                      {mother_number}
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               <div className="mt-4">
-                <h3 className="font-semibold text-lg mb-2 border-b pb-1">Documents</h3>
+                <h3 className="font-semibold text-lg mb-2 border-b pb-1">
+                  Documents
+                </h3>
                 <div>
-                  <span className="font-medium">Uploaded Files:</span> {file ? file.name : "No file uploaded"}
+                  <span className="font-medium">Uploaded Files:</span>{" "}
+                  {file ? file.name : "No file uploaded"}
                 </div>
               </div>
             </div>
-            
+
             <div className="flex flex-col sm:flex-row gap-3 justify-end mt-4">
-              <button 
+              <button
                 className="btn btn-outline"
                 onClick={() => setSubmitShowModal(false)}
               >
                 Go Back & Edit
               </button>
-              <button 
-                className="btn btn-primary" 
+              <button
+                className="btn btn-primary"
                 onClick={handleConfirmSubmit}
                 disabled={loading}
               >

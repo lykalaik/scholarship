@@ -14,6 +14,7 @@ import { Routes, Route } from "react-router-dom";
 import ScholarRoute from "./components/ScholarRoute.jsx";
 import AdminRoute from "./components/AdminRoute.jsx";
 import Unauthorized from "./components/Unathorized.jsx";
+import Tabs from "./components/Admin/Tabs.jsx";
 
 const App = () => {
   return (
@@ -26,17 +27,17 @@ const App = () => {
         <Route path="/track" element={<Track />} />
 
         <Route element={<ScholarRoute />}>
-        <Route path="/user" element={<UserDashboard />} />
+          <Route path="/user" element={<UserDashboard />} />
         </Route>
 
         <Route element={<AdminRoute />}>
-        <Route path="/archive" element={<Archive />} />
-        <Route path="/admin" element={<Applicants />} />
-        <Route path="/scholars" element={<Scholars />} />
-        <Route path="/renewals" element={<Renewal />} />
-        <Route path="/email" element={<EmailForm />} />
-        <Route path="/news" element={<News />} />
-        <Route path="/analytics" element={<Analytics />} />
+          <Route path="/archive" element={<Archive />} />
+          <Route path="/admin" element={<Applicants />} />
+          <Route path="/scholars" element={<Scholars />} />
+          <Route path="/renewals" element={<Renewal />} />
+          <Route path="/email" element={<EmailForm />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/analytics" element={<Tabs />} />
         </Route>
       </Routes>
     </>

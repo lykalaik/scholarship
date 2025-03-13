@@ -94,7 +94,7 @@ const Applicants = () => {
         .update({ start, end, slots })
         .eq("type", "application");
       if (error) throw error;
-      
+
       closeConfirmModal();
       openSuccessModal();
     } catch (error) {
@@ -382,7 +382,6 @@ const Applicants = () => {
               <table className="table">
                 <thead>
                   <tr>
-                    <th>ID</th>
                     <th>Scholar Name</th>
                     <th>Location</th>
                     <th>Name of School</th>
@@ -564,7 +563,10 @@ const Applicants = () => {
               />
 
               <div className="flex justify-center mt-7">
-                <button className="btn bg-white w-1/4" onClick={openConfirmModal}>
+                <button
+                  className="btn bg-white w-1/4"
+                  onClick={openConfirmModal}
+                >
                   Apply
                 </button>
               </div>
@@ -579,11 +581,19 @@ const Applicants = () => {
           <h3 className="font-bold text-lg">Confirm Changes</h3>
           <div className="divider"></div>
           <p>Are you sure you want to update the application date and slots?</p>
-          
+
           <div className="bg-gray-100 p-4 rounded-lg mt-4">
-            <p><span className="font-bold">From:</span> {new Date(start).toLocaleString()}</p>
-            <p><span className="font-bold">To:</span> {new Date(end).toLocaleString()}</p>
-            <p><span className="font-bold">Available Slots:</span> {slots}</p>
+            <p>
+              <span className="font-bold">From:</span>{" "}
+              {new Date(start).toLocaleString()}
+            </p>
+            <p>
+              <span className="font-bold">To:</span>{" "}
+              {new Date(end).toLocaleString()}
+            </p>
+            <p>
+              <span className="font-bold">Available Slots:</span> {slots}
+            </p>
           </div>
 
           <div className="flex justify-end gap-3 mt-6">
@@ -602,17 +612,33 @@ const Applicants = () => {
         <div className="modal-box">
           <div className="flex flex-col items-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-10 h-10 text-green-500">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                className="w-10 h-10 text-green-500"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             </div>
-            
-            <h3 className="font-bold text-xl text-center">Updated Successfully!</h3>
+
+            <h3 className="font-bold text-xl text-center">
+              Updated Successfully!
+            </h3>
             <p className="text-center mt-2">
               The application date and slot information have been updated.
             </p>
-            
-            <button className="btn btn-primary mt-6 w-full" onClick={closeSuccessModal}>
+
+            <button
+              className="btn btn-primary mt-6 w-full"
+              onClick={closeSuccessModal}
+            >
               OK
             </button>
           </div>

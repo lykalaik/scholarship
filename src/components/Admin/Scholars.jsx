@@ -51,6 +51,30 @@ const Scholars = () => {
   const fetch_scholars = async () => {
     try {
       let query = supabase
+        .from("scholars")
+        .select("school_year");
+
+      if (error) throw error;
+
+      // Filter out null values and get distinct school years
+      const distinctSchoolYears = Array.from(
+        new Set(
+          data
+            .filter((item) => item.school_year !== null)
+            .map((item) => item.school_year)
+        )
+      );
+
+      console.log("Fetched school years:", distinctSchoolYears);
+      setSchoolYears(distinctSchoolYears);
+    } catch (error) {
+      console.error("Error fetching school years:", error.message);
+    }
+  };
+
+  const fetch_scholars = async () => {
+    try {
+      let query = supabase
         .from("scholarsData")
         .select("*")
         .neq("status", "Completed");
