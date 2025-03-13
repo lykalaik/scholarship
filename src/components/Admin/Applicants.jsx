@@ -255,15 +255,7 @@ const Applicants = () => {
         {
           email_address: email,
           password: selectedApplicant.mobile_number,
-          full_name: selectedApplicant.full_name,
-          address: selectedApplicant.address,
-          contact_no: selectedApplicant.mobile_number,
-          school: selectedApplicant.school,
-          course: selectedApplicant.course,
-          sex: selectedApplicant.sex,
-          status: "On-going",
-          scholarship_type: "New",
-          allowed_renewal: "No",
+          full_name: selectedApplicant.given_name + selectedApplicant.middle_name + selectedApplicant.last_name,
         },
       ]);
       window.location.reload();
@@ -390,13 +382,12 @@ const Applicants = () => {
               <table className="table">
                 <thead>
                   <tr>
+                    <th>ID</th>
                     <th>Scholar Name</th>
                     <th>Location</th>
-                    <th>Contact No.</th>
                     <th>Name of School</th>
                     <th>Course</th>
                     <th>Sex</th>
-                    <th>GPA</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -404,17 +395,16 @@ const Applicants = () => {
                   {filteredApplicants && filteredApplicants.length > 0 ? (
                     filteredApplicants.map((app) => (
                       <tr key={app.id}>
+                        <td>{app.id}</td>
                         <td>
                           {`${app.given_name} ${app.middle_name || ""} ${
                             app.last_name
                           }`.trim()}
                         </td>
                         <td>{app.address}</td>
-                        <td>{app.mobile_number}</td>
                         <td>{app.secondary_school}</td>
                         <td>{app.course}</td>
                         <td>{app.sex}</td>
-                        <td>{app.gpa}</td>
                         <td className="flex gap-2">
                           <button
                             className="btn btn-sm btn-neutral text-white"
