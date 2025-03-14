@@ -366,100 +366,135 @@ const Applicants = () => {
         </main>
       </div>
 
-      {/* Applicant Documents Modal */}
-      <dialog id="my_modal_4" className="modal">
-      <div className="modal-box w-11/12 max-w-5xl">
-        <h3 className="font-bold text-lg mb-4">Applicant's Data</h3>
-        <div className="divider"></div>
-        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-5" onClick={closeModal}>✕</button>
-        {selectedApplicant && (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <p><strong>Last Name:</strong> {selectedApplicant.last_name}</p>
-              <p><strong>Given Name:</strong> {selectedApplicant.given_name}</p>
-              <p><strong>Middle Name:</strong> {selectedApplicant.middle_name}</p>
-              <p><strong>Age:</strong> {selectedApplicant.age}</p>
-              <p><strong>Date of Birth:</strong> {selectedApplicant.date_of_birth}</p>
-              <p><strong>Place of Birth:</strong> {selectedApplicant.place_of_birth}</p>
-              <p><strong>Course:</strong> {selectedApplicant.course}</p>
-              <p><strong>Year Level:</strong> {selectedApplicant.year_level}</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <p><strong>Sex:</strong> {selectedApplicant.sex}</p>
-              <p><strong>Civil Service:</strong> {selectedApplicant.civil_service}</p>
-              <p><strong>Religion:</strong> {selectedApplicant.religion}</p>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <p><strong>Contact Number:</strong> {selectedApplicant.contact_number}</p>
-              <p><strong>Email Address:</strong> {selectedApplicant.email_address}</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <p><strong>Height:</strong> {selectedApplicant.height}</p>
-              <p><strong>Weight:</strong> {selectedApplicant.weight}</p>
-              </div>
-
-
-              <p><strong>Address:</strong> {selectedApplicant.address}</p>
-          
-              <div className="divider"></div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <p><strong>Number of Family Members:</strong> {selectedApplicant.number_family_members}</p>
-              <p><strong>Ethnicity:</strong> {selectedApplicant.ethnicity}</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <p><strong>Father's Name:</strong> {selectedApplicant.father_name}</p>
-              <p><strong>Father's Address:</strong> {selectedApplicant.father_address}</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <p><strong>Father's Contact:</strong> {selectedApplicant.father_number}</p>
-              <p><strong>Father's Occupation:</strong> {selectedApplicant.father_occupation}</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <p><strong>Mother's Name:</strong> {selectedApplicant.mother_name}</p>
-              <p><strong>Mother's Address:</strong> {selectedApplicant.mother_address}</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <p><strong>Mother's Contact:</strong> {selectedApplicant.mother_number}</p>
-              <p><strong>Mother's Occupation:</strong> {selectedApplicant.mother_occupation}</p>
-              </div>
-
-              <div className="divider"></div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <p><strong>Elementary School:</strong> {selectedApplicant.elementary_school}</p>
-              <p><strong>Elementary Year:</strong> {selectedApplicant.elementary_year}</p>
-              <p><strong>Elementary Awards:</strong> {selectedApplicant.elementary_awards}</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <p><strong>Secondary School:</strong> {selectedApplicant.secondary_school}</p>
-              <p><strong>Secondary Year:</strong> {selectedApplicant.secondary_year}</p>
-              <p><strong>Secondary Awards:</strong> {selectedApplicant.secondary_awards}</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <p><strong>Availed Scholarship:</strong> {selectedApplicant.availed_scholarship}</p>
-              <p><strong>Scholarship Year:</strong> {selectedApplicant.scholarship_year}</p>
-              <p><strong>Scholarship Name:</strong> {selectedApplicant.scholarship_name}</p>
-            </div>
-          </>
-        )}
-        <div className="flex justify-end space-x-2 mt-4">
-        {selectedApplicant?.docs && typeof selectedApplicant.docs === "string" && (
-        <a href={selectedApplicant.docs} target="_blank" rel="noopener noreferrer" className="btn btn-warning text-white">Download PDF</a>
-      )}
-          <button onClick={rejected} className="btn btn-error text-white">Reject</button>
-          <button onClick={accepted} className="btn btn-primary text-white">Accept</button>
+    {/* Applicant Documents Modal */}
+<dialog id="my_modal_4" className="modal">
+  <div className="modal-box w-11/12 max-w-5xl">
+    <h3 className="font-bold text-lg mb-4">Applicant's Data</h3>
+    <div className="divider"></div>
+    <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-5" onClick={closeModal}>✕</button>
+    {selectedApplicant && (
+      <>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <p><strong>Last Name:</strong> {selectedApplicant.last_name}</p>
+          <p><strong>Given Name:</strong> {selectedApplicant.given_name}</p>
+          <p><strong>Middle Name:</strong> {selectedApplicant.middle_name}</p>
+          <p><strong>Age:</strong> {selectedApplicant.age}</p>
+          <p><strong>Date of Birth:</strong> {selectedApplicant.date_of_birth}</p>
+          <p><strong>Place of Birth:</strong> {selectedApplicant.place_of_birth}</p>
+          <p><strong>Course:</strong> {selectedApplicant.course}</p>
+          <p><strong>Year Level:</strong> {selectedApplicant.year_level}</p>
         </div>
-      </div>
-    </dialog>
 
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <p><strong>Sex:</strong> {selectedApplicant.sex}</p>
+          <p><strong>Civil Service:</strong> {selectedApplicant.civil_service}</p>
+          <p><strong>Religion:</strong> {selectedApplicant.religion}</p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <p><strong>Contact Number:</strong> {selectedApplicant.contact_number}</p>
+          <p><strong>Email Address:</strong> {selectedApplicant.email_address}</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <p><strong>Height:</strong> {selectedApplicant.height}</p>
+          <p><strong>Weight:</strong> {selectedApplicant.weight}</p>
+        </div>
+
+        <p><strong>Address:</strong> {selectedApplicant.address}</p>
+    
+        <div className="divider"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <p><strong>Number of Family Members:</strong> {selectedApplicant.number_family_members}</p>
+          <p><strong>Ethnicity:</strong> {selectedApplicant.ethnicity}</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <p><strong>Father's Name:</strong> {selectedApplicant.father_name}</p>
+          <p><strong>Father's Address:</strong> {selectedApplicant.father_address}</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <p><strong>Father's Contact:</strong> {selectedApplicant.father_number}</p>
+          <p><strong>Father's Occupation:</strong> {selectedApplicant.father_occupation}</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <p><strong>Mother's Name:</strong> {selectedApplicant.mother_name}</p>
+          <p><strong>Mother's Address:</strong> {selectedApplicant.mother_address}</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <p><strong>Mother's Contact:</strong> {selectedApplicant.mother_number}</p>
+          <p><strong>Mother's Occupation:</strong> {selectedApplicant.mother_occupation}</p>
+        </div>
+
+        <div className="divider"></div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <p><strong>Elementary School:</strong> {selectedApplicant.elementary_school}</p>
+          <p><strong>Elementary Year:</strong> {selectedApplicant.elementary_year}</p>
+          <p><strong>Elementary Awards:</strong> {selectedApplicant.elementary_awards}</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <p><strong>Secondary School:</strong> {selectedApplicant.secondary_school}</p>
+          <p><strong>Secondary Year:</strong> {selectedApplicant.secondary_year}</p>
+          <p><strong>Secondary Awards:</strong> {selectedApplicant.secondary_awards}</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <p><strong>Availed Scholarship:</strong> {selectedApplicant.availed_scholarship}</p>
+          <p><strong>Scholarship Year:</strong> {selectedApplicant.scholarship_year}</p>
+          <p><strong>Scholarship Name:</strong> {selectedApplicant.scholarship_name}</p>
+        </div>
+
+        {/* PDF Viewer Section */}
+        {selectedApplicant?.docs && typeof selectedApplicant.docs === "string" && (
+          <div className="mt-4">
+            <h4 className="font-bold text-md mb-2">Applicant Documents:</h4>
+            <div className="card bordered bg-base-100 shadow-md">
+              <div className="card-body p-2">
+                <object 
+                  data={selectedApplicant.docs} 
+                  type="application/pdf" 
+                  width="100%" 
+                  height="500px"
+                  className="border border-gray-300 rounded-md"
+                >
+                  <p className="text-center py-4">
+                    Unable to display PDF file. 
+                    <a 
+                      href={selectedApplicant.docs} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="btn btn-sm btn-link"
+                    >
+                      Download
+                    </a> instead.
+                  </p>
+                </object>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    )}
+    <div className="flex justify-end space-x-2 mt-4">
+      {selectedApplicant?.docs && typeof selectedApplicant.docs === "string" && (
+        <a 
+          href={selectedApplicant.docs} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="btn btn-warning text-white"
+        >
+          Download PDF
+        </a>
+      )}
+      <button onClick={rejected} className="btn btn-error text-white">Reject</button>
+      <button onClick={accepted} className="btn btn-primary text-white">Accept</button>
+    </div>
+  </div>
+</dialog>
 
 
       {/* Application Date Setting Modal */}
