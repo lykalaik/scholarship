@@ -222,14 +222,38 @@ const Applicants = () => {
   };
 
   const createaccount = async () => {
+    
+    const fullName = `${selectedApplicant.given_name} ${selectedApplicant.middle_name} ${selectedApplicant.last_name}`.trim();
     try {
       const { data } = await supabase.from("scholars").insert([
         {
           email_address: email,
-          password: selectedApplicant.mobile_number,
-          full_name: selectedApplicant.given_name + selectedApplicant.middle_name + selectedApplicant.last_name,
+          password: selectedApplicant.contact_number,
+          full_name: fullName,
         },
-      ]);
+      ])
+      addScholarData();
+    } catch (error) {
+      alert("Error Saving Data.");
+    }
+  };
+
+  const addScholarData = async () => {
+    const currentYear = new Date().getFullYear();
+    const nextYear = currentYear + 1;
+    const school_year = `${currentYear}-${nextYear}`;
+    const fullName = `${selectedApplicant.given_name} ${selectedApplicant.middle_name} ${selectedApplicant.last_name}`.trim();
+    try {
+      const { data } = await supabase.from("scholarsData").insert([
+        {
+          name: fullName,
+          status: "On-Going",
+          category : "New",
+          gender : selectedApplicant.sex,
+          semester: "1st Sem",
+          school_year,
+        },
+      ])
       window.location.reload();
     } catch (error) {
       alert("Error Saving Data.");
