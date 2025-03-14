@@ -72,7 +72,6 @@ const ScholarStatusChart = () => {
         enabled: false, // Disable the hover tooltip
       },
     },
-    maintainAspectRatio: false,
   };
 
   return (

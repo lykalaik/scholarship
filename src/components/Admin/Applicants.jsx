@@ -137,34 +137,6 @@ const Applicants = () => {
     setSelectedApplicant(null);
   };
 
-  const openPreview = (index) => {
-    setSelectedImageIndex(index);
-    setIsPreviewOpen(true);
-  };
-
-  const navigatePreview = (direction) => {
-    if (!selectedApplicant) return;
-    let newIndex =
-      direction === "next" ? selectedImageIndex + 1 : selectedImageIndex - 1;
-    const documentLinks = [
-      selectedApplicant.application_letter,
-      selectedApplicant.recommendation_letter,
-      selectedApplicant.itr,
-      selectedApplicant.copy_itr,
-      selectedApplicant.cedula,
-      selectedApplicant.voters,
-      selectedApplicant.recent_card,
-    ];
-    if (newIndex < 0) newIndex = documentLinks.length - 1;
-    if (newIndex >= documentLinks.length) newIndex = 0;
-    setSelectedImageIndex(newIndex);
-  };
-
-  const handleAction = (action) => {
-    console.log(`Action selected: ${action} for applicant:`, selectedApplicant);
-    closeModal();
-  };
-
   const rejected = () => {
     const templateParams = {
       from_name: "Butuan Scholarship",
@@ -272,65 +244,6 @@ const Applicants = () => {
       (app.course || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const saveAsPDF = async () => {
-    if (!selectedApplicant) return;
-
-    const doc = new jsPDF();
-    const documentLinks = [
-      selectedApplicant.application_letter,
-      selectedApplicant.recommendation_letter,
-      selectedApplicant.itr,
-      selectedApplicant.copy_itr,
-      selectedApplicant.cedula,
-      selectedApplicant.voters,
-      selectedApplicant.recent_card,
-    ];
-
-    let yOffset = 10;
-
-    doc.setFontSize(16);
-    doc.text(
-      `Applicant: ${selectedApplicant.given_name} ${
-        selectedApplicant.middle_name || ""
-      } ${selectedApplicant.last_name}`,
-      10,
-      yOffset
-    );
-    yOffset += 10;
-
-    for (let i = 0; i < documentLinks.length; i++) {
-      const imgUrl = documentLinks[i];
-
-      try {
-        const img = await fetch(imgUrl);
-        const blob = await img.blob();
-        const reader = new FileReader();
-
-        reader.onload = function (event) {
-          const imageData = event.target.result;
-          doc.addImage(imageData, "JPEG", 10, yOffset, 180, 100);
-          yOffset += 110;
-
-          if (i < documentLinks.length - 1) {
-            doc.addPage(); // Add a new page for each image
-            yOffset = 10;
-          }
-
-          if (i === documentLinks.length - 1) {
-            doc.save(
-              `Applicant_${selectedApplicant.given_name}_${
-                selectedApplicant.middle_name || ""
-              }_${selectedApplicant.last_name}.pdf`
-            );
-          }
-        };
-
-        reader.readAsDataURL(blob);
-      } catch (error) {
-        console.error("Error fetching image:", error);
-      }
-    }
-  };
 
   return (
     <>
@@ -382,6 +295,7 @@ const Applicants = () => {
               <table className="table">
                 <thead>
                   <tr>
+                    <th>ID</th>
                     <th>Scholar Name</th>
                     <th>Location</th>
                     <th>Name of School</th>
@@ -430,96 +344,99 @@ const Applicants = () => {
 
       {/* Applicant Documents Modal */}
       <dialog id="my_modal_4" className="modal">
-        <div className="modal-box w-11/12 max-w-5xl">
-          <h3 className="font-bold text-lg mb-4">
-            Applicant's Uploaded Documents
-          </h3>
-          <div className="divider"></div>
-          <button
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-5"
-            onClick={closeModal}
-          >
-            ✕
-          </button>
-          {selectedApplicant && (
-            <>
-              {isPreviewOpen ? (
-                <div className="relative flex items-center justify-center h-[60vh]">
-                  <img
-                    src={
-                      [
-                        selectedApplicant.application_letter,
-                        selectedApplicant.recommendation_letter,
-                        selectedApplicant.itr,
-                        selectedApplicant.copy_itr,
-                        selectedApplicant.cedula,
-                        selectedApplicant.voters,
-                        selectedApplicant.recent_card,
-                      ][selectedImageIndex]
-                    }
-                    alt={`Document ${selectedImageIndex + 1}`}
-                    className="max-w-full max-h-full object-contain"
-                  />
-                  <button
-                    className="btn btn-circle btn-sm absolute left-2"
-                    onClick={() => navigatePreview("prev")}
-                  >
-                    <FiChevronLeft />
-                  </button>
-                  <button
-                    className="btn btn-circle btn-sm absolute right-2"
-                    onClick={() => navigatePreview("next")}
-                  >
-                    <FiChevronRight />
-                  </button>
-                  <button
-                    className="btn btn-circle btn-sm absolute top-2 right-2"
-                    onClick={() => setIsPreviewOpen(false)}
-                  >
-                    <FiX />
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
-                  {[
-                    selectedApplicant.application_letter,
-                    selectedApplicant.recommendation_letter,
-                    selectedApplicant.itr,
-                    selectedApplicant.copy_itr,
-                    selectedApplicant.cedula,
-                    selectedApplicant.voters,
-                    selectedApplicant.recent_card,
-                  ].map((src, index) => (
-                    <img
-                      key={index}
-                      src={src}
-                      alt={`Document ${index + 1}`}
-                      className="w-full h-auto rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                      onClick={() => openPreview(index)}
-                    />
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-          <div className="flex justify-end space-x-2 mt-4">
-            <div className="flex gap-2">
-              <button
-                onClick={saveAsPDF}
-                className="btn btn-warning text-white"
-              >
-                Save as PDF
-              </button>
-              <button onClick={rejected} className="btn btn-error text-white">
-                Reject
-              </button>
-              <button onClick={accepted} className="btn btn-primary text-white">
-                Accept
-              </button>
+      <div className="modal-box w-11/12 max-w-5xl">
+        <h3 className="font-bold text-lg mb-4">Applicant's Data</h3>
+        <div className="divider"></div>
+        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-5" onClick={closeModal}>✕</button>
+        {selectedApplicant && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <p><strong>Last Name:</strong> {selectedApplicant.last_name}</p>
+              <p><strong>Given Name:</strong> {selectedApplicant.given_name}</p>
+              <p><strong>Middle Name:</strong> {selectedApplicant.middle_name}</p>
+              <p><strong>Age:</strong> {selectedApplicant.age}</p>
+              <p><strong>Date of Birth:</strong> {selectedApplicant.date_of_birth}</p>
+              <p><strong>Place of Birth:</strong> {selectedApplicant.place_of_birth}</p>
+              <p><strong>Course:</strong> {selectedApplicant.course}</p>
+              <p><strong>Year Level:</strong> {selectedApplicant.year_level}</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <p><strong>Sex:</strong> {selectedApplicant.sex}</p>
+              <p><strong>Civil Service:</strong> {selectedApplicant.civil_service}</p>
+              <p><strong>Religion:</strong> {selectedApplicant.religion}</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <p><strong>Contact Number:</strong> {selectedApplicant.contact_number}</p>
+              <p><strong>Email Address:</strong> {selectedApplicant.email_address}</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <p><strong>Height:</strong> {selectedApplicant.height}</p>
+              <p><strong>Weight:</strong> {selectedApplicant.weight}</p>
+              </div>
+
+
+              <p><strong>Address:</strong> {selectedApplicant.address}</p>
+          
+              <div className="divider"></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <p><strong>Number of Family Members:</strong> {selectedApplicant.number_family_members}</p>
+              <p><strong>Ethnicity:</strong> {selectedApplicant.ethnicity}</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <p><strong>Father's Name:</strong> {selectedApplicant.father_name}</p>
+              <p><strong>Father's Address:</strong> {selectedApplicant.father_address}</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <p><strong>Father's Contact:</strong> {selectedApplicant.father_number}</p>
+              <p><strong>Father's Occupation:</strong> {selectedApplicant.father_occupation}</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <p><strong>Mother's Name:</strong> {selectedApplicant.mother_name}</p>
+              <p><strong>Mother's Address:</strong> {selectedApplicant.mother_address}</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <p><strong>Mother's Contact:</strong> {selectedApplicant.mother_number}</p>
+              <p><strong>Mother's Occupation:</strong> {selectedApplicant.mother_occupation}</p>
+              </div>
+
+              <div className="divider"></div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <p><strong>Elementary School:</strong> {selectedApplicant.elementary_school}</p>
+              <p><strong>Elementary Year:</strong> {selectedApplicant.elementary_year}</p>
+              <p><strong>Elementary Awards:</strong> {selectedApplicant.elementary_awards}</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <p><strong>Secondary School:</strong> {selectedApplicant.secondary_school}</p>
+              <p><strong>Secondary Year:</strong> {selectedApplicant.secondary_year}</p>
+              <p><strong>Secondary Awards:</strong> {selectedApplicant.secondary_awards}</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <p><strong>Availed Scholarship:</strong> {selectedApplicant.availed_scholarship}</p>
+              <p><strong>Scholarship Year:</strong> {selectedApplicant.scholarship_year}</p>
+              <p><strong>Scholarship Name:</strong> {selectedApplicant.scholarship_name}</p>
             </div>
-          </div>
+          </>
+        )}
+        <div className="flex justify-end space-x-2 mt-4">
+        {selectedApplicant?.docs && typeof selectedApplicant.docs === "string" && (
+        <a href={selectedApplicant.docs} target="_blank" rel="noopener noreferrer" className="btn btn-warning text-white">Download PDF</a>
+      )}
+          <button onClick={rejected} className="btn btn-error text-white">Reject</button>
+          <button onClick={accepted} className="btn btn-primary text-white">Accept</button>
         </div>
-      </dialog>
+      </div>
+    </dialog>
+
+
 
       {/* Application Date Setting Modal */}
       <dialog id="my_modal_3" className="modal">
