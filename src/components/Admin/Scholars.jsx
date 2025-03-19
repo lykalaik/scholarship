@@ -15,6 +15,8 @@ const Scholars = () => {
   const [semester, setSemester] = useState("");
   const [schoolYear, setSchoolYear] = useState("");
   const [schoolYears, setSchoolYears] = useState([]); // Store school years dynamically
+  const [selectedSemester, setSelectedSemester] = useState("");
+  const [selectedSchoolYear, setSelectedSchoolYear] = useState("");
 
   useEffect(() => {
     fetch_scholars();
@@ -203,21 +205,26 @@ const Scholars = () => {
               </div>
             </div>
             <div className="flex gap-2 justify-end">
-              {/* Semester Filter */}
+              <input
+                type="text"
+                placeholder="Search..."
+                className="input input-bordered lg:w-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
               <select
                 className="select select-bordered"
-                value={semester}
-                onChange={(e) => setSemester(e.target.value)}
+                value={selectedSemester}
+                onChange={(e) => setSelectedSemester(e.target.value)}
               >
                 <option value="">Select Semester</option>
                 <option value="1st Sem">1st Semester</option>
                 <option value="2nd Sem">2nd Semester</option>
               </select>
-              {/* School Year Filter */}
               <select
                 className="select select-bordered"
-                value={schoolYear}
-                onChange={(e) => setSchoolYear(e.target.value)}
+                value={selectedSchoolYear}
+                onChange={(e) => setSelectedSchoolYear(e.target.value)}
               >
                 <option value="">Select School Year</option>
                 {schoolYears.length > 0 ? (
@@ -230,13 +237,15 @@ const Scholars = () => {
                   <option>Loading...</option>
                 )}
               </select>
-              <input
-                type="text"
-                placeholder="Search..."
-                className="input input-bordered lg:w-full"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+              <button
+                className="btn btn-neutral text-white"
+                onClick={() => {
+                  setSemester(selectedSemester);
+                  setSchoolYear(selectedSchoolYear);
+                }}
+              >
+                Apply Filters
+              </button>
             </div>
           </div>
 

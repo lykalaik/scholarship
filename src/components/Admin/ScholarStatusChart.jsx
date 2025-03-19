@@ -56,28 +56,63 @@ const ScholarStatusChart = () => {
   };
 
   const chartOptions = {
-    responsive: true, // Make the chart responsive
-    maintainAspectRatio: false, // Disable the default aspect ratio and give flexibility
     plugins: {
       datalabels: {
-        display: true, // Enable data labels to be shown
-        color: "#fff", // Text color for the data labels
+        display: true,
+        color: "#fff",
         font: {
-          size: 14, // Size of the text
+          size: 14,
           weight: "bold",
         },
-        formatter: (value) => `${value}`, // Formatter to show just the value (you can customize this)
+        formatter: (value) => `${value}`,
       },
       tooltip: {
-        enabled: false, // Disable the hover tooltip
+        enabled: false,
+      },
+      legend: {
+        display: false,
       },
     },
+    maintainAspectRatio: false,
   };
 
   return (
-    <div className="w-full h-[400px] flex justify-center items-center">
-      <Pie data={chartData} options={chartOptions} />
-    </div>
+    <>
+      <h1 className="text-center text-3xl font-semibold mb-3">
+        Distribution of Scholar by Status
+      </h1>
+      <div className="w-full flex justify-center items-center p-4">
+        <div className="flex flex-col sm:flex-row justify-center items-center space-x-6 space-y-6 sm:space-y-0 w-full">
+          <div
+            className="w-full sm:w-2/3 flex justify-center"
+            style={{ height: "500px" }}
+          >
+            <Pie data={chartData} options={chartOptions} />
+          </div>
+
+          <div className="w-full sm:w-1/3 h-full flex flex-col justify-center space-y-4 pl-6">
+            {chartData.labels.map((label, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <div
+                  className="w-4 h-4 rounded-full"
+                  style={{
+                    backgroundColor:
+                      chartData.datasets[0].backgroundColor[index],
+                  }}
+                ></div>
+                <span className="font-semibold text-lg">
+                  {label}:{" "}
+                  <span className="text-xl">
+                    {chartData.datasets[0].data[index]}
+                  </span>
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="divider"></div>
+    </>
   );
 };
 
