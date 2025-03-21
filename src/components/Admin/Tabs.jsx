@@ -7,6 +7,10 @@ import ByStatusAndCategory from "./ByStatusAndCategory";
 import ByStatusAndGender from "./ByStatusAndGender";
 import ApplicantsByGenderandCategory from "./ApplicantsByGenderandCategory";
 import ApplicantsByStatusAndCategory from "./ApplicantsByStatusAndCategory";
+import TotalCountPerBrgy from "./TotalCountPerBrgy";
+import TotalCountFundsPerSchool from "./TotalCountFundsPerSchool";
+import TotalCountFundsPerStudent from "./TotalCountFundsPerStudent";
+import TotalCountFundsPerSemester from "./TotalCountFundsPerSemester";
 
 const Tabs = () => {
   const tabs = [
@@ -90,9 +94,25 @@ const ApplicantsTab = () => (
     <div className="mb-6">
       <ApplicantsByStatusAndCategory />
     </div>
+    <div className="mb-6">
+      <TotalCountPerBrgy />
+    </div>
   </div>
 );
-const FOFTab = () => <div>FOF Content</div>;
-const SOFTab = () => <div>SOF Content</div>;
+const FOFTab = () => (
+  <div>
+    <div className="mb-6">
+      <TotalCountFundsPerSchool />
+    </div>
+    <div className="mb-6">
+      <TotalCountFundsPerStudent />
+    </div>
+  </div>
+);
+const SOFTab = () => (
+  <div className="mb-6">
+    <TotalCountFundsPerSemester />
+  </div>
+);
 
 export default Tabs;
