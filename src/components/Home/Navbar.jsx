@@ -5,6 +5,7 @@ import { MdManageAccounts } from "react-icons/md";
 import { IoNewspaper } from "react-icons/io5";
 import { IoMdLogIn } from "react-icons/io";
 import { SiPivotaltracker } from "react-icons/si";
+import { MdError } from "react-icons/md";
 import { useState } from "react";
 import supabase from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +17,8 @@ const Navbar = () => {
   const [role, setRole] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showErrorModal, setShowErrorModal] = useState(false);
   const navigate = useNavigate();
 
   const openModal = () => {
@@ -31,40 +34,72 @@ const Navbar = () => {
     }
   };
 
+  const openErrorModal = (message) => {
+    setErrorMessage(message);
+    setShowErrorModal(true);
+    const errorModal = document.getElementById("error_modal");
+    if (errorModal) errorModal.showModal();
+  };
+
+  const closeErrorModal = () => {
+    const errorModal = document.getElementById("error_modal");
+    if (errorModal) {
+      errorModal.close();
+      setShowErrorModal(false);
+    }
+  };
+
   const signin = async () => {
     setLoading(true);
     try {
+      if (!email || !password || !role) {
+        openErrorModal("Please fill in all fields and select a role.");
+        return;
+      }
+
       if (role === "Scholar") {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from("scholars")
           .select("*")
           .eq("email_address", email)
           .single();
+          
+        if (error) {
+          openErrorModal("Account not found. Please check your email and try again.");
+          return;
+        }
+        
         if (data && data.password === password) {
           sessionStorage.setItem("role", "Scholar");
           sessionStorage.setItem("scholarData", data.full_name);
           sessionStorage.setItem("email", data.email_address);
           navigate("/user");
         } else {
-          alert("Invalid Credentials");
+          openErrorModal("Invalid credentials. Please check your password and try again.");
         }
       } else {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from("users")
           .select("*")
           .eq("email", email)
           .single();
+          
+        if (error) {
+          openErrorModal("Account not found. Please check your email and try again.");
+          return;
+        }
+        
         if (data && data.password === password) {
           sessionStorage.setItem("role", "Admin");
           sessionStorage.setItem("email", data.email);
           navigate("/admin");
         } else {
-          alert("Invalid Credentials");
+          openErrorModal("Invalid credentials. Please check your password and try again.");
         }
       }
     } catch (error) {
-      alert("An unexpected error occurred.");
-      console.error("Error during registration:", error.message);
+      openErrorModal("An unexpected error occurred. Please try again later.");
+      console.error("Error during login:", error.message);
     } finally {
       setLoading(false);
     }
@@ -217,7 +252,7 @@ const Navbar = () => {
         </div>
       )}
 
-      {/* Modal */}
+      {/* Login Modal */}
       <dialog id="my_modal_3" className="modal">
         <div className="modal-box">
           <form method="dialog">
@@ -334,6 +369,33 @@ const Navbar = () => {
                 )}
               </button>
             </div>
+          </div>
+        </div>
+      </dialog>
+
+      {/* Error Modal */}
+      <dialog id="error_modal" className="modal">
+        <div className="modal-box bg-white">
+          <form method="dialog">
+            <button
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+              onClick={closeErrorModal}
+            >
+              ✕
+            </button>
+          </form>
+          <div className="flex flex-col items-center justify-center">
+            <div className="text-red-500 mb-4">
+              <MdError size={60} />
+            </div>
+            <h3 className="font-bold text-lg text-center mb-2">Login Failed</h3>
+            <p className="text-center mb-6">{errorMessage}</p>
+            <button 
+              className="btn btn-error text-white"
+              onClick={closeErrorModal}
+            >
+              Try Again
+            </button>
           </div>
         </div>
       </dialog>
