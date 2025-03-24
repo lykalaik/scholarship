@@ -1,141 +1,82 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import supabase from "../supabaseClient";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
-const TotalCountPerBrgy = () => {
-  // Sample data
-  const allBarangays = [
-    {
-      name: "Ampayon",
-      new: 23,
-      newDeclined: 0,
-      renewal: 14,
-      renewalDeclined: 1,
-      total: 38,
-    },
-    {
-      name: "De Oro",
-      new: 21,
-      newDeclined: 0,
-      renewal: 12,
-      renewalDeclined: 0,
-      total: 33,
-    },
-    {
-      name: "Lumbocan",
-      new: 18,
-      newDeclined: 2,
-      renewal: 20,
-      renewalDeclined: 2,
-      total: 38,
-    },
-    {
-      name: "Pagatpatan",
-      new: 16,
-      newDeclined: 1,
-      renewal: 33,
-      renewalDeclined: 1,
-      total: 41,
-    },
-    {
-      name: "Tungao",
-      new: 14,
-      newDeclined: 2,
-      renewal: 16,
-      renewalDeclined: 3,
-      total: 39,
-    },
-    {
-      name: "San Vicente",
-      new: 12,
-      newDeclined: 1,
-      renewal: 15,
-      renewalDeclined: 2,
-      total: 30,
-    },
-    {
-      name: "Baan",
-      new: 19,
-      newDeclined: 0,
-      renewal: 21,
-      renewalDeclined: 1,
-      total: 41,
-    },
-    {
-      name: "Libertad",
-      new: 15,
-      newDeclined: 3,
-      renewal: 18,
-      renewalDeclined: 0,
-      total: 36,
-    },
-    {
-      name: "Mahogany",
-      new: 20,
-      newDeclined: 1,
-      renewal: 22,
-      renewalDeclined: 2,
-      total: 45,
-    },
-    {
-      name: "Villa Kananga",
-      new: 17,
-      newDeclined: 2,
-      renewal: 19,
-      renewalDeclined: 1,
-      total: 39,
-    },
-    {
-      name: "Obrero",
-      new: 22,
-      newDeclined: 1,
-      renewal: 24,
-      renewalDeclined: 2,
-      total: 49,
-    },
-    {
-      name: "Ambago",
-      new: 13,
-      newDeclined: 0,
-      renewal: 17,
-      renewalDeclined: 1,
-      total: 31,
-    },
-  ];
-
+const TotalCountPerBrgy = ({ semester, year }) => {
+  const [allBarangays, setAllBarangays] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
 
-  // Calculate total pages
-  const totalPages = Math.ceil(allBarangays.length / rowsPerPage);
+  // Fetch and process data
+  useEffect(() => {
+    const fetchData = async () => {
+      // Fetch NEW Applications data
+      const { data: applications } = await supabase
+        .from("application")
+        .select("barangay, status")
+        .eq("semester", semester)
+        .eq("school_year", year);
 
-  // Get current rows for the page
+      // Fetch RENEWAL Scholars data
+      const { data: scholarsData } = await supabase
+        .from("scholarsData")
+        .select("barangay, status")
+        .eq("semester", semester)
+        .eq("school_year", year);
+
+      // Extract unique barangays from both datasets
+      const barangaySet = new Set([
+        ...applications.map((app) => app.barangay),
+        ...scholarsData.map((sch) => sch.barangay),
+      ]);
+
+      const barangayCounts = Array.from(barangaySet).map((brgy) => {
+        const newAccepted = applications.filter(
+          (app) => app.barangay === brgy && app.status === "Accepted"
+        ).length;
+        const newDeclined = applications.filter(
+          (app) => app.barangay === brgy && app.status === "Rejected"
+        ).length;
+        const renewalAccepted = scholarsData.filter(
+          (sch) => sch.barangay === brgy && sch.status === "Accepted"
+        ).length;
+        const renewalDeclined = scholarsData.filter(
+          (sch) => sch.barangay === brgy && sch.status === "Rejected"
+        ).length;
+
+        return {
+          name: brgy,
+          new: newAccepted,
+          newDeclined,
+          renewal: renewalAccepted,
+          renewalDeclined,
+          total: newAccepted + newDeclined + renewalAccepted + renewalDeclined,
+        };
+      });
+
+      setAllBarangays(barangayCounts);
+    };
+
+    fetchData();
+  }, [semester, year]);
+
+  // Pagination
+  const totalPages = Math.ceil(allBarangays.length / rowsPerPage);
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
   const currentBarangays = allBarangays.slice(indexOfFirstRow, indexOfLastRow);
 
-  // Change page
   const goToPage = (pageNumber) => setCurrentPage(pageNumber);
   const nextPage = () =>
     currentPage < totalPages && setCurrentPage(currentPage + 1);
   const prevPage = () => currentPage > 1 && setCurrentPage(currentPage - 1);
 
-  const totalSchools = 11;
-  const totalApplications = 467;
-
-  // Function to export table to PDF
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.text("Total Count per Barangay of Scholarship Application", 14, 10);
 
-    const tableColumn = [
-      "Barangay",
-      "New",
-      "Declined",
-      "Renewal",
-      "Declined",
-      "Total",
-    ];
+    const tableColumn = ["Barangay", "New", "Declined", "Renewal", "Declined", "Total"];
     const tableRows = allBarangays.map((barangay) => [
       barangay.name,
       barangay.new,
@@ -150,17 +91,6 @@ const TotalCountPerBrgy = () => {
       body: tableRows,
       startY: 20,
     });
-
-    doc.text(
-      `Total Schools: ${totalSchools}`,
-      14,
-      doc.autoTable.previous.finalY + 10
-    );
-    doc.text(
-      `Total Applications: ${totalApplications}`,
-      14,
-      doc.autoTable.previous.finalY + 20
-    );
 
     doc.save("Total_Count_Per_Brgy.pdf");
   };
@@ -199,61 +129,28 @@ const TotalCountPerBrgy = () => {
 
         {currentBarangays.map((barangay, index) => (
           <div key={index} className="flex border-b-2 border-black">
-            <div className="w-1/3 border-r-2 border-black py-2 px-2">
-              {barangay.name}
-            </div>
-            <div className="w-1/6 text-center border-r-2 border-black py-2">
-              {barangay.new}
-            </div>
-            <div className="w-1/6 text-center border-r-2 border-black py-2">
-              {barangay.newDeclined}
-            </div>
-            <div className="w-1/6 text-center border-r-2 border-black py-2">
-              {barangay.renewal}
-            </div>
-            <div className="w-1/6 text-center border-r-2 border-black py-2">
-              {barangay.renewalDeclined}
-            </div>
+            <div className="w-1/3 border-r-2 border-black py-2 px-2">{barangay.name}</div>
+            <div className="w-1/6 text-center border-r-2 border-black py-2">{barangay.new}</div>
+            <div className="w-1/6 text-center border-r-2 border-black py-2">{barangay.newDeclined}</div>
+            <div className="w-1/6 text-center border-r-2 border-black py-2">{barangay.renewal}</div>
+            <div className="w-1/6 text-center border-r-2 border-black py-2">{barangay.renewalDeclined}</div>
             <div className="w-1/6 text-center py-2">{barangay.total}</div>
           </div>
         ))}
-
-        <div className="flex">
-          <div className="w-1/2 border-r-2 border-black py-2 px-2">
-            <span className="font-bold">Total Schools</span>
-            <span className="float-right mr-8">{totalSchools}</span>
-          </div>
-          <div className="w-1/2 py-2 px-2">
-            <span className="font-bold">Total Applications</span>
-            <span className="float-right mr-8">{totalApplications}</span>
-          </div>
-        </div>
       </div>
 
       <div className="flex justify-center items-center mt-4 space-x-2">
-        <button
-          onClick={prevPage}
-          disabled={currentPage === 1}
-          className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
-        >
+        <button onClick={prevPage} disabled={currentPage === 1} className="px-3 py-1 border rounded bg-white hover:bg-gray-100">
           Previous
         </button>
         <div className="flex space-x-1">
           {[...Array(totalPages)].map((_, index) => (
-            <button
-              key={index}
-              onClick={() => goToPage(index + 1)}
-              className="w-8 h-8 flex items-center justify-center rounded bg-white hover:bg-gray-100"
-            >
+            <button key={index} onClick={() => goToPage(index + 1)} className="w-8 h-8 flex items-center justify-center rounded bg-white hover:bg-gray-100">
               {index + 1}
             </button>
           ))}
         </div>
-        <button
-          onClick={nextPage}
-          disabled={currentPage === totalPages}
-          className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
-        >
+        <button onClick={nextPage} disabled={currentPage === totalPages} className="px-3 py-1 border rounded bg-white hover:bg-gray-100">
           Next
         </button>
       </div>

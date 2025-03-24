@@ -100,14 +100,13 @@ const Scholars = () => {
     try {
       setIsLoading(true);
 
-      const { data, error } = await supabase.from("funding").insert([
-        {
-          full_name: selectedScholar.full_name,
-          date_funded: formattedDate,
-          amount,
-          scholarship_type: selectedScholar.scholarship_type,
-        },
-      ]);
+      const { data, error } = await supabase
+      .from("scholarsData")
+      .update([{ 
+        status: "Completed",
+        fund : amount,
+      }])
+      .eq("name", selectedScholar.name);
 
       if (error) throw error;
 

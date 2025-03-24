@@ -14,6 +14,7 @@ const Renewal = () => {
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [slots, setSlots] = useState("");
+  const [semester, setSemester] = useState("");
 
   useEffect(() => {
     fetch_renewal();
@@ -240,7 +241,7 @@ const Renewal = () => {
     try {
       const { error } = await supabase
         .from("deadline")
-        .update({ start, end, slots })
+        .update({ start, end, slots, semester })
         .eq("type", "renewal");
       if (error) throw error;
       window.location.reload();
@@ -454,6 +455,17 @@ const Renewal = () => {
                 value={slots}
                 onChange={(e) => setSlots(e.target.value)}
               />
+
+              <label className="block mt-2 mb-1">Semester:</label>
+              <select
+                className="w-full p-2 rounded bg-gray-700"
+                value={semester}
+                onChange={(e) => setSemester(e.target.value)}
+              >
+                <option value="">Select Semester</option>
+                <option value="1st Semester">1st Semester</option>
+                <option value="2nd Semester">2nd Semester</option>
+              </select>
 
               <div className="flex justify-center mt-7">
                 <button className="btn bg-white w-1/4" onClick={updateDate}>

@@ -14,12 +14,16 @@ import TotalCountFundsPerSemester from "./TotalCountFundsPerSemester";
 
 const Tabs = () => {
   const tabs = [
-    { name: "Scholars", component: <ScholarsTab /> },
-    { name: "Applicants", component: <ApplicantsTab /> },
-    { name: "FOF", component: <FOFTab /> },
-    { name: "SOF", component: <SOFTab /> },
+    { name: "Scholars", component: (props) => <ScholarsTab {...props} /> },
+    { name: "Applicants", component: (props) => <ApplicantsTab {...props} /> },
+    { name: "FOF", component: (props) => <FOFTab {...props} /> },
+    { name: "SOF", component: (props) => <SOFTab {...props} /> },
   ];
 
+const [semester, setSemester] = useState("1st Sem");
+const [year, setYear] = useState("2025-2026");
+const [appliedSemester, setAppliedSemester] = useState(semester);
+const [appliedYear, setAppliedYear] = useState(year);
   const [activeTab, setActiveTab] = useState(0);
 
   return (
@@ -44,21 +48,44 @@ const Tabs = () => {
               ))}
             </div>
 
-            <div className="flex space-x-4">
-              <select className="px-6 py-3 text-lg">
-                <option value="1st">1st Semester</option>
-                <option value="2nd">2nd Semester</option>
-              </select>
-              <select className="px-6 py-3 text-lg">
-                <option value="year 1">2024-2025</option>
-                <option value="year 2">2023-2024</option>
-              </select>
-            </div>
+            {activeTab !== 3 && (
+  <div className="flex space-x-4">
+    <select 
+      className="px-6 py-3 text-lg border rounded"
+      value={semester}
+      onChange={(e) => setSemester(e.target.value)}
+    >
+      <option value="1st Sem">1st Semester</option>
+      <option value="2nd Sem">2nd Semester</option>
+    </select>
+
+    <select 
+      className="px-6 py-3 text-lg border rounded"
+      value={year}
+      onChange={(e) => setYear(e.target.value)}
+    >
+      <option value="2025-2026">2025-2026</option>
+      <option value="2024-2025">2024-2025</option>
+      <option value="2023-2024">2023-2024</option>
+    </select>
+
+    <button 
+      className="px-6 py-3 text-lg bg-blue-600 text-white rounded hover:bg-blue-700"
+      onClick={() => {
+        setAppliedSemester(semester);
+        setAppliedYear(year);
+      }}
+    >
+      Apply
+    </button>
+  </div>
+)}
+
           </div>
 
           {/* Content Section */}
           <div className="mt-6 overflow-y-auto max-h-[calc(100vh-160px)]">
-            {tabs[activeTab].component}
+          {tabs[activeTab].component({ semester: appliedSemester, year: appliedYear })}
           </div>
         </div>
       </main>
@@ -67,51 +94,51 @@ const Tabs = () => {
 };
 
 // Scholars Tab Component
-const ScholarsTab = () => (
+const ScholarsTab = ({ semester, year }) => (
   <div>
     <div className="mb-6">
-      <ScholarStatusChart />
+      <ScholarStatusChart semester={semester} year={year}/>
     </div>
     <div className="mb-6">
-      <GenderDistributionChart />
+      <GenderDistributionChart semester={semester} year={year} />
     </div>
     <div className="mb-6">
-      <ScholarshipTypeChart />
+      <ScholarshipTypeChart semester={semester} year={year} />
     </div>
     <div className="mb-6">
-      <ByStatusAndCategory />
+      <ByStatusAndCategory semester={semester} year={year} />
     </div>
     <div className="mb-6">
-      <ByStatusAndGender />
+      <ByStatusAndGender  semester={semester} year={year}/>
     </div>
   </div>
 );
-const ApplicantsTab = () => (
+const ApplicantsTab = ({ semester, year }) => (
   <div>
     <div className="mb-6">
-      <ApplicantsByGenderandCategory />
+      <ApplicantsByGenderandCategory semester={semester} year={year} />
     </div>
     <div className="mb-6">
-      <ApplicantsByStatusAndCategory />
+      <ApplicantsByStatusAndCategory semester={semester} year={year} />
     </div>
     <div className="mb-6">
-      <TotalCountPerBrgy />
+      <TotalCountPerBrgy semester={semester} year={year} />
     </div>
   </div>
 );
-const FOFTab = () => (
+const FOFTab = ({ semester, year }) => (
   <div>
     <div className="mb-6">
-      <TotalCountFundsPerSchool />
+      <TotalCountFundsPerSchool semester={semester} year={year}/>
     </div>
     <div className="mb-6">
-      <TotalCountFundsPerStudent />
+      <TotalCountFundsPerStudent semester={semester} year={year}/>
     </div>
   </div>
 );
-const SOFTab = () => (
+const SOFTab = ({ semester, year }) => (
   <div className="mb-6">
-    <TotalCountFundsPerSemester />
+    <TotalCountFundsPerSemester semester={semester} year={year} />
   </div>
 );
 

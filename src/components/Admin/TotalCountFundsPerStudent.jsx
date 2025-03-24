@@ -1,62 +1,65 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import supabase from "../supabaseClient";
 
-const TotalCountFundsPerStudent = () => {
-  // Updated Sample Data (Per Student)
-  const allStudents = [
-    { number: 1, name: "Juan Dela Cruz", category: "New", funds: "₱50,000" },
-    { number: 2, name: "Maria Santos", category: "Renewal", funds: "₱45,000" },
-    { number: 3, name: "Jose Rizal", category: "New", funds: "₱50,000" },
-    {
-      number: 4,
-      name: "Andres Bonifacio",
-      category: "Renewal",
-      funds: "₱45,000",
-    },
-    { number: 5, name: "Emilio Aguinaldo", category: "New", funds: "₱50,000" },
-    {
-      number: 6,
-      name: "Gabriela Silang",
-      category: "Renewal",
-      funds: "₱45,000",
-    },
-    { number: 7, name: "Melchora Aquino", category: "New", funds: "₱50,000" },
-    { number: 8, name: "Diego Silang", category: "Renewal", funds: "₱45,000" },
-    { number: 9, name: "Lapu-Lapu", category: "New", funds: "₱50,000" },
-    { number: 10, name: "Antonio Luna", category: "Renewal", funds: "₱45,000" },
-  ];
-
+const TotalCountFundsPerStudent = ({semester, year}) => {
+  const [students, setStudents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
-  const totalPages = Math.ceil(allStudents.length / rowsPerPage);
+
+  // Fetch scholars data from Supabase
+  useEffect(() => {
+    const fetchScholars = async () => {
+      const { data, error } = await supabase
+        .from("scholarsData")
+        .select("name, category, fund")
+        .eq("semester", semester)
+        .eq("school_year", year);
+
+      if (error) {
+        console.error("Error fetching scholars:", error);
+      } else {
+        // Assign numbering
+        const formattedData = data.map((student, index) => ({
+          number: index + 1,
+          ...student,
+          funds: `₱${parseFloat(student.fund || 0).toLocaleString()}`,
+        }));
+        setStudents(formattedData);
+      }
+    };
+
+    fetchScholars();
+  }, [semester, year]);
+
+  const totalPages = Math.ceil(students.length / rowsPerPage);
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentStudents = allStudents.slice(indexOfFirstRow, indexOfLastRow);
+  const currentStudents = students.slice(indexOfFirstRow, indexOfLastRow);
 
   const goToPage = (pageNumber) => setCurrentPage(pageNumber);
-  const nextPage = () =>
-    currentPage < totalPages && setCurrentPage(currentPage + 1);
+  const nextPage = () => currentPage < totalPages && setCurrentPage(currentPage + 1);
   const prevPage = () => currentPage > 1 && setCurrentPage(currentPage - 1);
 
   // Calculate total funds
-  const totalFunds = allStudents.reduce(
+  const totalFunds = students.reduce(
     (sum, student) =>
-      sum + parseInt(student.funds.replace("₱", "").replace(",", "")),
+      sum + parseFloat((student.fund || 0)),
     0
   );
 
-  // Function to export table to PDF
+  // Export to PDF
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.text("Total Count of Scholarship Funds per Student", 14, 10);
 
     const tableColumn = ["No.", "Name", "Category", "Funds"];
-    const tableRows = allStudents.map((student) => [
+    const tableRows = students.map((student) => [
       student.number,
       student.name,
       student.category,
-      student.funds,
+      `₱${parseFloat(student.fund || 0).toLocaleString()}`
     ]);
 
     doc.autoTable({
@@ -88,29 +91,17 @@ const TotalCountFundsPerStudent = () => {
         </div>
 
         <div className="flex border-b-2 border-black">
-          <div className="w-1/6 font-bold text-center border-r-2 border-black py-2">
-            No.
-          </div>
-          <div className="w-1/3 font-bold text-center border-r-2 border-black py-2">
-            Name
-          </div>
-          <div className="w-1/4 font-bold text-center border-r-2 border-black py-2">
-            Category
-          </div>
+          <div className="w-1/6 font-bold text-center border-r-2 border-black py-2">No.</div>
+          <div className="w-1/3 font-bold text-center border-r-2 border-black py-2">Name</div>
+          <div className="w-1/4 font-bold text-center border-r-2 border-black py-2">Category</div>
           <div className="w-1/4 font-bold text-center py-2">Funds</div>
         </div>
 
         {currentStudents.map((student, index) => (
           <div key={index} className="flex border-b-2 border-black">
-            <div className="w-1/6 text-center border-r-2 border-black py-2">
-              {student.number}
-            </div>
-            <div className="w-1/3 border-r-2 border-black py-2 px-2">
-              {student.name}
-            </div>
-            <div className="w-1/4 text-center border-r-2 border-black py-2">
-              {student.category}
-            </div>
+            <div className="w-1/6 text-center border-r-2 border-black py-2">{student.number}</div>
+            <div className="w-1/3 border-r-2 border-black py-2 px-2">{student.name}</div>
+            <div className="w-1/4 text-center border-r-2 border-black py-2">{student.category}</div>
             <div className="w-1/4 text-center py-2">{student.funds}</div>
           </div>
         ))}

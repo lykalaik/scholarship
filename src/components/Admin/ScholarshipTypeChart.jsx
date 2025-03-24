@@ -6,7 +6,7 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, ChartDataLabels);
 
-const ScholarshipTypeChart = () => {
+const ScholarshipTypeChart = ({ semester, year }) => {
   const [data, setData] = useState({
     renewal: 0,
     newScholars: 0,
@@ -14,18 +14,20 @@ const ScholarshipTypeChart = () => {
 
   const fetchData = async () => {
     const { data: scholars } = await supabase
-      .from("scholars")
-      .select("scholarship_type");
+      .from("scholarsData")
+      .select("category")
+      .eq("semester", semester)
+      .eq("school_year", year);
 
     setData({
-      renewal: scholars.filter((s) => s.scholarship_type === "Renewal").length,
-      newScholars: scholars.filter((s) => s.scholarship_type === "New").length,
+      renewal: scholars.filter((s) => s.category === "Renewal").length,
+      newScholars: scholars.filter((s) => s.category === "New").length,
     });
   };
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [semester, year]);
 
   const chartData = {
     labels: ["Renewal", "New"],
@@ -40,13 +42,13 @@ const ScholarshipTypeChart = () => {
   const chartOptions = {
     plugins: {
       datalabels: {
-        display: true, // Show data labels directly on the chart
-        color: "#fff", // Text color
+        display: true, 
+        color: "#fff", 
         font: {
-          size: 14, // Text size
-          weight: "bold", // Text weight
+          size: 14, 
+          weight: "bold", 
         },
-        formatter: (value) => `${value}`, // Display just the value
+        formatter: (value) => `${value}`, 
       },
       tooltip: {
         enabled: false, // Disable hover tooltip

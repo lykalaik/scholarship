@@ -13,6 +13,7 @@ const Archive = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null); // For image modal
   const [isImageModalOpen, setIsImageModalOpen] = useState(false); // For image modal
+  const [selectedApplicant, setSelectedApplicant] = useState(null);
 
   useEffect(() => {
     fetch_scholars();
@@ -113,6 +114,37 @@ const Archive = () => {
     setIsImageModalOpen(true);
   };
 
+  const closeModal = () => {
+    const modal = document.getElementById("my_modal_4");
+    if (modal) {
+      modal.close();
+    }
+    setIsPreviewOpen(false);
+    setSelectedApplicant(null);
+  };
+
+
+  const openModal = async (applicant) => {
+    try {
+      const { data, error } = await supabase
+        .from("application")
+        .select("*")
+        .eq("email_address", applicant.email_address)
+        .single();
+      if (error) throw error;
+     setSelectedApplicant(data);
+     const modal = document.getElementById("my_modal_4");
+     if (modal) {
+       modal.showModal();
+     }
+    } catch (error) {
+      alert("An unexpected error occurred.");
+      console.error("Error during registration:", error.message);
+    }
+  };
+
+
+
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-inter">
       <Sidebar />
@@ -147,11 +179,6 @@ const Archive = () => {
               <thead>
                 <tr>
                   <th>Name of Scholar</th>
-                  <th>Address</th>
-                  <th>Contact No.</th>
-                  <th>Name of School</th>
-                  <th>Course</th>
-                  <th>Sex</th>
                   <th>Status</th>
                   <th>Scholarship Type</th>
                   <th>Allow Renewal?</th>
@@ -162,11 +189,6 @@ const Archive = () => {
                 {filteredScholars.map((applicant) => (
                   <tr key={applicant.id}>
                     <td>{applicant.full_name}</td>
-                    <td>{applicant.address}</td>
-                    <td>{applicant.contact_no}</td>
-                    <td>{applicant.school}</td>
-                    <td>{applicant.course}</td>
-                    <td>{applicant.sex}</td>
                     <td>{applicant.status}</td>
                     <td>{applicant.scholarship_type}</td>
                     <td>
@@ -189,7 +211,7 @@ const Archive = () => {
                     <td>
                       <button
                         className="btn btn-sm text-white btn-neutral"
-                        onClick={() => handleViewClick(applicant)}
+                        onClick={() => openModal(applicant)}
                       >
                         View
                       </button>
@@ -201,150 +223,223 @@ const Archive = () => {
           </div>
         </div>
 
-        {/* Modal for Scholar Details */}
-        {isModalOpen && selectedScholar && (
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded shadow-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-              <div className="flex flex-col md:flex-row items-start gap-4">
-                {/* Scholar Details */}
-                <div className="flex-1">
-                  <h2 className="text-xl font-bold mb-4">Scholar Details</h2>
-                  <p>
-                    <strong>Name:</strong> {selectedScholar.full_name}
-                  </p>
-                  <p>
-                    <strong>Address:</strong> {selectedScholar.address}
-                  </p>
-                  <p>
-                    <strong>School:</strong> {selectedScholar.school}
-                  </p>
-                  <p>
-                    <strong>Course:</strong> {selectedScholar.course}
-                  </p>
-                  <p>
-                    <strong>Status:</strong> {selectedScholar.status}
-                  </p>
-                  <p>
-                    <strong>Scholarship Type:</strong>{" "}
-                    {selectedScholar.scholarship_type}
-                  </p>
-                </div>
+        {/* Applicant Documents Modal */}
+      <dialog id="my_modal_4" className="modal">
+        <div className="modal-box w-11/12 max-w-5xl">
+          <h3 className="font-bold text-lg mb-4">Applicant's Data</h3>
+          <div className="divider"></div>
+          <button
+            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-5"
+            onClick={closeModal}
+          >
+            ✕
+          </button>
+          {selectedApplicant && (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <p>
+                  <strong>Last Name:</strong> {selectedApplicant.last_name}
+                </p>
+                <p>
+                  <strong>Given Name:</strong> {selectedApplicant.given_name}
+                </p>
+                <p>
+                  <strong>Middle Name:</strong> {selectedApplicant.middle_name}
+                </p>
+                <p>
+                  <strong>Age:</strong> {selectedApplicant.age}
+                </p>
+                <p>
+                  <strong>Date of Birth:</strong>{" "}
+                  {selectedApplicant.date_of_birth}
+                </p>
+                <p>
+                  <strong>Place of Birth:</strong>{" "}
+                  {selectedApplicant.place_of_birth}
+                </p>
+                <p>
+                  <strong>Course:</strong> {selectedApplicant.course}
+                </p>
+                <p>
+                  <strong>Year Level:</strong> {selectedApplicant.year_level}
+                </p>
+              </div>
 
-                {/* Profile Image */}
-                <div className="flex-shrink-0">
-                  {selectedScholar?.itr ? (
-                    <img
-                      src={selectedScholar.itr}
-                      alt="Profile"
-                      className="w-40 h-40 object-cover rounded-md shadow-lg"
-                    />
-                  ) : (
-                    <div className="w-40 h-40 bg-gray-300 flex items-center justify-center rounded-md shadow-lg">
-                      <span className="text-gray-600">No Image</span>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <p>
+                  <strong>Sex:</strong> {selectedApplicant.sex}
+                </p>
+                <p>
+                  <strong>Civil Service:</strong>{" "}
+                  {selectedApplicant.civil_service}
+                </p>
+                <p>
+                  <strong>Religion:</strong> {selectedApplicant.religion}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <p>
+                  <strong>Contact Number:</strong>{" "}
+                  {selectedApplicant.contact_number}
+                </p>
+                <p>
+                  <strong>Email Address:</strong>{" "}
+                  {selectedApplicant.email_address}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <p>
+                  <strong>Height:</strong> {selectedApplicant.height}
+                </p>
+                <p>
+                  <strong>Weight:</strong> {selectedApplicant.weight}
+                </p>
+              </div>
+
+              <p>
+                <strong>Address:</strong> {selectedApplicant.address}
+              </p>
+
+              <div className="divider"></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <p>
+                  <strong>Number of Family Members:</strong>{" "}
+                  {selectedApplicant.number_family_members}
+                </p>
+                <p>
+                  <strong>Ethnicity:</strong> {selectedApplicant.ethnicity}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <p>
+                  <strong>Father's Name:</strong>{" "}
+                  {selectedApplicant.father_name}
+                </p>
+                <p>
+                  <strong>Father's Address:</strong>{" "}
+                  {selectedApplicant.father_address}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <p>
+                  <strong>Father's Contact:</strong>{" "}
+                  {selectedApplicant.father_number}
+                </p>
+                <p>
+                  <strong>Father's Occupation:</strong>{" "}
+                  {selectedApplicant.father_occupation}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <p>
+                  <strong>Mother's Name:</strong>{" "}
+                  {selectedApplicant.mother_name}
+                </p>
+                <p>
+                  <strong>Mother's Address:</strong>{" "}
+                  {selectedApplicant.mother_address}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <p>
+                  <strong>Mother's Contact:</strong>{" "}
+                  {selectedApplicant.mother_number}
+                </p>
+                <p>
+                  <strong>Mother's Occupation:</strong>{" "}
+                  {selectedApplicant.mother_occupation}
+                </p>
+              </div>
+
+              <div className="divider"></div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <p>
+                  <strong>Elementary School:</strong>{" "}
+                  {selectedApplicant.elementary_school}
+                </p>
+                <p>
+                  <strong>Elementary Year:</strong>{" "}
+                  {selectedApplicant.elementary_year}
+                </p>
+                <p>
+                  <strong>Elementary Awards:</strong>{" "}
+                  {selectedApplicant.elementary_awards}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <p>
+                  <strong>Secondary School:</strong>{" "}
+                  {selectedApplicant.secondary_school}
+                </p>
+                <p>
+                  <strong>Secondary Year:</strong>{" "}
+                  {selectedApplicant.secondary_year}
+                </p>
+                <p>
+                  <strong>Secondary Awards:</strong>{" "}
+                  {selectedApplicant.secondary_awards}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <p>
+                  <strong>Availed Scholarship:</strong>{" "}
+                  {selectedApplicant.availed_scholarship}
+                </p>
+                <p>
+                  <strong>Scholarship Year:</strong>{" "}
+                  {selectedApplicant.scholarship_year}
+                </p>
+                <p>
+                  <strong>Scholarship Name:</strong>{" "}
+                  {selectedApplicant.scholarship_name}
+                </p>
+              </div>
+
+              {/* PDF Viewer Section */}
+              {selectedApplicant?.docs &&
+                typeof selectedApplicant.docs === "string" && (
+                  <div className="mt-4">
+                    <h4 className="font-bold text-md mb-2">
+                      Applicant Documents:
+                    </h4>
+                    <div className="card bordered bg-base-100 shadow-md">
+                      <div className="card-body p-2">
+                        <object
+                          data={selectedApplicant.docs}
+                          type="application/pdf"
+                          width="100%"
+                          height="500px"
+                          className="border border-gray-300 rounded-md"
+                        >
+                          <p className="text-center py-4">
+                            Unable to display PDF file.
+                            <a
+                              href={selectedApplicant.docs}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-sm btn-link"
+                            >
+                              Download
+                            </a>{" "}
+                            instead.
+                          </p>
+                        </object>
+                      </div>
                     </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Uploaded Documents Section */}
-              <div className="card shadow-lg border p-4 mt-4">
-                <h3 className="font-semibold text-lg mb-2">
-                  Uploaded Documents
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {selectedScholar?.application_letter && (
-                    <img
-                      src={selectedScholar.application_letter}
-                      alt="Application Letter"
-                      className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                      onClick={() =>
-                        handleImageClick(selectedScholar.application_letter)
-                      }
-                    />
-                  )}
-                  {selectedScholar?.recommendation_letter && (
-                    <img
-                      src={selectedScholar.recommendation_letter}
-                      alt="Recommendation Letter"
-                      className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                      onClick={() =>
-                        handleImageClick(selectedScholar.recommendation_letter)
-                      }
-                    />
-                  )}
-                  {selectedScholar?.itr && (
-                    <img
-                      src={selectedScholar.itr}
-                      alt="ITR"
-                      className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                      onClick={() => handleImageClick(selectedScholar.itr)}
-                    />
-                  )}
-                  {selectedScholar?.copy_itr && (
-                    <img
-                      src={selectedScholar.copy_itr}
-                      alt="Copy of ITR"
-                      className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                      onClick={() => handleImageClick(selectedScholar.copy_itr)}
-                    />
-                  )}
-                  {selectedScholar?.cedula && (
-                    <img
-                      src={selectedScholar.cedula}
-                      alt="Cedula"
-                      className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                      onClick={() => handleImageClick(selectedScholar.cedula)}
-                    />
-                  )}
-                  {selectedScholar?.voters && (
-                    <img
-                      src={selectedScholar.voters}
-                      alt="Voter's ID"
-                      className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                      onClick={() => handleImageClick(selectedScholar.voters)}
-                    />
-                  )}
-                  {selectedScholar?.recent_card && (
-                    <img
-                      src={selectedScholar.recent_card}
-                      alt="Recent Card"
-                      className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                      onClick={() =>
-                        handleImageClick(selectedScholar.recent_card)
-                      }
-                    />
-                  )}
-                </div>
-              </div>
-
-              {/* Close Button */}
-              <button
-                className="btn btn-sm btn-error mt-4"
-                onClick={() => setIsModalOpen(false)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
-        {/* Modal for Image View */}
-        {isImageModalOpen && (
-          <div className="fixed inset-0 bg-gray-700 bg-opacity-75 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-lg p-4">
-              <img
-                src={selectedImage}
-                alt="Selected"
-                className="max-w-full h-[80vh] object-contain"
-              />
-              <button
-                className="btn btn-sm btn-error mt-4"
-                onClick={() => setIsImageModalOpen(false)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
+                  </div>
+                )}
+            </>
+          )}
+        </div>
+      </dialog>
       </main>
     </div>
   );

@@ -6,7 +6,7 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, ChartDataLabels);
 
-const ScholarStatusChart = () => {
+const ScholarStatusChart = ({ semester, year }) => {
   const [data, setData] = useState({
     accepted: 0,
     pending: 0,
@@ -17,21 +17,23 @@ const ScholarStatusChart = () => {
 
   const fetchData = async () => {
     const { data: applications } = await supabase
-      .from("application")
-      .select("status");
+      .from("scholarsData")
+      .select("status")
+      .eq("semester", semester)
+      .eq("school_year", year);
 
     setData({
       accepted: applications.filter((a) => a.status === "Accepted").length,
       pending: applications.filter((a) => a.status === "Pending").length,
       renewal: applications.filter((a) => a.status === "Renewal").length,
       completed: applications.filter((a) => a.status === "Completed").length,
-      ongoing: applications.filter((a) => a.status === "Ongoing").length,
+      ongoing: applications.filter((a) => a.status === "On-Going").length,
     });
   };
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [semester, year]);
 
   const chartData = {
     labels: ["Accepted", "Pending", "Renewal", "Completed", "Ongoing"],

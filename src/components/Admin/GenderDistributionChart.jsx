@@ -6,24 +6,26 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, ChartDataLabels);
 
-const GenderDistributionChart = () => {
+const GenderDistributionChart = ({ semester, year }) => {
   const [data, setData] = useState({
     male: 0,
     female: 0,
   });
 
   const fetchData = async () => {
-    const { data: scholars } = await supabase.from("scholars").select("sex");
+    const { data: scholars } = await supabase.from("scholarsData").select("gender")
+    .eq("semester", semester)
+    .eq("school_year", year);
 
     setData({
-      male: scholars.filter((s) => s.sex === "Male").length,
-      female: scholars.filter((s) => s.sex === "Female").length,
+      male: scholars.filter((s) => s.gender === "Male").length,
+      female: scholars.filter((s) => s.gender === "Female").length,
     });
   };
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [semester, year]);
 
   const chartData = {
     labels: ["Female", "Male"],

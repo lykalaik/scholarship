@@ -16,6 +16,7 @@ const Applicants = () => {
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [slots, setSlots] = useState("");
+  const [semester, setSemester] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
@@ -91,7 +92,7 @@ const Applicants = () => {
     try {
       const { error } = await supabase
         .from("deadline")
-        .update({ start, end, slots })
+        .update({ start, end, slots, semester})
         .eq("type", "application");
       if (error) throw error;
 
@@ -253,6 +254,8 @@ const Applicants = () => {
           gender: selectedApplicant.sex,
           semester: "1st Sem",
           school_year,
+          barangay: selectedApplicant.barangay,
+          school: selectedApplicant.secondary_school,
         },
       ]);
       window.location.reload();
@@ -643,6 +646,17 @@ const Applicants = () => {
                 value={slots}
                 onChange={(e) => setSlots(e.target.value)}
               />
+
+              <label className="block mt-2 mb-1">Semester:</label>
+              <select
+                className="w-full p-2 rounded bg-gray-700"
+                value={semester}
+                onChange={(e) => setSemester(e.target.value)}
+              >
+                <option value="">Select Semester</option>
+                <option value="1st Semester">1st Semester</option>
+                <option value="2nd Semester">2nd Semester</option>
+              </select>
 
               <div className="flex justify-center mt-7">
                 <button
