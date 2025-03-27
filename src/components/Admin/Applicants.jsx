@@ -146,7 +146,7 @@ const Applicants = () => {
         "Thank you so much for taking interest in applying on this scholarship. Unfortunately, we regret to inform you that your application has not been shortlisted.",
       credentials: "Appreciate the time you spent, once again Thankyou!",
       reply_to: "scholarship@gmail.com",
-    };
+    };profileData
     emailjs
       .send(
         "service_yqldzap",
@@ -231,6 +231,9 @@ const Applicants = () => {
           email_address: email,
           password: selectedApplicant.contact_number,
           full_name: fullName,
+          status: "On-Going",
+          scholarship_type: "New",
+          allowed_renewal: "No"
         },
       ]);
       addScholarData();
@@ -404,7 +407,7 @@ const Applicants = () => {
                   {selectedApplicant.place_of_birth}
                 </p>
                 <p>
-                  <strong>Course</strong> {selectedApplicant.course}
+                  <strong>Course:</strong> {selectedApplicant.course}
                 </p>
                 <p>
                   <strong>Year Level:</strong> {selectedApplicant.year_level}
@@ -416,7 +419,7 @@ const Applicants = () => {
                   <strong>Sex:</strong> {selectedApplicant.sex}
                 </p>
                 <p>
-                  <strong>Civil Status</strong>{" "}
+                  <strong>Civil Status:</strong>{" "}
                   {selectedApplicant.civil_service}
                 </p>
                 <p>
@@ -506,7 +509,7 @@ const Applicants = () => {
               <div className="divider"></div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <p>
-                  <strong>Elementary School: </strong>{" "}
+                  <strong>Elementary School:</strong>{" "}
                   {selectedApplicant.elementary_school}
                 </p>
                 <p>
@@ -521,7 +524,7 @@ const Applicants = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <p>
-                  <strong>Secondary School: </strong>{" "}
+                  <strong>Secondary School:</strong>{" "}
                   {selectedApplicant.secondary_school}
                 </p>
                 <p>
@@ -585,17 +588,6 @@ const Applicants = () => {
             </>
           )}
           <div className="flex justify-end space-x-2 mt-4">
-            {selectedApplicant?.docs &&
-              typeof selectedApplicant.docs === "string" && (
-                <a
-                  href={selectedApplicant.docs}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-warning text-white"
-                >
-                  Download PDF
-                </a>
-              )}
             <button onClick={rejected} className="btn btn-error text-white">
               Reject
             </button>

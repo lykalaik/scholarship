@@ -1,12 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Pie } from "react-chartjs-2";
 import supabase from "../supabaseClient";
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, ChartDataLabels);
 
 const ScholarStatusChart = ({ semester, year }) => {
+  const chartContainerRef = useRef(null);
   const [data, setData] = useState({
     accepted: 0,
     pending: 0,
@@ -16,24 +19,36 @@ const ScholarStatusChart = ({ semester, year }) => {
   });
 
   const fetchData = async () => {
-    const { data: applications } = await supabase
-      .from("scholarsData")
-      .select("status")
-      .eq("semester", semester)
-      .eq("school_year", year);
+    try {
+      const { data: applications } = await supabase
+        .from("scholarsData")
+        .select("status")
+        .eq("semester", semester)
+        .eq("school_year", year);
 
-    setData({
-      accepted: applications.filter((a) => a.status === "Accepted").length,
-      pending: applications.filter((a) => a.status === "Pending").length,
-      renewal: applications.filter((a) => a.status === "Renewal").length,
-      completed: applications.filter((a) => a.status === "Completed").length,
-      ongoing: applications.filter((a) => a.status === "On-Going").length,
-    });
+      setData({
+        accepted: applications.filter((a) => a.status === "Accepted").length,
+        pending: applications.filter((a) => a.status === "Pending").length,
+        renewal: applications.filter((a) => a.status === "Renewal").length,
+        completed: applications.filter((a) => a.status === "Completed").length,
+        ongoing: applications.filter((a) => a.status === "On-Going").length,
+      });
+    } catch (err) {
+      console.error("Error fetching data:", err);
+    }
   };
 
   useEffect(() => {
     fetchData();
   }, [semester, year]);
+
+  const colors = [
+    "rgb(255, 87, 51)", // Tomato red
+    "rgb(255, 195, 0)", // Sunflower yellow
+    "rgb(142, 68, 173)", // Royal purple
+    "rgb(52, 152, 219)", // Bright blue
+    "rgb(46, 204, 113)", // Emerald green
+  ];
 
   const chartData = {
     labels: ["Accepted", "Pending", "Renewal", "Completed", "Ongoing"],
@@ -46,13 +61,7 @@ const ScholarStatusChart = ({ semester, year }) => {
           data.completed,
           data.ongoing,
         ],
-        backgroundColor: [
-          "#FF5733",
-          "#FFC300",
-          "#8E44AD",
-          "#3498DB",
-          "#2ECC71",
-        ],
+        backgroundColor: colors,
       },
     ],
   };
@@ -61,60 +70,82 @@ const ScholarStatusChart = ({ semester, year }) => {
     plugins: {
       datalabels: {
         display: true,
-        color: "#fff",
-        font: {
-          size: 14,
-          weight: "bold",
-        },
+        color: "white",
+        font: { size: 14, weight: "bold" },
         formatter: (value) => `${value}`,
       },
-      tooltip: {
-        enabled: false,
-      },
+      tooltip: { enabled: true },
       legend: {
-        display: false,
+        display: true,
+        position: "right",
+        labels: {
+          usePointStyle: true,
+          pointStyle: "circle",
+          padding: 20,
+        },
       },
     },
     maintainAspectRatio: false,
   };
 
-  return (
-    <>
-      <h1 className="text-center text-3xl font-semibold mb-3">
-        Distribution of Scholar by Status
-      </h1>
-      <div className="w-full flex justify-center items-center p-4">
-        <div className="flex flex-col sm:flex-row justify-center items-center space-x-6 space-y-6 sm:space-y-0 w-full">
-          <div
-            className="w-full sm:w-2/3 flex justify-center"
-            style={{ height: "500px" }}
-          >
-            <Pie data={chartData} options={chartOptions} />
-          </div>
+  const exportToPDF = async () => {
+    try {
+      // Validate chart container
+      const chartContainer = chartContainerRef.current;
+      if (!chartContainer) {
+        throw new Error("Chart container not found");
+      }
 
-          <div className="w-full sm:w-1/3 h-full flex flex-col justify-center space-y-4 pl-6">
-            {chartData.labels.map((label, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <div
-                  className="w-4 h-4 rounded-full"
-                  style={{
-                    backgroundColor:
-                      chartData.datasets[0].backgroundColor[index],
-                  }}
-                ></div>
-                <span className="font-semibold text-lg">
-                  {label}:{" "}
-                  <span className="text-xl">
-                    {chartData.datasets[0].data[index]}
-                  </span>
-                </span>
-              </div>
-            ))}
-          </div>
+      // Find the canvas element specifically
+      const canvas = chartContainer.querySelector("canvas");
+      if (!canvas) {
+        throw new Error("Canvas element not found");
+      }
+
+      // Create PDF
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      // Add title
+      pdf.setFontSize(16);
+      pdf.text(`Scholar Status Distribution (${semester} ${year})`, 10, 10);
+
+      // Convert canvas to image
+      const imgData = canvas.toDataURL("image/png");
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pageWidth - 20;
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      // Add image to PDF, centering it
+      pdf.addImage(imgData, "PNG", 10, 20, pdfWidth, pdfHeight);
+
+      // Save PDF
+      pdf.save(`Scholar_Status_${semester}_${year}.pdf`);
+    } catch (err) {
+      console.error("PDF Export Error:", err);
+      alert(`Failed to export PDF: ${err.message}`);
+    }
+  };
+
+  return (
+    <div ref={chartContainerRef} className="w-full">
+      <div className="flex justify-between mb-2">
+        <h1 className="text-center text-3xl font-semibold mb-3 tracking-wider">
+          Distribution of Scholar by Status
+        </h1>
+        <button onClick={exportToPDF} className="btn btn-error btn-outline">
+          Export to PDF
+        </button>
+      </div>
+
+      <div className="w-full flex justify-center items-center p-4">
+        <div className="w-full" style={{ height: "500px" }}>
+          <Pie data={chartData} options={chartOptions} />
         </div>
       </div>
       <div className="divider"></div>
-    </>
+    </div>
   );
 };
 

@@ -12,14 +12,17 @@ const UserDashboard = () => {
   const [userData, setUserData] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [announcements, setAnnouncements] = useState([]); // Store fetched announcements
+  const [announcements, setAnnouncements] = useState([]); 
   const scholarName = sessionStorage.getItem("scholarData");
+  const scholarEmail = sessionStorage.getItem("email")
   const [profileModal, setProfileModalOpen] = useState(false);
   const [profileData, setrProfileData] = useState([]);
   const [selectedImage, setSelectedImage] = useState("");
   const [renewalData, setRenewalData] = useState([]);
-
+  
+  const [school, setSchool] = useState("");
   const [changePasswordModal, setChangePasswordModal] = useState(false);
+  const [changeSchoolModal, setChangeSchoolModal] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -28,6 +31,8 @@ const UserDashboard = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const openChangePasswordModal = () => setChangePasswordModal(true);
+  const openChangeSchoolModal = () => setChangeSchoolModal(true);
+  const closeChangeSchoolModal = () => setChangeSchoolModal(false); 
   const closeChangePasswordModal = () => setChangePasswordModal(false);
 
   useEffect(() => {
@@ -39,9 +44,9 @@ const UserDashboard = () => {
   const fetch_data = async () => {
     try {
       const { data, error } = await supabase
-        .from("funding")
+        .from("scholarsData")
         .select("*")
-        .eq("full_name", scholarName);
+        .eq("name", scholarName);
       if (error) throw error;
       setUserData(data);
     } catch (error) {
@@ -85,6 +90,25 @@ const UserDashboard = () => {
     }
   };
 
+  const handleChangeSchool = async () => {
+    try {
+      const { data } = await supabase
+        .from("scholarsData")
+        .update([
+          {
+            school,
+          },
+        ])
+        .eq("name", scholarName)
+        .eq("semester", "1st Sem")
+        .eq("category", "New");
+ window.location.reload();
+    } catch (error) {
+      alert("Error Saving Data.");
+    }
+  };
+
+
   const fetch_renewals = async () => {
     try {
       const { data, error } = await supabase
@@ -105,7 +129,7 @@ const UserDashboard = () => {
       const { data, error } = await supabase
         .from("application")
         .select("*")
-        .eq("full_name", scholarName)
+        .eq("email_address", scholarEmail)
         .single();
       if (error) throw error;
       console.log(data);
@@ -135,11 +159,20 @@ const UserDashboard = () => {
   };
 
   const closeModal = () => {
+    const modal = document.getElementById("my_modal_4");
+    if (modal) {
+      modal.close();
+    }
+  };
+  const closeAModal = () => {
     setModalOpen(false);
   };
 
   const openPModal = async () => {
-    setProfileModalOpen(true);
+    const modal = document.getElementById("my_modal_4");
+    if (modal) {
+      modal.showModal();
+    }
   };
 
   const closePModal = () => {
@@ -250,6 +283,13 @@ const UserDashboard = () => {
             <RiFundsBoxFill className="mt-1" />
             Track Fundings
           </h1>
+          <div className="flex justify-between gap-5">
+          <button
+            className="btn btn-sm btn-neutral"
+            onClick={openChangeSchoolModal}
+          >
+            Add School
+          </button>
           <button
             className="btn btn-sm btn-neutral"
             onClick={openChangePasswordModal}
@@ -257,6 +297,8 @@ const UserDashboard = () => {
             <RiLockPasswordFill />
             Change Password
           </button>
+          </div>
+          
         </div>
         <div className="card rounded shadow-xl border p-5">
           <div className="overflow-x-auto">
@@ -266,14 +308,16 @@ const UserDashboard = () => {
                   <th>Date Funded</th>
                   <th>Amount Disbursed</th>
                   <th>Scholarship Type</th>
+                  <th>Semester</th>
                 </tr>
               </thead>
               <tbody>
                 {userData.map((user, index) => (
                   <tr key={index}>
-                    <td>{user.date_funded}</td>
-                    <td>₱{user.amount}</td>
-                    <td>{user.scholarship_type}</td>
+                    <td>{formatDate(user.created_at)}</td>
+                    <td>₱{user.fund}</td>
+                    <td>{user.category}</td>
+                    <td>{user.semester}</td>
                   </tr>
                 ))}
               </tbody>
@@ -291,7 +335,7 @@ const UserDashboard = () => {
             <form method="dialog">
               <button
                 className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                onClick={closeModal}
+                onClick={closeAModal}
               >
                 ✕
               </button>
@@ -327,254 +371,223 @@ const UserDashboard = () => {
         </div>
       )}
 
-      {/* Profile Modal */}
-      {profileModal && (
-        <div className="modal modal-open">
-          <div className="modal-box w-full max-w-6xl">
-            <form method="dialog">
-              <button
-                className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                onClick={closePModal}
-              >
-                ✕
-              </button>
-            </form>
-            <h2 className="text-xl font-bold">User Profile</h2>
-            <div className="divider"></div>
-            {/* State for Full Image Modal */}
-            {selectedImage && (
-              <div className="modal modal-open">
-                <div className="modal-box relative">
-                  <img
-                    src={selectedImage}
-                    alt="Full View"
-                    className="w-full h-auto object-contain rounded-lg"
-                  />
-                  <button
-                    onClick={() => setSelectedImage(null)}
-                    className="absolute top-2 right-2 btn btn-circle btn-sm btn-error"
-                  >
-                    ✕
-                  </button>
-                </div>
+      {/* Scholar Documents Modal */}
+      <dialog id="my_modal_4" className="modal">
+        <div className="modal-box w-11/12 max-w-5xl">
+          <h3 className="font-bold text-lg mb-4">Scholar's Data</h3>
+          <div className="divider"></div>
+          <button
+            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-5"
+            onClick={closeModal}
+          >
+            ✕
+          </button>
+          {profileData && (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <p>
+                  <strong>Last Name:</strong> {profileData.last_name}
+                </p>
+                <p>
+                  <strong>Given Name:</strong> {profileData.given_name}
+                </p>
+                <p>
+                  <strong>Middle Name:</strong> {profileData.middle_name}
+                </p>
+                <p>
+                  <strong>Age:</strong> {profileData.age}
+                </p>
+                <p>
+                  <strong>Date of Birth:</strong>{" "}
+                  {profileData.date_of_birth}
+                </p>
+                <p>
+                  <strong>Place of Birth:</strong>{" "}
+                  {profileData.place_of_birth}
+                </p>
+                <p>
+                  <strong>Course:</strong> {profileData.course}
+                </p>
+                <p>
+                  <strong>Year Level:</strong> {profileData.year_level}
+                </p>
               </div>
-            )}
 
-            {/* Card for Personal Details */}
-            <div className="card shadow-lg border p-4 mb-4">
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1 space-y-3">
-                  <p>
-                    <strong>Name:</strong> {profileData?.full_name || "N/A"}
-                  </p>
-                  <p>
-                    <strong>Gender:</strong> {profileData?.sex || "N/A"}
-                  </p>
-                  <p>
-                    <strong>Email:</strong>{" "}
-                    {profileData?.email_address || "N/A"}
-                  </p>
-                  <p>
-                    <strong>Phone:</strong>{" "}
-                    {profileData?.mobile_number || "N/A"}
-                  </p>
-                  <p>
-                    <strong>Address:</strong> {profileData?.address || "N/A"}
-                  </p>
-                  <p>
-                    <strong>Last School Attended:</strong>{" "}
-                    {profileData?.school || "N/A"}
-                  </p>
-                  <p>
-                    <strong>Course/Strand:</strong>{" "}
-                    {profileData?.course || "N/A"}
-                  </p>
-                  <p>
-                    <strong>GPA:</strong> {profileData?.gpa || "N/A"}
-                  </p>
-                </div>
-                <div className="flex-1 flex items-center justify-center">
-                  {profileData?.itr ? (
-                    <img
-                      src={profileData.itr}
-                      alt="ITR"
-                      className="w-full max-w-sm h-auto object-contain rounded-lg shadow-md"
-                    />
-                  ) : (
-                    <img src="https://placehold.co/600x400" alt="" />
-                  )}
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <p>
+                  <strong>Sex:</strong> {profileData.sex}
+                </p>
+                <p>
+                  <strong>Civil Service:</strong>{" "}
+                  {profileData.civil_service}
+                </p>
+                <p>
+                  <strong>Religion:</strong> {profileData.religion}
+                </p>
               </div>
-            </div>
 
-            {/* Card for Submitted Images */}
-            <div className="card shadow-lg border p-4">
-              <h3 className="font-semibold text-lg">Uploaded Documents</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                {profileData?.application_letter && (
-                  <img
-                    src={profileData.application_letter}
-                    alt="Application Letter"
-                    className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                    onClick={() =>
-                      setSelectedImage(profileData.application_letter)
-                    }
-                  />
-                )}
-                {profileData?.recommendation_letter && (
-                  <img
-                    src={profileData.recommendation_letter}
-                    alt="Recommendation Letter"
-                    className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                    onClick={() =>
-                      setSelectedImage(profileData.recommendation_letter)
-                    }
-                  />
-                )}
-                {profileData?.copy_itr && (
-                  <img
-                    src={profileData.copy_itr}
-                    alt="Copy of ITR"
-                    className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                    onClick={() => setSelectedImage(profileData.copy_itr)}
-                  />
-                )}
-                {profileData?.cedula && (
-                  <img
-                    src={profileData.cedula}
-                    alt="Cedula"
-                    className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                    onClick={() => setSelectedImage(profileData.cedula)}
-                  />
-                )}
-                {profileData?.voters && (
-                  <img
-                    src={profileData.voters}
-                    alt="Voter's ID"
-                    className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                    onClick={() => setSelectedImage(profileData.voters)}
-                  />
-                )}
-                {profileData?.recent_card && (
-                  <img
-                    src={profileData.recent_card}
-                    alt="Recent Card"
-                    className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                    onClick={() => setSelectedImage(profileData.recent_card)}
-                  />
-                )}
-                {!profileData?.application_letter &&
-                  !profileData?.recommendation_letter &&
-                  !profileData?.itr &&
-                  !profileData?.copy_itr &&
-                  !profileData?.cedula &&
-                  !profileData?.voters &&
-                  !profileData?.recent_card && <p>No images submitted.</p>}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <p>
+                  <strong>Contact Number:</strong>{" "}
+                  {profileData.contact_number}
+                </p>
+                <p>
+                  <strong>Email Address:</strong>{" "}
+                  {profileData.email_address}
+                </p>
               </div>
-            </div>
 
-            {/* Card for Submitted Images */}
-            <div className="card shadow-lg border p-4 mt-5">
-              <h3 className="font-semibold text-lg">
-                Renewal Documents - {formatDate(renewalData.created_at)}
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                {renewalData?.recommendation && (
-                  <div
-                    key="recommendation"
-                    className="flex flex-col items-center"
-                  >
-                    <img
-                      src={renewalData.recommendation}
-                      alt="Recommendation Letter"
-                      className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                      onClick={() =>
-                        setSelectedImage(renewalData.recommendation)
-                      }
-                    />
-                    <p className="mt-2 text-sm">Recommendation Letter</p>
-                  </div>
-                )}
-                {renewalData?.final_grades && (
-                  <div
-                    key="final_grades"
-                    className="flex flex-col items-center"
-                  >
-                    <img
-                      src={renewalData.final_grades}
-                      alt="Final Grades"
-                      className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                      onClick={() => setSelectedImage(renewalData.final_grades)}
-                    />
-                    <p className="mt-2 text-sm">Final Grades</p>
-                  </div>
-                )}
-                {renewalData?.evaluation_sheet && (
-                  <div
-                    key="evaluation_sheet"
-                    className="flex flex-col items-center"
-                  >
-                    <img
-                      src={renewalData.evaluation_sheet}
-                      alt="Evaluation Sheet"
-                      className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                      onClick={() =>
-                        setSelectedImage(renewalData.evaluation_sheet)
-                      }
-                    />
-                    <p className="mt-2 text-sm">Evaluation Sheet</p>
-                  </div>
-                )}
-                {renewalData?.scholarship_contract && (
-                  <div
-                    key="scholarship_contract"
-                    className="flex flex-col items-center"
-                  >
-                    <img
-                      src={renewalData.scholarship_contract}
-                      alt="Scholarship Contract"
-                      className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                      onClick={() =>
-                        setSelectedImage(renewalData.scholarship_contract)
-                      }
-                    />
-                    <p className="mt-2 text-sm">Scholarship Contract</p>
-                  </div>
-                )}
-                {renewalData?.clearance && (
-                  <div key="clearance" className="flex flex-col items-center">
-                    <img
-                      src={renewalData.clearance}
-                      alt="Clearance"
-                      className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                      onClick={() => setSelectedImage(renewalData.clearance)}
-                    />
-                    <p className="mt-2 text-sm">Clearance</p>
-                  </div>
-                )}
-                {renewalData?.study_load && (
-                  <div key="study_load" className="flex flex-col items-center">
-                    <img
-                      src={renewalData.study_load}
-                      alt="Study Load"
-                      className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                      onClick={() => setSelectedImage(renewalData.study_load)}
-                    />
-                    <p className="mt-2 text-sm">Study Load</p>
-                  </div>
-                )}
-                {/* Show a message if no images are present */}
-                {!renewalData?.recommendation &&
-                  !renewalData?.final_grades &&
-                  !renewalData?.evaluation_sheet &&
-                  !renewalData?.scholarship_contract &&
-                  !renewalData?.study_load &&
-                  !renewalData?.clearance && <p>No images submitted.</p>}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <p>
+                  <strong>Height:</strong> {profileData.height}
+                </p>
+                <p>
+                  <strong>Weight:</strong> {profileData.weight}
+                </p>
               </div>
-            </div>
-          </div>
+
+              <p>
+                <strong>Address:</strong> {profileData.address}
+              </p>
+
+              <div className="divider"></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <p>
+                  <strong>Number of Family Members:</strong>{" "}
+                  {profileData.number_family_members}
+                </p>
+                <p>
+                  <strong>Ethnicity:</strong> {profileData.ethnicity}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <p>
+                  <strong>Father's Name:</strong>{" "}
+                  {profileData.father_name}
+                </p>
+                <p>
+                  <strong>Father's Address:</strong>{" "}
+                  {profileData.father_address}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <p>
+                  <strong>Father's Contact:</strong>{" "}
+                  {profileData.father_number}
+                </p>
+                <p>
+                  <strong>Father's Occupation:</strong>{" "}
+                  {profileData.father_occupation}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <p>
+                  <strong>Mother's Name:</strong>{" "}
+                  {profileData.mother_name}
+                </p>
+                <p>
+                  <strong>Mother's Address:</strong>{" "}
+                  {profileData.mother_address}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <p>
+                  <strong>Mother's Contact:</strong>{" "}
+                  {profileData.mother_number}
+                </p>
+                <p>
+                  <strong>Mother's Occupation:</strong>{" "}
+                  {profileData.mother_occupation}
+                </p>
+              </div>
+
+              <div className="divider"></div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <p>
+                  <strong>Elementary School:</strong>{" "}
+                  {profileData.elementary_school}
+                </p>
+                <p>
+                  <strong>Elementary Year:</strong>{" "}
+                  {profileData.elementary_year}
+                </p>
+                <p>
+                  <strong>Elementary Awards:</strong>{" "}
+                  {profileData.elementary_awards}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <p>
+                  <strong>Secondary School:</strong>{" "}
+                  {profileData.secondary_school}
+                </p>
+                <p>
+                  <strong>Secondary Year:</strong>{" "}
+                  {profileData.secondary_year}
+                </p>
+                <p>
+                  <strong>Secondary Awards:</strong>{" "}
+                  {profileData.secondary_awards}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <p>
+                  <strong>Availed Scholarship:</strong>{" "}
+                  {profileData.availed_scholarship}
+                </p>
+                <p>
+                  <strong>Scholarship Year:</strong>{" "}
+                  {profileData.scholarship_year}
+                </p>
+                <p>
+                  <strong>Scholarship Name:</strong>{" "}
+                  {profileData.scholarship_name}
+                </p>
+              </div>
+
+              {/* PDF Viewer Section */}
+              {profileData?.docs &&
+                typeof profileData.docs === "string" && (
+                  <div className="mt-4">
+                    <h4 className="font-bold text-md mb-2">
+                      Applicant Documents:
+                    </h4>
+                    <div className="card bordered bg-base-100 shadow-md">
+                      <div className="card-body p-2">
+                        <object
+                          data={profileData.docs}
+                          type="application/pdf"
+                          width="100%"
+                          height="500px"
+                          className="border border-gray-300 rounded-md"
+                        >
+                          <p className="text-center py-4">
+                            Unable to display PDF file.
+                            <a
+                              href={profileData.docs}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-sm btn-link"
+                            >
+                              Download
+                            </a>{" "}
+                            instead.
+                          </p>
+                        </object>
+                      </div>
+                    </div>
+                  </div>
+                )}
+            </>
+          )}
         </div>
-      )}
+      </dialog>
 
       {changePasswordModal && (
         <div className="modal modal-open">
@@ -644,6 +657,40 @@ const UserDashboard = () => {
                     Cancel
                   </button>
                   <button type="submit" className="btn btn-neutral">
+                    Update
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+        {changeSchoolModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h2 className="text-xl font-bold">Update School</h2>
+            <form>
+              <div className="mt-4 relative">
+                <label className="block font-semibold">
+                  Insert School Name
+                </label>
+                <input
+                  type="text"
+                  className="input input-bordered w-full"
+                  value={school}
+                  onChange={(e) => setSchool(e.target.value)}
+                  required
+                />
+                <div className="modal-action">
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={closeChangeSchoolModal}
+                  >
+                    Cancel
+                  </button>
+                  <button onClick={handleChangeSchool} className="btn btn-neutral">
                     Update
                   </button>
                 </div>

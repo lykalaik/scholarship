@@ -561,7 +561,7 @@ if (weight) doc.text(`${weight}`, 185, row5Y - 3);
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                   <input
                     type="text"
-                    placeholder="Civil Service"
+                    placeholder="Civil Status"
                     className="input input-bordered border-gray-300 w-full"
                     required
                     onChange={(e) => setCivilService(e.target.value)}
@@ -784,18 +784,20 @@ if (weight) doc.text(`${weight}`, 185, row5Y - 3);
                 <div className="divider"></div>
 
                 <div className="flex flex-col items-start">
-                  <span className="text-red-500 text-sm sm:text-base mt-3">
-                    *Note: Submit the following in 1 PDF Format.
-                  </span>
+                <p className="font-semibold mb-4">Submit the Required Documents for New Applicant (merge into one PDF):</p>
+          <ul className="list-disc ml-6 mb-4">
+            <li>Application Letter</li>
+            <li>1x1 Picture</li>
+            <li>Latest Community Tax / Cedula</li>
+            <li>Recent Scholastic Records</li>
+            <li>Recommendation Letter</li>
+            <li>Copy of Income Tax of Applicant's
+            Parents and Voter's Registration Certificate</li>
+          </ul>
                   <span className="text-red-500 text-sm sm:text-base mt-1">
-                    Application Letter, 1x1 Picture, Latest Community Tax /
-                    Cedula, Recent Scholastic Records, <br />
-                    Recommendation Letter, Copy of Income Tax of Applicant's
-                    Parents and Voter's Registration Certificate <br />
                     Filename format : "LastName_Documents".
                   </span>
                 </div>
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                   {[
                     {

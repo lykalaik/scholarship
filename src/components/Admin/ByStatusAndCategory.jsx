@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import supabase from "../supabaseClient";
+import jsPDF from "jspdf";
 
 const ByStatusAndCategory = ({ semester, year }) => {
   const chartRef = useRef(null);
@@ -19,7 +20,7 @@ const ByStatusAndCategory = ({ semester, year }) => {
     const fetchScholars = async () => {
       const { data: scholars, error } = await supabase
         .from("scholarsData")
-        .select("category, status") // Make sure you have status field
+        .select("category, status")
         .eq("semester", semester)
         .eq("school_year", year);
 
@@ -126,11 +127,54 @@ const ByStatusAndCategory = ({ semester, year }) => {
     };
   }, [scholarsData]);
 
+  const exportToPDF = async () => {
+    try {
+      // Validate chart container
+      const canvas = chartRef.current;
+      if (!canvas) {
+        throw new Error("Canvas element not found");
+      }
+
+      // Create PDF
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      // Add title
+      pdf.setFontSize(16);
+      pdf.text(
+        `Scholar Distribution by Status and Category (${semester} ${year})`,
+        10,
+        10
+      );
+
+      // Add chart image to PDF (centered, adjusted width)
+      const imgData = canvas.toDataURL("image/png");
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pageWidth - 20; // Keep some margin
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      // Add the chart image, starting 20mm from the top and 10mm from the left
+      pdf.addImage(imgData, "PNG", 10, 20, pdfWidth, pdfHeight);
+
+      // Save PDF with the filename including the semester and year
+      pdf.save(`Scholar_Distribution_${semester}_${year}.pdf`);
+    } catch (err) {
+      console.error("PDF Export Error:", err);
+      alert(`Failed to export PDF: ${err.message}`);
+    }
+  };
+
   return (
     <div className="w-full mx-auto p-4">
-      <p className="text-center text-3xl font-semibold mb-3">
-        Distribution of Scholars by Status and Category
-      </p>
+      <div className="flex justify-between mb-2">
+        <p className="text-center text-3xl font-semibold mb-3 tracking-wide">
+          Distribution of Scholars by Status and Category
+        </p>
+        <button onClick={exportToPDF} className="btn btn-error btn-outline">
+          Export to PDF
+        </button>
+      </div>
       <div className="bg-white rounded-lg p-4 h-[400px]">
         <canvas ref={chartRef}></canvas>
       </div>

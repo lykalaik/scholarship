@@ -20,10 +20,10 @@ const Tabs = () => {
     { name: "SOF", component: (props) => <SOFTab {...props} /> },
   ];
 
-const [semester, setSemester] = useState("1st Sem");
-const [year, setYear] = useState("2025-2026");
-const [appliedSemester, setAppliedSemester] = useState(semester);
-const [appliedYear, setAppliedYear] = useState(year);
+  const [semester, setSemester] = useState("1st Sem");
+  const [year, setYear] = useState("2025-2026");
+  const [appliedSemester, setAppliedSemester] = useState(semester);
+  const [appliedYear, setAppliedYear] = useState(year);
   const [activeTab, setActiveTab] = useState(0);
 
   return (
@@ -49,43 +49,40 @@ const [appliedYear, setAppliedYear] = useState(year);
             </div>
 
             {activeTab !== 3 && (
-  <div className="flex space-x-4">
-    <select 
-      className="px-6 py-3 text-lg border rounded"
-      value={semester}
-      onChange={(e) => setSemester(e.target.value)}
-    >
-      <option value="1st Sem">1st Semester</option>
-      <option value="2nd Sem">2nd Semester</option>
-    </select>
+              <div className="flex space-x-4">
+                <select
+                  value={semester}
+                  onChange={(e) => setSemester(e.target.value)}
+                >
+                  <option value="1st Sem">1st Semester</option>
+                  <option value="2nd Sem">2nd Semester</option>
+                </select>
 
-    <select 
-      className="px-6 py-3 text-lg border rounded"
-      value={year}
-      onChange={(e) => setYear(e.target.value)}
-    >
-      <option value="2025-2026">2025-2026</option>
-      <option value="2024-2025">2024-2025</option>
-      <option value="2023-2024">2023-2024</option>
-    </select>
+                <select value={year} onChange={(e) => setYear(e.target.value)}>
+                  <option value="2025-2026">2025-2026</option>
+                  <option value="2024-2025">2024-2025</option>
+                  <option value="2023-2024">2023-2024</option>
+                </select>
 
-    <button 
-      className="px-6 py-3 text-lg bg-blue-600 text-white rounded hover:bg-blue-700"
-      onClick={() => {
-        setAppliedSemester(semester);
-        setAppliedYear(year);
-      }}
-    >
-      Apply
-    </button>
-  </div>
-)}
-
+                <button
+                  className="btn bg-[#333] text-white hover:bg-[#333]"
+                  onClick={() => {
+                    setAppliedSemester(semester);
+                    setAppliedYear(year);
+                  }}
+                >
+                  Apply Filter
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Content Section */}
-          <div className="mt-6 overflow-y-auto max-h-[calc(100vh-160px)]">
-          {tabs[activeTab].component({ semester: appliedSemester, year: appliedYear })}
+          <div id="tab-content" className="mt-6">
+            {tabs[activeTab].component({
+              semester: appliedSemester,
+              year: appliedYear,
+            })}
           </div>
         </div>
       </main>
@@ -94,48 +91,115 @@ const [appliedYear, setAppliedYear] = useState(year);
 };
 
 // Scholars Tab Component
-const ScholarsTab = ({ semester, year }) => (
-  <div>
-    <div className="mb-6">
-      <ScholarStatusChart semester={semester} year={year}/>
+const ScholarsTab = ({ semester, year }) => {
+  const chartOptions = [
+    { label: "Scholar Status", component: ScholarStatusChart },
+    { label: "Gender Distribution", component: GenderDistributionChart },
+    { label: "Scholarship Type", component: ScholarshipTypeChart },
+    { label: "By Status and Category", component: ByStatusAndCategory },
+    { label: "By Status and Gender", component: ByStatusAndGender },
+  ];
+
+  const [selectedChart, setSelectedChart] = useState(chartOptions[0].label);
+  const ChartComponent = chartOptions.find(
+    (chart) => chart.label === selectedChart
+  ).component;
+
+  return (
+    <div>
+      <div className="mb-4">
+        <select
+          className="p-2 border rounded"
+          value={selectedChart}
+          onChange={(e) => setSelectedChart(e.target.value)}
+        >
+          {chartOptions.map((chart) => (
+            <option key={chart.label} value={chart.label}>
+              {chart.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="mb-6">
+        <ChartComponent semester={semester} year={year} />
+      </div>
     </div>
-    <div className="mb-6">
-      <GenderDistributionChart semester={semester} year={year} />
+  );
+};
+
+const ApplicantsTab = ({ semester, year }) => {
+  const chartOptions = [
+    {
+      label: "Applicants by Gender & Category",
+      component: ApplicantsByGenderandCategory,
+    },
+    {
+      label: "Applicants by Status & Category",
+      component: ApplicantsByStatusAndCategory,
+    },
+    { label: "Total Count Per Barangay", component: TotalCountPerBrgy },
+  ];
+
+  const [selectedChart, setSelectedChart] = useState(chartOptions[0].label);
+  const ChartComponent = chartOptions.find(
+    (chart) => chart.label === selectedChart
+  ).component;
+
+  return (
+    <div>
+      <div className="mb-4">
+        <select
+          className="p-2 border rounded"
+          value={selectedChart}
+          onChange={(e) => setSelectedChart(e.target.value)}
+        >
+          {chartOptions.map((chart) => (
+            <option key={chart.label} value={chart.label}>
+              {chart.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="mb-6">
+        <ChartComponent semester={semester} year={year} />
+      </div>
     </div>
-    <div className="mb-6">
-      <ScholarshipTypeChart semester={semester} year={year} />
+  );
+};
+
+const FOFTab = ({ semester, year }) => {
+  const chartOptions = [
+    { label: "Total Funds Per School", component: TotalCountFundsPerSchool },
+    { label: "Total Funds Per Student", component: TotalCountFundsPerStudent },
+  ];
+
+  const [selectedChart, setSelectedChart] = useState(chartOptions[0].label);
+  const ChartComponent = chartOptions.find(
+    (chart) => chart.label === selectedChart
+  ).component;
+
+  return (
+    <div>
+      <div className="mb-4">
+        <select
+          className="p-2 border rounded"
+          value={selectedChart}
+          onChange={(e) => setSelectedChart(e.target.value)}
+        >
+          {chartOptions.map((chart) => (
+            <option key={chart.label} value={chart.label}>
+              {chart.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="mb-6">
+        <ChartComponent semester={semester} year={year} />
+      </div>
     </div>
-    <div className="mb-6">
-      <ByStatusAndCategory semester={semester} year={year} />
-    </div>
-    <div className="mb-6">
-      <ByStatusAndGender  semester={semester} year={year}/>
-    </div>
-  </div>
-);
-const ApplicantsTab = ({ semester, year }) => (
-  <div>
-    <div className="mb-6">
-      <ApplicantsByGenderandCategory semester={semester} year={year} />
-    </div>
-    <div className="mb-6">
-      <ApplicantsByStatusAndCategory semester={semester} year={year} />
-    </div>
-    <div className="mb-6">
-      <TotalCountPerBrgy semester={semester} year={year} />
-    </div>
-  </div>
-);
-const FOFTab = ({ semester, year }) => (
-  <div>
-    <div className="mb-6">
-      <TotalCountFundsPerSchool semester={semester} year={year}/>
-    </div>
-    <div className="mb-6">
-      <TotalCountFundsPerStudent semester={semester} year={year}/>
-    </div>
-  </div>
-);
+  );
+};
+
 const SOFTab = ({ semester, year }) => (
   <div className="mb-6">
     <TotalCountFundsPerSemester semester={semester} year={year} />

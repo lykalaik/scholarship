@@ -6,13 +6,7 @@ const RenewApplication = () => {
   const scholarName = sessionStorage.getItem("scholarData");
   const email = sessionStorage.getItem("email");
   const [userData, setUserData] = useState([]);
-  const [recommendation, setRecommendation] = useState("");
-  const [final_grades, setFinalGrades] = useState("");
-  const [evaluation_sheet, setEvaluationSheet] = useState("");
-  const [scholarship_contract, setScholarshipContract] = useState("");
-  const [study_load, setStudyLoad] = useState("");
-  const [clearance, setClearance] = useState("");
-  const [file, setFile] = useState("");
+  const [renewalDocURL, setRenewalDocURL] = useState("");
   const [renewalstatus, setRenewalStatus] = useState("");
 
   useEffect(() => {
@@ -29,7 +23,7 @@ const RenewApplication = () => {
       if (error) throw error;
       setUserData(data);
     } catch (error) {
-      console.error("Error during registration:", error.message);
+      console.error("Error during fetching scholar data:", error.message);
     }
   };
 
@@ -39,237 +33,85 @@ const RenewApplication = () => {
         .from("renewals")
         .select("*")
         .eq("full_name", scholarName);
-
-      setRenewalStatus(data[0].status);
+      if (error) throw error;
+      if (data.length > 0) setRenewalStatus(data[0].status);
     } catch (error) {
-      console.error("Error during renewal:", error.message);
+      console.error("Error during fetching renewal:", error.message);
     }
   };
+
   const openModal = () => {
     const modal = document.getElementById("my_modal_5");
-    if (modal) {
-      modal.showModal();
-    }
+    if (modal) modal.showModal();
   };
 
   const closeModal = () => {
     const modal = document.getElementById("my_modal_5");
-    if (modal) {
-      modal.close();
-    }
+    if (modal) modal.close();
   };
 
-  const handleRecommendation = async (e) => {
+  const handleFileUpload = async (e) => {
     const selectedFile = e.target.files[0];
-    setFile(selectedFile);
     if (selectedFile) {
       try {
-        const filePath = `${selectedFile.name}`;
-        const { data, error } = await supabase.storage
+        const filePath = `renewal_${Date.now()}_${selectedFile.name}`;
+        const { error } = await supabase.storage
           .from("Applicant_Storage")
           .upload(filePath, selectedFile);
-        if (error) {
-          throw error;
-        }
+
+        if (error) throw error;
+
         const { data: publicURL, error: urlError } = supabase.storage
           .from("Applicant_Storage")
           .getPublicUrl(filePath);
-        if (urlError) {
-          throw urlError;
-        }
-        console.log("Image URL:", publicURL.publicUrl);
-        setRecommendation(publicURL.publicUrl);
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        alert("Error uploading image: " + error.message);
-      }
-    }
-  };
 
-  const handleGrades = async (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    if (selectedFile) {
-      try {
-        const filePath = `${selectedFile.name}`;
-        const { data, error } = await supabase.storage
-          .from("Applicant_Storage")
-          .upload(filePath, selectedFile);
-        if (error) {
-          throw error;
-        }
-        const { data: publicURL, error: urlError } = supabase.storage
-          .from("Applicant_Storage")
-          .getPublicUrl(filePath);
-        if (urlError) {
-          throw urlError;
-        }
-        console.log("Image URL:", publicURL.publicUrl);
-        setFinalGrades(publicURL.publicUrl);
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        alert("Error uploading image: " + error.message);
-      }
-    }
-  };
+        if (urlError) throw urlError;
 
-  const handleEvaluation = async (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    if (selectedFile) {
-      try {
-        const filePath = `${selectedFile.name}`;
-        const { data, error } = await supabase.storage
-          .from("Applicant_Storage")
-          .upload(filePath, selectedFile);
-        if (error) {
-          throw error;
-        }
-        const { data: publicURL, error: urlError } = supabase.storage
-          .from("Applicant_Storage")
-          .getPublicUrl(filePath);
-        if (urlError) {
-          throw urlError;
-        }
-        console.log("Image URL:", publicURL.publicUrl);
-        setEvaluationSheet(publicURL.publicUrl);
+        console.log("Uploaded File URL:", publicURL.publicUrl);
+        setRenewalDocURL(publicURL.publicUrl);
       } catch (error) {
-        console.error("Error uploading image:", error);
-        alert("Error uploading image: " + error.message);
-      }
-    }
-  };
-
-  const handleScholarship = async (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    if (selectedFile) {
-      try {
-        const filePath = `${selectedFile.name}`;
-        const { data, error } = await supabase.storage
-          .from("Applicant_Storage")
-          .upload(filePath, selectedFile);
-        if (error) {
-          throw error;
-        }
-        const { data: publicURL, error: urlError } = supabase.storage
-          .from("Applicant_Storage")
-          .getPublicUrl(filePath);
-        if (urlError) {
-          throw urlError;
-        }
-        console.log("Image URL:", publicURL.publicUrl);
-        setScholarshipContract(publicURL.publicUrl);
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        alert("Error uploading image: " + error.message);
-      }
-    }
-  };
-
-  const handleStudyLoad = async (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    if (selectedFile) {
-      try {
-        const filePath = `${selectedFile.name}`;
-        const { data, error } = await supabase.storage
-          .from("Applicant_Storage")
-          .upload(filePath, selectedFile);
-        if (error) {
-          throw error;
-        }
-        const { data: publicURL, error: urlError } = supabase.storage
-          .from("Applicant_Storage")
-          .getPublicUrl(filePath);
-        if (urlError) {
-          throw urlError;
-        }
-        console.log("Image URL:", publicURL.publicUrl);
-        setStudyLoad(publicURL.publicUrl);
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        alert("Error uploading image: " + error.message);
-      }
-    }
-  };
-
-  const handleClearance = async (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    if (selectedFile) {
-      try {
-        const filePath = `${selectedFile.name}`;
-        const { data, error } = await supabase.storage
-          .from("Applicant_Storage")
-          .upload(filePath, selectedFile);
-        if (error) {
-          throw error;
-        }
-        const { data: publicURL, error: urlError } = supabase.storage
-          .from("Applicant_Storage")
-          .getPublicUrl(filePath);
-        if (urlError) {
-          throw urlError;
-        }
-        console.log("Image URL:", publicURL.publicUrl);
-        setClearance(publicURL.publicUrl);
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        alert("Error uploading image: " + error.message);
+        console.error("Error uploading file:", error);
+        alert("Error uploading file: " + error.message);
       }
     }
   };
 
   const renew_application = async () => {
-    if (
-      !recommendation ||
-      !final_grades ||
-      !evaluation_sheet ||
-      !scholarship_contract ||
-      !study_load ||
-      !clearance
-    ) {
-      alert("Please fill out all required fields.");
+    if (!renewalDocURL) {
+      alert("Please upload the renewal document.");
       return;
     }
-    const { data, error } = await supabase.from("renewals").insert([
+
+    const { error } = await supabase.from("renewals").insert([
       {
         full_name: scholarName,
-        recommendation,
-        final_grades,
-        evaluation_sheet,
-        scholarship_contract,
-        study_load,
-        clearance,
+        renewal_docs: renewalDocURL,
         status: "Pending",
         email,
       },
     ]);
 
     if (error) {
-      console.error("Error inserting data:", error);
-      alert("Error inserting data");
+      console.error("Error inserting renewal:", error);
+      alert("Error inserting renewal");
     } else {
-      console.log("Data inserted successfully:", data);
+      console.log("Renewal submitted successfully");
       update_account();
     }
   };
 
   const update_account = async () => {
     try {
-      const { data } = await supabase
+      await supabase
         .from("scholars")
-        .update([
-          {
-            status: "Pending",
-            scholarship_type: "Renewal",
-          },
-        ])
+        .update({
+          status: "Pending",
+          scholarship_type: "Renewal",
+        })
         .eq("full_name", scholarName);
       window.location.reload();
     } catch (error) {
-      alert("Error Saving Data.");
+      alert("Error updating scholar status.");
     }
   };
 
@@ -286,6 +128,7 @@ const RenewApplication = () => {
           </h1>
         )}
       </div>
+
       <div className="card rounded shadow-xl border mb-10 p-5">
         <div className="overflow-x-auto">
           <table className="table table-zebra">
@@ -298,11 +141,11 @@ const RenewApplication = () => {
             </thead>
             <tbody>
               {userData.map((user) => (
-                <tr>
+                <tr key={user.id}>
                   <td>{user.scholarship_type}</td>
                   <td>{user.status}</td>
                   <td>
-                    <button
+                  <button
                       className="btn btn-sm bg-blue-600 hover:bg-blue-500 text-white"
                       onClick={openModal}
                       disabled={
@@ -320,109 +163,38 @@ const RenewApplication = () => {
         </div>
       </div>
 
-      <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
+      {/* Modal */}
+      <dialog id="my_modal_5" className="modal">
         <div className="modal-box">
-          <h3 className="font-semibold text-lg">
-            Upload the following Documents:
-          </h3>
-          <button
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-4"
-            onClick={closeModal}
-          >
-            ✕
-          </button>
+          <h3 className="font-bold text-lg mb-4">Upload Renewal Document</h3>
+          <p className="font-semibold mb-4">Required Documents for Renewal Applicant (merge into one PDF):</p>
+          <ul className="list-disc ml-6 mb-4">
+            <li>Recommendation from Barangay Official/Youth Representative</li>
+            <li>Final Grades (GWA of 3.0 or higher)</li>
+            <li>Evaluation Sheet from school</li>
+            <li>Scholarship Contract</li>
+            <li>Study Load</li>
+            <li>Clearance LGUSF</li>
+          </ul>
+          <input
+            type="file"
+            accept="application/pdf,image/*"
+            className="file-input w-full"
+            onChange={handleFileUpload}
+          />
+          {renewalDocURL && (
+            <p className="text-green-600 mt-2">File uploaded successfully!</p>
+          )}
 
-          {/* Recommendation from Baranggay Official */}
-          <div className="form-control my-2">
-            <label className="label">
-              <span className="label-text">
-                Recommendation from Baranggay Official
-              </span>
-            </label>
-            <input
-              type="file"
-              className="file-input file-input-bordered w-full"
-              placeholder="Upload recommendation from Baranggay Official"
-              onChange={handleRecommendation}
-            />
-          </div>
-
-          {/* Final Grades for Previous Semester */}
-          <div className="form-control my-2">
-            <label className="label">
-              <span className="label-text">
-                Final Grades for Previous Semester
-              </span>
-            </label>
-            <input
-              type="file"
-              className="file-input file-input-bordered w-full"
-              placeholder="Upload final grades for previous semester"
-              onChange={handleGrades}
-            />
-          </div>
-
-          {/* Evaluation Sheet issued by School */}
-          <div className="form-control my-2">
-            <label className="label">
-              <span className="label-text">
-                Evaluation Sheet issued by School
-              </span>
-            </label>
-            <input
-              type="file"
-              className="file-input file-input-bordered w-full"
-              placeholder="Upload evaluation sheet issued by school"
-              onChange={handleEvaluation}
-            />
-          </div>
-
-          {/* Scholarship Contract */}
-          <div className="form-control my-2">
-            <label className="label">
-              <span className="label-text">Scholarship Contract</span>
-            </label>
-            <input
-              type="file"
-              className="file-input file-input-bordered w-full"
-              placeholder="Upload scholarship contract"
-              onChange={handleScholarship}
-            />
-          </div>
-
-          {/* Study Load */}
-          <div className="form-control my-2">
-            <label className="label">
-              <span className="label-text">Study Load</span>
-            </label>
-            <input
-              type="file"
-              className="file-input file-input-bordered w-full"
-              placeholder="Upload study load"
-              onChange={handleStudyLoad}
-            />
-          </div>
-
-          {/* Clearance LGUSF */}
-          <div className="form-control my-2">
-            <label className="label">
-              <span className="label-text">Clearance LGUSF</span>
-            </label>
-            <input
-              type="file"
-              className="file-input file-input-bordered w-full"
-              placeholder="Upload clearance LGUSF"
-              onChange={handleClearance}
-            />
-          </div>
-
-          {/* Modal Actions */}
           <div className="modal-action">
             <button
-              className="w-full btn btn-primary text-white"
+              className="btn bg-green-600 hover:bg-green-500 text-white"
               onClick={renew_application}
             >
               Submit
+            </button>
+            <button className="btn" onClick={closeModal}>
+              Close
             </button>
           </div>
         </div>

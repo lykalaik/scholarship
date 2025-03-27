@@ -35,6 +35,21 @@ const Renewal = () => {
     }
   };
 
+  const fetch_scholarData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("scholarsData")
+        .select("*")
+        .eq("name", selectedApplicant.full_name)
+        .single();
+      if (error) throw error;
+      addScholarData(data);
+    } catch (error) {
+      alert("An unexpected error occurred.");
+      console.error("Error during registration:", error.message);
+    }
+  };
+
   const fetch_user = async () => {
     try {
       const { data, error } = await supabase
@@ -213,6 +228,29 @@ const Renewal = () => {
           },
         ])
         .eq("full_name", selectedApplicant.full_name);
+     fetch_scholarData();
+    } catch (error) {
+      alert("Error Saving Data.");
+    }
+  };
+
+  const addScholarData = async (scholar) => {
+    const currentYear = new Date().getFullYear();
+    const nextYear = currentYear + 1;
+    const school_year = `${currentYear}-${nextYear}`;
+    try {
+      const { data } = await supabase.from("scholarsData").insert([
+        {
+          name: selectedApplicant.full_name,
+          status: "On-Going",
+          category: "Renewal",
+          gender: scholar.gender,
+          semester: "2nd Sem",
+          school_year,
+          barangay: scholar.barangay,
+          school: scholar.school,
+        },
+      ]);
       window.location.reload();
     } catch (error) {
       alert("Error Saving Data.");
@@ -336,7 +374,7 @@ const Renewal = () => {
       <dialog id="my_modal_4" className="modal">
         <div className="modal-box w-11/12 max-w-5xl">
           <h3 className="font-bold text-lg mb-4">
-            Scholar's Uploaded Documents
+            Scholar's Uploaded Renewal Docs
           </h3>
           <button
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-5"
@@ -344,65 +382,37 @@ const Renewal = () => {
           >
             ✕
           </button>
-          {selectedApplicant && (
-            <>
-              {isPreviewOpen ? (
-                <div className="relative flex items-center justify-center h-[60vh]">
-                  <img
-                    src={
-                      [
-                        selectedApplicant.recommendation,
-                        selectedApplicant.final_grades,
-                        selectedApplicant.evaluation_sheet,
-                        selectedApplicant.scholarship_contract,
-                        selectedApplicant.study_load,
-                        selectedApplicant.clearance,
-                      ][selectedImageIndex]
-                    }
-                    alt={`Document ${selectedImageIndex + 1}`}
-                    className="max-w-full max-h-full object-contain"
-                  />
-                  <button
-                    className="btn btn-circle btn-sm absolute left-2"
-                    onClick={() => navigatePreview("prev")}
-                  >
-                    <FiChevronLeft />
-                  </button>
-                  <button
-                    className="btn btn-circle btn-sm absolute right-2"
-                    onClick={() => navigatePreview("next")}
-                  >
-                    <FiChevronRight />
-                  </button>
-                  <button
-                    className="btn btn-circle btn-sm absolute top-2 right-2"
-                    onClick={() => setIsPreviewOpen(false)}
-                  >
-                    <FiX />
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
-                  {[
-                    selectedApplicant.recommendation,
-                    selectedApplicant.final_grades,
-                    selectedApplicant.evaluation_sheet,
-                    selectedApplicant.scholarship_contract,
-                    selectedApplicant.study_load,
-                    selectedApplicant.clearance,
-                  ].map((src, index) => (
-                    <img
-                      key={index}
-                      src={src}
-                      alt={`Document ${index + 1}`}
-                      className="w-full h-auto rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                      onClick={() => openPreview(index)}
-                    />
-                  ))}
-                </div>
-              )}
-            </>
-          )}
+          {selectedApplicant?.renewal_docs &&
+  typeof selectedApplicant.renewal_docs === "string" && (
+    <div className="mt-6">
+      <h4 className="font-bold text-md mb-2">Renewal Documents (PDF):</h4>
+      <div className="card bordered bg-base-100 shadow-md">
+        <div className="card-body p-2">
+          <object
+            data={selectedApplicant.renewal_docs}
+            type="application/pdf"
+            width="100%"
+            height="500px"
+            className="border border-gray-300 rounded-md"
+          >
+            <p className="text-center py-4">
+              Unable to display PDF file.
+              <a
+                href={selectedApplicant.renewal_docs}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-sm btn-link"
+              >
+                Download
+              </a>{" "}
+              instead.
+            </p>
+          </object>
+        </div>
+      </div>
+    </div>
+  )}
+
           <div className="flex justify-end space-x-2 mt-4">
             <div className="flex gap-2">
               <button onClick={rejected} className="btn btn-error text-white">

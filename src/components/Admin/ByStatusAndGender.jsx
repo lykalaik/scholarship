@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import supabase from "../supabaseClient";
+import { jsPDF } from "jspdf"; // Ensure you have jsPDF installed
 
 const ByStatusAndGender = ({ semester, year }) => {
   const chartRef = useRef(null);
@@ -128,11 +129,57 @@ const ByStatusAndGender = ({ semester, year }) => {
     };
   }, [scholarsData]);
 
+  const exportToPDF = async () => {
+    try {
+      // Validate chart container
+      const canvas = chartRef.current;
+      if (!canvas) {
+        throw new Error("Canvas element not found");
+      }
+
+      // Create PDF
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      // Add title
+      pdf.setFontSize(16);
+      pdf.text(
+        `Scholar Distribution by Category and Gender (${semester} ${year})`,
+        10,
+        10
+      );
+
+      // Add chart image to PDF (centered, adjusted width)
+      const imgData = canvas.toDataURL("image/png");
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pageWidth - 20; // Keep some margin
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      // Add the chart image, starting 20mm from the top and 10mm from the left
+      pdf.addImage(imgData, "PNG", 10, 20, pdfWidth, pdfHeight);
+
+      // Save PDF with the filename including the semester and year
+      pdf.save(
+        `Scholar_Distribution_By_Status_and_Gender_${semester}_${year}.pdf`
+      );
+    } catch (err) {
+      console.error("PDF Export Error:", err);
+      alert(`Failed to export PDF: ${err.message}`);
+    }
+  };
+
   return (
     <div className="w-full mx-auto p-4">
-      <p className="text-center text-3xl font-semibold mb-3">
-        Distribution of Scholars by Category and Gender
-      </p>
+      <div className="justify-between flex mb-2">
+        <p className="text-center text-3xl font-semibold tracking-wide">
+          Distribution of Scholars by Category and Gender
+        </p>
+        <button className="btn btn-error btn-outline" onClick={exportToPDF}>
+          Export to PDF
+        </button>
+      </div>
+
       <div className="bg-white rounded-lg p-4 h-[400px]">
         <canvas ref={chartRef}></canvas>
       </div>

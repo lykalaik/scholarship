@@ -15,8 +15,6 @@ const Scholars = () => {
   const [semester, setSemester] = useState("");
   const [schoolYear, setSchoolYear] = useState("");
   const [schoolYears, setSchoolYears] = useState([]); // Store school years dynamically
-  const [selectedSemester, setSelectedSemester] = useState("");
-  const [selectedSchoolYear, setSelectedSchoolYear] = useState("");
 
   useEffect(() => {
     fetch_scholars();
@@ -96,20 +94,23 @@ const Scholars = () => {
 
   const funding = async () => {
     if (!validateAmount()) return;
-
+  
     try {
       setIsLoading(true);
-
+  
+      // Remove commas from the amount input
+      const sanitizedAmount = amount.toString().replace(/,/g, '');
+  
       const { data, error } = await supabase
-      .from("scholarsData")
-      .update([{ 
-        status: "Completed",
-        fund : amount,
-      }])
-      .eq("name", selectedScholar.name);
-
+        .from("scholarsData")
+        .update([{ 
+          status: "Completed",
+          fund: sanitizedAmount,
+        }])
+        .eq("id", selectedScholar.id);
+        
       if (error) throw error;
-
+  
       await status_update();
       setShowConfirmModal(false);
       setShowSuccessModal(true);
@@ -118,13 +119,14 @@ const Scholars = () => {
       setIsLoading(false);
     }
   };
+  
 
   const status_update = async () => {
     try {
       const { data, error } = await supabase
         .from("scholars")
         .update([{ status: "Completed" }])
-        .eq("id", selectedScholar.id);
+        .eq("full_name", selectedScholar.name);
 
       if (error) throw error;
 
@@ -204,26 +206,21 @@ const Scholars = () => {
               </div>
             </div>
             <div className="flex gap-2 justify-end">
-              <input
-                type="text"
-                placeholder="Search..."
-                className="input input-bordered lg:w-full"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+              {/* Semester Filter */}
               <select
                 className="select select-bordered"
-                value={selectedSemester}
-                onChange={(e) => setSelectedSemester(e.target.value)}
+                value={semester}
+                onChange={(e) => setSemester(e.target.value)}
               >
                 <option value="">Select Semester</option>
                 <option value="1st Sem">1st Semester</option>
                 <option value="2nd Sem">2nd Semester</option>
               </select>
+              {/* School Year Filter */}
               <select
                 className="select select-bordered"
-                value={selectedSchoolYear}
-                onChange={(e) => setSelectedSchoolYear(e.target.value)}
+                value={schoolYear}
+                onChange={(e) => setSchoolYear(e.target.value)}
               >
                 <option value="">Select School Year</option>
                 {schoolYears.length > 0 ? (
@@ -236,15 +233,13 @@ const Scholars = () => {
                   <option>Loading...</option>
                 )}
               </select>
-              <button
-                className="btn btn-neutral text-white"
-                onClick={() => {
-                  setSemester(selectedSemester);
-                  setSchoolYear(selectedSchoolYear);
-                }}
-              >
-                Apply Filters
-              </button>
+              <input
+                type="text"
+                placeholder="Search..."
+                className="input input-bordered lg:w-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
           </div>
 
@@ -336,7 +331,7 @@ const Scholars = () => {
             <div className="py-4">
               <p>
                 Are you sure you want to send ₱{amount} to{" "}
-                {selectedScholar?.full_name}?
+                {selectedScholar?.name}?
               </p>
               <p className="text-sm text-gray-600 mt-2">
                 This action will mark the scholarship as "Completed".
@@ -389,7 +384,7 @@ const Scholars = () => {
             </h3>
             <p className="py-4 text-center">
               ₱{amount} has been successfully sent to{" "}
-              {selectedScholar?.full_name}.
+              {selectedScholar?.name}.
             </p>
             <div className="modal-action justify-center">
               <button

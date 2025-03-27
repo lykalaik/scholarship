@@ -11,9 +11,7 @@ const Archive = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedScholar, setSelectedScholar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null); // For image modal
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false); // For image modal
-  const [selectedApplicant, setSelectedApplicant] = useState(null);
+
 
   useEffect(() => {
     fetch_scholars();
@@ -73,12 +71,7 @@ const Archive = () => {
   const filteredScholars = scholars.filter(
     (scholar) =>
       (!scholarshipType || scholar.scholarship_type === scholarshipType) &&
-      (scholar.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        scholar.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        scholar.course.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        scholar.contact_no.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        scholar.sex?.toLowerCase().trim() ===
-          searchQuery.toLowerCase().trim() ||
+      (
         scholar.scholarship_type?.toLowerCase().trim() ===
           searchQuery.toLowerCase().trim() ||
         scholar.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -92,7 +85,7 @@ const Archive = () => {
       const { data, error } = await supabase
         .from("application")
         .select("*")
-        .eq("full_name", scholar.full_name);
+        .eq("email_address", scholar.email_address);
 
       if (error) throw error;
 
@@ -102,16 +95,14 @@ const Archive = () => {
         ...applicationData,
       }));
 
-      setIsModalOpen(true);
+      const modal = document.getElementById("my_modal_4");
+      if (modal) {
+        modal.showModal();
+      }
     } catch (error) {
       alert("An unexpected error occurred.");
       console.error("Error during fetching application data:", error.message);
     }
-  };
-
-  const handleImageClick = (imageSrc) => {
-    setSelectedImage(imageSrc);
-    setIsImageModalOpen(true);
   };
 
   const closeModal = () => {
@@ -119,31 +110,7 @@ const Archive = () => {
     if (modal) {
       modal.close();
     }
-    setIsPreviewOpen(false);
-    setSelectedApplicant(null);
   };
-
-
-  const openModal = async (applicant) => {
-    try {
-      const { data, error } = await supabase
-        .from("application")
-        .select("*")
-        .eq("email_address", applicant.email_address)
-        .single();
-      if (error) throw error;
-     setSelectedApplicant(data);
-     const modal = document.getElementById("my_modal_4");
-     if (modal) {
-       modal.showModal();
-     }
-    } catch (error) {
-      alert("An unexpected error occurred.");
-      console.error("Error during registration:", error.message);
-    }
-  };
-
-
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-inter">
@@ -211,7 +178,7 @@ const Archive = () => {
                     <td>
                       <button
                         className="btn btn-sm text-white btn-neutral"
-                        onClick={() => openModal(applicant)}
+                        onClick={() => handleViewClick(applicant)}
                       >
                         View
                       </button>
@@ -234,126 +201,126 @@ const Archive = () => {
           >
             ✕
           </button>
-          {selectedApplicant && (
+          {selectedScholar && (
             <>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <p>
-                  <strong>Last Name:</strong> {selectedApplicant.last_name}
+                  <strong>Last Name:</strong> {selectedScholar.last_name}
                 </p>
                 <p>
-                  <strong>Given Name:</strong> {selectedApplicant.given_name}
+                  <strong>Given Name:</strong> {selectedScholar.given_name}
                 </p>
                 <p>
-                  <strong>Middle Name:</strong> {selectedApplicant.middle_name}
+                  <strong>Middle Name:</strong> {selectedScholar.middle_name}
                 </p>
                 <p>
-                  <strong>Age:</strong> {selectedApplicant.age}
+                  <strong>Age:</strong> {selectedScholar.age}
                 </p>
                 <p>
                   <strong>Date of Birth:</strong>{" "}
-                  {selectedApplicant.date_of_birth}
+                  {selectedScholar.date_of_birth}
                 </p>
                 <p>
                   <strong>Place of Birth:</strong>{" "}
-                  {selectedApplicant.place_of_birth}
+                  {selectedScholar.place_of_birth}
                 </p>
                 <p>
-                  <strong>Course:</strong> {selectedApplicant.course}
+                  <strong>Course:</strong> {selectedScholar.course}
                 </p>
                 <p>
-                  <strong>Year Level:</strong> {selectedApplicant.year_level}
+                  <strong>Year Level:</strong> {selectedScholar.year_level}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <p>
-                  <strong>Sex:</strong> {selectedApplicant.sex}
+                  <strong>Sex:</strong> {selectedScholar.sex}
                 </p>
                 <p>
                   <strong>Civil Service:</strong>{" "}
-                  {selectedApplicant.civil_service}
+                  {selectedScholar.civil_service}
                 </p>
                 <p>
-                  <strong>Religion:</strong> {selectedApplicant.religion}
+                  <strong>Religion:</strong> {selectedScholar.religion}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <p>
                   <strong>Contact Number:</strong>{" "}
-                  {selectedApplicant.contact_number}
+                  {selectedScholar.contact_number}
                 </p>
                 <p>
                   <strong>Email Address:</strong>{" "}
-                  {selectedApplicant.email_address}
+                  {selectedScholar.email_address}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <p>
-                  <strong>Height:</strong> {selectedApplicant.height}
+                  <strong>Height:</strong> {selectedScholar.height}
                 </p>
                 <p>
-                  <strong>Weight:</strong> {selectedApplicant.weight}
+                  <strong>Weight:</strong> {selectedScholar.weight}
                 </p>
               </div>
 
               <p>
-                <strong>Address:</strong> {selectedApplicant.address}
+                <strong>Address:</strong> {selectedScholar.address}
               </p>
 
               <div className="divider"></div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <p>
                   <strong>Number of Family Members:</strong>{" "}
-                  {selectedApplicant.number_family_members}
+                  {selectedScholar.number_family_members}
                 </p>
                 <p>
-                  <strong>Ethnicity:</strong> {selectedApplicant.ethnicity}
+                  <strong>Ethnicity:</strong> {selectedScholar.ethnicity}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <p>
                   <strong>Father's Name:</strong>{" "}
-                  {selectedApplicant.father_name}
+                  {selectedScholar.father_name}
                 </p>
                 <p>
                   <strong>Father's Address:</strong>{" "}
-                  {selectedApplicant.father_address}
+                  {selectedScholar.father_address}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <p>
                   <strong>Father's Contact:</strong>{" "}
-                  {selectedApplicant.father_number}
+                  {selectedScholar.father_number}
                 </p>
                 <p>
                   <strong>Father's Occupation:</strong>{" "}
-                  {selectedApplicant.father_occupation}
+                  {selectedScholar.father_occupation}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <p>
                   <strong>Mother's Name:</strong>{" "}
-                  {selectedApplicant.mother_name}
+                  {selectedScholar.mother_name}
                 </p>
                 <p>
                   <strong>Mother's Address:</strong>{" "}
-                  {selectedApplicant.mother_address}
+                  {selectedScholar.mother_address}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <p>
                   <strong>Mother's Contact:</strong>{" "}
-                  {selectedApplicant.mother_number}
+                  {selectedScholar.mother_number}
                 </p>
                 <p>
                   <strong>Mother's Occupation:</strong>{" "}
-                  {selectedApplicant.mother_occupation}
+                  {selectedScholar.mother_occupation}
                 </p>
               </div>
 
@@ -361,51 +328,51 @@ const Archive = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <p>
                   <strong>Elementary School:</strong>{" "}
-                  {selectedApplicant.elementary_school}
+                  {selectedScholar.elementary_school}
                 </p>
                 <p>
                   <strong>Elementary Year:</strong>{" "}
-                  {selectedApplicant.elementary_year}
+                  {selectedScholar.elementary_year}
                 </p>
                 <p>
                   <strong>Elementary Awards:</strong>{" "}
-                  {selectedApplicant.elementary_awards}
+                  {selectedScholar.elementary_awards}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <p>
                   <strong>Secondary School:</strong>{" "}
-                  {selectedApplicant.secondary_school}
+                  {selectedScholar.secondary_school}
                 </p>
                 <p>
                   <strong>Secondary Year:</strong>{" "}
-                  {selectedApplicant.secondary_year}
+                  {selectedScholar.secondary_year}
                 </p>
                 <p>
                   <strong>Secondary Awards:</strong>{" "}
-                  {selectedApplicant.secondary_awards}
+                  {selectedScholar.secondary_awards}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <p>
                   <strong>Availed Scholarship:</strong>{" "}
-                  {selectedApplicant.availed_scholarship}
+                  {selectedScholar.availed_scholarship}
                 </p>
                 <p>
                   <strong>Scholarship Year:</strong>{" "}
-                  {selectedApplicant.scholarship_year}
+                  {selectedScholar.scholarship_year}
                 </p>
                 <p>
                   <strong>Scholarship Name:</strong>{" "}
-                  {selectedApplicant.scholarship_name}
+                  {selectedScholar.scholarship_name}
                 </p>
               </div>
 
               {/* PDF Viewer Section */}
-              {selectedApplicant?.docs &&
-                typeof selectedApplicant.docs === "string" && (
+              {selectedScholar?.docs &&
+                typeof selectedScholar.docs === "string" && (
                   <div className="mt-4">
                     <h4 className="font-bold text-md mb-2">
                       Applicant Documents:
@@ -413,7 +380,7 @@ const Archive = () => {
                     <div className="card bordered bg-base-100 shadow-md">
                       <div className="card-body p-2">
                         <object
-                          data={selectedApplicant.docs}
+                          data={selectedScholar.docs}
                           type="application/pdf"
                           width="100%"
                           height="500px"
@@ -422,7 +389,7 @@ const Archive = () => {
                           <p className="text-center py-4">
                             Unable to display PDF file.
                             <a
-                              href={selectedApplicant.docs}
+                              href={selectedScholar.docs}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="btn btn-sm btn-link"

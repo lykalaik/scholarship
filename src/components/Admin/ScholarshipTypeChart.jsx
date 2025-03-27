@@ -1,12 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import supabase from "../supabaseClient";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import jsPDF from "jspdf";
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, ChartDataLabels);
 
 const ScholarshipTypeChart = ({ semester, year }) => {
+  const chartContainerRef = useRef(null);
   const [data, setData] = useState({
     renewal: 0,
     newScholars: 0,
@@ -42,63 +44,89 @@ const ScholarshipTypeChart = ({ semester, year }) => {
   const chartOptions = {
     plugins: {
       datalabels: {
-        display: true, 
-        color: "#fff", 
+        display: true,
+        color: "#fff",
         font: {
-          size: 14, 
-          weight: "bold", 
+          size: 14,
+          weight: "bold",
         },
-        formatter: (value) => `${value}`, 
+        formatter: (value) => `${value}`,
       },
       tooltip: {
-        enabled: false, // Disable hover tooltip
+        enabled: false,
       },
       legend: {
-        display: false, // Hide the legend at the top of the chart
+        display: true,
+        position: "right",
+        labels: {
+          usePointStyle: true,
+          pointStyle: "circle",
+          padding: 20,
+        },
       },
     },
     maintainAspectRatio: false,
   };
 
-  return (
-    <>
-      <h1 className="text-center text-3xl font-semibold mb-3">
-        Distribution of Scholars by Categories
-      </h1>
-      <div className="w-full flex justify-center items-center p-4">
-        <div className="flex flex-col sm:flex-row justify-center items-center space-x-6 space-y-6 sm:space-y-0 w-full">
-          {/* Chart Container */}
-          <div
-            className="w-full sm:w-2/3 flex justify-center"
-            style={{ height: "500px" }}
-          >
-            <Pie data={chartData} options={chartOptions} />
-          </div>
+  const exportToPDF = async () => {
+    try {
+      // Validate chart container
+      const chartContainer = chartContainerRef.current;
+      if (!chartContainer) {
+        throw new Error("Chart container not found");
+      }
 
-          {/* Labels on the right */}
-          <div className="w-full sm:w-1/3 h-full flex flex-col justify-center space-y-4 pl-6">
-            {chartData.labels.map((label, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <div
-                  className="w-4 h-4 rounded-full"
-                  style={{
-                    backgroundColor:
-                      chartData.datasets[0].backgroundColor[index],
-                  }}
-                ></div>
-                <span className="font-semibold text-lg">
-                  {label}:{" "}
-                  <span className="text-xl">
-                    {chartData.datasets[0].data[index]}
-                  </span>
-                </span>
-              </div>
-            ))}
-          </div>
+      // Find the canvas element specifically
+      const canvas = chartContainer.querySelector("canvas");
+      if (!canvas) {
+        throw new Error("Canvas element not found");
+      }
+
+      // Create PDF
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      // Add title
+      pdf.setFontSize(16);
+      pdf.text(`Scholarship Type Distribution (${semester} ${year})`, 10, 10);
+
+      // Convert canvas to image
+      const imgData = canvas.toDataURL("image/png");
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pageWidth - 20;
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      // Add image to PDF, centering it
+      pdf.addImage(imgData, "PNG", 10, 20, pdfWidth, pdfHeight);
+
+      // Save PDF
+      pdf.save(`Scholarship_Type_${semester}_${year}.pdf`);
+    } catch (err) {
+      console.error("PDF Export Error:", err);
+      alert(`Failed to export PDF: ${err.message}`);
+    }
+  };
+
+  return (
+    <div ref={chartContainerRef} className="w-full">
+      <div className="flex justify-between mb-2">
+        <h1 className="text-center text-3xl font-semibold mb-3 tracking-wider">
+          Distribution of Scholars by Categories
+        </h1>
+        <button onClick={exportToPDF} className="btn btn-error btn-outline">
+          Export to PDF
+        </button>
+      </div>
+
+      <div className="w-full flex justify-center items-center p-4">
+        <div className="w-full" style={{ height: "500px" }}>
+          <Pie data={chartData} options={chartOptions} />
         </div>
       </div>
+
       <div className="divider"></div>
-    </>
+    </div>
   );
 };
 
