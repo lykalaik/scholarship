@@ -551,39 +551,71 @@ const UserDashboard = () => {
                 </p>
               </div>
 
-              {/* PDF Viewer Section */}
-              {profileData?.docs &&
-                typeof profileData.docs === "string" && (
-                  <div className="mt-4">
-                    <h4 className="font-bold text-md mb-2">
-                      Applicant Documents:
-                    </h4>
-                    <div className="card bordered bg-base-100 shadow-md">
-                      <div className="card-body p-2">
-                        <object
-                          data={profileData.docs}
-                          type="application/pdf"
-                          width="100%"
-                          height="500px"
-                          className="border border-gray-300 rounded-md"
-                        >
-                          <p className="text-center py-4">
-                            Unable to display PDF file.
-                            <a
-                              href={profileData.docs}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="btn btn-sm btn-link"
-                            >
-                              Download
-                            </a>{" "}
-                            instead.
-                          </p>
-                        </object>
-                      </div>
-                    </div>
-                  </div>
-                )}
+            {/* PDF Viewer Section */}
+            {profileData?.docs &&
+  typeof profileData.docs === "string" && (
+    <div className="mt-4">
+      <h4 className="font-bold text-md mb-2">
+        Applicant Documents:
+      </h4>
+      <div 
+        className="card bordered bg-base-100 shadow-md cursor-pointer hover:bg-base-200 transition-colors"
+        onClick={(e) => {
+          const pdfViewer = document.getElementById('pdfViewer');
+          if (pdfViewer.innerHTML === '') {
+            // Open PDF
+            pdfViewer.innerHTML = `
+              <object 
+                data="${profileData.docs}" 
+                type="application/pdf" 
+                width="100%" 
+                height="500px" 
+                className="border border-gray-300 rounded-md"
+              >
+                <p className="text-center py-4">
+                  Unable to display PDF file.
+                  <a 
+                    href="${profileData.docs}" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="btn btn-sm btn-link"
+                  >
+                    Download
+                  </a> instead.
+                </p>
+              </object>
+            `;
+          } else {
+            // Close PDF
+            pdfViewer.innerHTML = '';
+          }
+        }}
+      >
+        <div className="card-body p-4 flex flex-row items-center">
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="h-8 w-8 text-red-500 mr-3" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <span className="font-medium">
+            {profileData.docs.split('/').pop()}
+          </span>
+        </div>
+      </div>
+      <div id="pdfViewer" className="mt-4"></div>
+    </div>
+  )}
             </>
           )}
         </div>
