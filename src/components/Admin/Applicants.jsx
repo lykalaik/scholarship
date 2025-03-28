@@ -19,6 +19,10 @@ const Applicants = () => {
   const [semester, setSemester] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showAcceptConfirmModal, setShowAcceptConfirmModal] = useState(false);
+  const [showRejectConfirmModal, setShowRejectConfirmModal] = useState(false);
+  const [showAcceptSuccessModal, setShowAcceptSuccessModal] = useState(false);
+  const [showRejectSuccessModal, setShowRejectSuccessModal] = useState(false);
 
   useEffect(() => {
     fetch_applicants();
@@ -88,11 +92,77 @@ const Applicants = () => {
     window.location.reload();
   };
 
+  const openAcceptConfirmModal = () => {
+    setShowAcceptConfirmModal(true);
+    const modal = document.getElementById("accept_confirm_modal");
+    if (modal) {
+      modal.showModal();
+    }
+  };
+
+  const closeAcceptConfirmModal = () => {
+    const modal = document.getElementById("accept_confirm_modal");
+    if (modal) {
+      modal.close();
+    }
+    setShowAcceptConfirmModal(false);
+  };
+
+  const openRejectConfirmModal = () => {
+    setShowRejectConfirmModal(true);
+    const modal = document.getElementById("reject_confirm_modal");
+    if (modal) {
+      modal.showModal();
+    }
+  };
+
+  const closeRejectConfirmModal = () => {
+    const modal = document.getElementById("reject_confirm_modal");
+    if (modal) {
+      modal.close();
+    }
+    setShowRejectConfirmModal(false);
+  };
+
+  const openAcceptSuccessModal = () => {
+    setShowAcceptSuccessModal(true);
+    const modal = document.getElementById("accept_success_modal");
+    if (modal) {
+      modal.showModal();
+    }
+  };
+
+  const closeAcceptSuccessModal = () => {
+    const modal = document.getElementById("accept_success_modal");
+    if (modal) {
+      modal.close();
+    }
+    setShowAcceptSuccessModal(false);
+    window.location.reload();
+  };
+
+  const openRejectSuccessModal = () => {
+    setShowRejectSuccessModal(true);
+    const modal = document.getElementById("reject_success_modal");
+    if (modal) {
+      modal.showModal();
+    }
+  };
+
+  const closeRejectSuccessModal = () => {
+    const modal = document.getElementById("reject_success_modal");
+    if (modal) {
+      modal.close();
+    }
+    setShowRejectSuccessModal(false);
+    window.location.reload();
+  };
+
   const updateDate = async () => {
     try {
       const { error } = await supabase
         .from("deadline")
-        .update({ start, end, slots, semester})
+        .update({ start, end, slots, semester })
         .eq("type", "application");
       if (error) throw error;
 
@@ -139,6 +209,10 @@ const Applicants = () => {
   };
 
   const rejected = () => {
+    openRejectConfirmModal();
+  };
+
+  const confirmReject = () => {
     const templateParams = {
       from_name: "Butuan Scholarship",
       to_name: email,
@@ -146,7 +220,9 @@ const Applicants = () => {
         "Thank you so much for taking interest in applying on this scholarship. Unfortunately, we regret to inform you that your application has not been shortlisted.",
       credentials: "Appreciate the time you spent, once again Thankyou!",
       reply_to: "scholarship@gmail.com",
-    };profileData
+    };
+    profileData;
+    closeRejectConfirmModal();
     emailjs
       .send(
         "service_yqldzap",
@@ -157,6 +233,8 @@ const Applicants = () => {
       .then((response) => {
         console.log("Email sent successfully!", response.status, response.text);
         updateReject();
+        closeModal();
+        openRejectSuccessModal();
       })
       .catch((error) => {
         console.error("Failed to send email:", error);
@@ -180,6 +258,10 @@ const Applicants = () => {
   };
 
   const accepted = () => {
+    openAcceptConfirmModal();
+  };
+
+  const confirmAccept = () => {
     const templateParams = {
       from_name: "Butuan Scholarship",
       to_name: email,
@@ -189,6 +271,7 @@ const Applicants = () => {
         "To proceed on your account, login using your email and contact number as your password",
       reply_to: "scholarship@gmail.com",
     };
+    closeAcceptConfirmModal();
     emailjs
       .send(
         "service_yqldzap",
@@ -199,6 +282,8 @@ const Applicants = () => {
       .then((response) => {
         console.log("Email sent successfully!", response.status, response.text);
         updateAccept();
+        closeModal();
+        openAcceptSuccessModal();
       })
       .catch((error) => {
         console.error("Failed to send email:", error);
@@ -233,7 +318,7 @@ const Applicants = () => {
           full_name: fullName,
           status: "On-Going",
           scholarship_type: "New",
-          allowed_renewal: "No"
+          allowed_renewal: "No",
         },
       ]);
       addScholarData();
@@ -419,7 +504,7 @@ const Applicants = () => {
                   <strong>Sex:</strong> {selectedApplicant.sex}
                 </p>
                 <p>
-                  <strong>Civil Status:</strong>{" "}
+                  <strong>Civil Service:</strong>{" "}
                   {selectedApplicant.civil_service}
                 </p>
                 <p>
@@ -587,12 +672,135 @@ const Applicants = () => {
                 )}
             </>
           )}
+          <div className="divider"></div>
           <div className="flex justify-end space-x-2 mt-4">
             <button onClick={rejected} className="btn btn-error text-white">
               Reject
             </button>
-            <button onClick={accepted} className="btn btn-primary text-white">
+            <button onClick={accepted} className="btn btn-neutral text-white">
               Accept
+            </button>
+          </div>
+        </div>
+      </dialog>
+
+      {/* Reject Confirmation Modal */}
+      <dialog id="reject_confirm_modal" className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-2xl tracking-wider">
+            Confirm Rejection
+          </h3>
+          <div className="divider"></div>
+          <p>Are you sure you want to reject this applicant?</p>
+          <div className="flex justify-end gap-3 mt-6">
+            <button
+              className="btn btn-outline"
+              onClick={closeRejectConfirmModal}
+            >
+              Cancel
+            </button>
+            <button
+              className="btn btn-error text-white"
+              onClick={confirmReject}
+            >
+              Confirm Reject
+            </button>
+          </div>
+        </div>
+      </dialog>
+
+      {/* Reject Success Modal */}
+      <dialog id="reject_success_modal" className="modal">
+        <div className="modal-box">
+          <div className="flex flex-col items-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                className="w-10 h-10 text-red-500"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </div>
+            <h3 className="font-bold text-xl text-center">
+              Applicant Rejected
+            </h3>
+            <p className="text-center mt-2">
+              The applicant has been rejected and notified via email.
+            </p>
+            <button
+              className="btn btn-error mt-6 w-full"
+              onClick={closeRejectSuccessModal}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </dialog>
+
+      {/* Accept Confirmation Modal */}
+      <dialog id="accept_confirm_modal" className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-2xl tracking-wider">
+            Confirm Acceptance
+          </h3>
+          <div className="divider"></div>
+          <p>Are you sure you want to accept this applicant?</p>
+          <div className="flex justify-end gap-3 mt-6">
+            <button
+              className="btn btn-outline"
+              onClick={closeAcceptConfirmModal}
+            >
+              Cancel
+            </button>
+            <button
+              className="btn btn-success text-white"
+              onClick={confirmAccept}
+            >
+              Confirm Accept
+            </button>
+          </div>
+        </div>
+      </dialog>
+
+      {/* Accept Success Modal */}
+      <dialog id="accept_success_modal" className="modal">
+        <div className="modal-box">
+          <div className="flex flex-col items-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                className="w-10 h-10 text-green-500"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+            <h3 className="font-bold text-xl text-center">
+              Applicant Accepted
+            </h3>
+            <p className="text-center mt-2">
+              The applicant has been accepted and notified via email.
+            </p>
+            <button
+              className="btn btn-neutral mt-6 w-full"
+              onClick={closeAcceptSuccessModal}
+            >
+              OK
             </button>
           </div>
         </div>

@@ -12,14 +12,14 @@ const UserDashboard = () => {
   const [userData, setUserData] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [announcements, setAnnouncements] = useState([]); 
+  const [announcements, setAnnouncements] = useState([]);
   const scholarName = sessionStorage.getItem("scholarData");
-  const scholarEmail = sessionStorage.getItem("email")
+  const scholarEmail = sessionStorage.getItem("email");
   const [profileModal, setProfileModalOpen] = useState(false);
   const [profileData, setrProfileData] = useState([]);
   const [selectedImage, setSelectedImage] = useState("");
   const [renewalData, setRenewalData] = useState([]);
-  
+
   const [school, setSchool] = useState("");
   const [changePasswordModal, setChangePasswordModal] = useState(false);
   const [changeSchoolModal, setChangeSchoolModal] = useState(false);
@@ -32,7 +32,7 @@ const UserDashboard = () => {
 
   const openChangePasswordModal = () => setChangePasswordModal(true);
   const openChangeSchoolModal = () => setChangeSchoolModal(true);
-  const closeChangeSchoolModal = () => setChangeSchoolModal(false); 
+  const closeChangeSchoolModal = () => setChangeSchoolModal(false);
   const closeChangePasswordModal = () => setChangePasswordModal(false);
 
   useEffect(() => {
@@ -102,12 +102,11 @@ const UserDashboard = () => {
         .eq("name", scholarName)
         .eq("semester", "1st Sem")
         .eq("category", "New");
- window.location.reload();
+      window.location.reload();
     } catch (error) {
       alert("Error Saving Data.");
     }
   };
-
 
   const fetch_renewals = async () => {
     try {
@@ -284,21 +283,20 @@ const UserDashboard = () => {
             Track Fundings
           </h1>
           <div className="flex justify-between gap-5">
-          <button
-            className="btn btn-sm btn-neutral"
-            onClick={openChangeSchoolModal}
-          >
-            Add School
-          </button>
-          <button
-            className="btn btn-sm btn-neutral"
-            onClick={openChangePasswordModal}
-          >
-            <RiLockPasswordFill />
-            Change Password
-          </button>
+            <button
+              className="btn btn-sm btn-neutral"
+              onClick={openChangeSchoolModal}
+            >
+              Add School
+            </button>
+            <button
+              className="btn btn-sm btn-neutral"
+              onClick={openChangePasswordModal}
+            >
+              <RiLockPasswordFill />
+              Change Password
+            </button>
           </div>
-          
         </div>
         <div className="card rounded shadow-xl border p-5">
           <div className="overflow-x-auto">
@@ -398,12 +396,10 @@ const UserDashboard = () => {
                   <strong>Age:</strong> {profileData.age}
                 </p>
                 <p>
-                  <strong>Date of Birth:</strong>{" "}
-                  {profileData.date_of_birth}
+                  <strong>Date of Birth:</strong> {profileData.date_of_birth}
                 </p>
                 <p>
-                  <strong>Place of Birth:</strong>{" "}
-                  {profileData.place_of_birth}
+                  <strong>Place of Birth:</strong> {profileData.place_of_birth}
                 </p>
                 <p>
                   <strong>Course:</strong> {profileData.course}
@@ -418,8 +414,7 @@ const UserDashboard = () => {
                   <strong>Sex:</strong> {profileData.sex}
                 </p>
                 <p>
-                  <strong>Civil Service:</strong>{" "}
-                  {profileData.civil_service}
+                  <strong>Civil Service:</strong> {profileData.civil_service}
                 </p>
                 <p>
                   <strong>Religion:</strong> {profileData.religion}
@@ -428,12 +423,10 @@ const UserDashboard = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <p>
-                  <strong>Contact Number:</strong>{" "}
-                  {profileData.contact_number}
+                  <strong>Contact Number:</strong> {profileData.contact_number}
                 </p>
                 <p>
-                  <strong>Email Address:</strong>{" "}
-                  {profileData.email_address}
+                  <strong>Email Address:</strong> {profileData.email_address}
                 </p>
               </div>
 
@@ -463,8 +456,7 @@ const UserDashboard = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <p>
-                  <strong>Father's Name:</strong>{" "}
-                  {profileData.father_name}
+                  <strong>Father's Name:</strong> {profileData.father_name}
                 </p>
                 <p>
                   <strong>Father's Address:</strong>{" "}
@@ -474,8 +466,7 @@ const UserDashboard = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <p>
-                  <strong>Father's Contact:</strong>{" "}
-                  {profileData.father_number}
+                  <strong>Father's Contact:</strong> {profileData.father_number}
                 </p>
                 <p>
                   <strong>Father's Occupation:</strong>{" "}
@@ -485,8 +476,7 @@ const UserDashboard = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <p>
-                  <strong>Mother's Name:</strong>{" "}
-                  {profileData.mother_name}
+                  <strong>Mother's Name:</strong> {profileData.mother_name}
                 </p>
                 <p>
                   <strong>Mother's Address:</strong>{" "}
@@ -496,8 +486,7 @@ const UserDashboard = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <p>
-                  <strong>Mother's Contact:</strong>{" "}
-                  {profileData.mother_number}
+                  <strong>Mother's Contact:</strong> {profileData.mother_number}
                 </p>
                 <p>
                   <strong>Mother's Occupation:</strong>{" "}
@@ -527,8 +516,7 @@ const UserDashboard = () => {
                   {profileData.secondary_school}
                 </p>
                 <p>
-                  <strong>Secondary Year:</strong>{" "}
-                  {profileData.secondary_year}
+                  <strong>Secondary Year:</strong> {profileData.secondary_year}
                 </p>
                 <p>
                   <strong>Secondary Awards:</strong>{" "}
@@ -551,20 +539,51 @@ const UserDashboard = () => {
                 </p>
               </div>
 
-            {/* PDF Viewer Section */}
-            {profileData?.docs &&
-  typeof profileData.docs === "string" && (
-    <div className="mt-4">
-      <h4 className="font-bold text-md mb-2">
-        Applicant Documents:
-      </h4>
-      <div 
-        className="card bordered bg-base-100 shadow-md cursor-pointer hover:bg-base-200 transition-colors"
-        onClick={(e) => {
-          const pdfViewer = document.getElementById('pdfViewer');
-          if (pdfViewer.innerHTML === '') {
-            // Open PDF
-            pdfViewer.innerHTML = `
+              {/* PDF Viewer Section */}
+              {/* {profileData?.docs &&
+                typeof profileData.docs === "string" && (
+                  <div className="mt-4">
+                    <h4 className="font-bold text-md mb-2">
+                      Applicant Documents:
+                    </h4>
+                    <div className="card bordered bg-base-100 shadow-md">
+                      <div className="card-body p-2">
+                        <object
+                          data={profileData.docs}
+                          type="application/pdf"
+                          width="100%"
+                          height="500px"
+                          className="border border-gray-300 rounded-md"
+                        >
+                          <p className="text-center py-4">
+                            Unable to display PDF file.
+                            <a
+                              href={profileData.docs}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-sm btn-link"
+                            >
+                              Download
+                            </a>{" "}
+                            instead.
+                          </p>
+                        </object>
+                      </div>
+                    </div>
+                  </div>
+                )} */}
+              {profileData?.docs && typeof profileData.docs === "string" && (
+                <div className="mt-4">
+                  <h4 className="font-bold text-md mb-2">
+                    Applicant Documents:
+                  </h4>
+                  <div
+                    className="card bordered bg-base-100 shadow-md cursor-pointer hover:bg-base-200 transition-colors"
+                    onClick={(e) => {
+                      const pdfViewer = document.getElementById("pdfViewer");
+                      if (pdfViewer.innerHTML === "") {
+                        // Open PDF
+                        pdfViewer.innerHTML = `
               <object 
                 data="${profileData.docs}" 
                 type="application/pdf" 
@@ -585,37 +604,37 @@ const UserDashboard = () => {
                 </p>
               </object>
             `;
-          } else {
-            // Close PDF
-            pdfViewer.innerHTML = '';
-          }
-        }}
-      >
-        <div className="card-body p-4 flex flex-row items-center">
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            className="h-8 w-8 text-red-500 mr-3" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-            <line x1="16" y1="13" x2="8" y2="13"></line>
-            <line x1="16" y1="17" x2="8" y2="17"></line>
-            <polyline points="10 9 9 9 8 9"></polyline>
-          </svg>
-          <span className="font-medium">
-            {profileData.docs.split('/').pop()}
-          </span>
-        </div>
-      </div>
-      <div id="pdfViewer" className="mt-4"></div>
-    </div>
-  )}
+                      } else {
+                        // Close PDF
+                        pdfViewer.innerHTML = "";
+                      }
+                    }}
+                  >
+                    <div className="card-body p-4 flex flex-row items-center">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-8 w-8 text-red-500 mr-3"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                      </svg>
+                      <span className="font-medium">
+                        {profileData.docs.split("/").pop()}
+                      </span>
+                    </div>
+                  </div>
+                  <div id="pdfViewer" className="mt-4"></div>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -698,7 +717,7 @@ const UserDashboard = () => {
         </div>
       )}
 
-        {changeSchoolModal && (
+      {changeSchoolModal && (
         <div className="modal modal-open">
           <div className="modal-box">
             <h2 className="text-xl font-bold">Update School</h2>
@@ -722,7 +741,10 @@ const UserDashboard = () => {
                   >
                     Cancel
                   </button>
-                  <button onClick={handleChangeSchool} className="btn btn-neutral">
+                  <button
+                    onClick={handleChangeSchool}
+                    className="btn btn-neutral"
+                  >
                     Update
                   </button>
                 </div>

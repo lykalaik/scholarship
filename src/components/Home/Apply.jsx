@@ -207,109 +207,109 @@ const Apply = () => {
 
   const generatePDF = () => {
     const doc = new jsPDF("p", "mm", "a4");
-    
+
     // Add header image
     const headerImg = new Image();
     headerImg.src = "header.png";
-    doc.addImage(headerImg, 'PNG', 10, 10, 190, 25);
-    
+    doc.addImage(headerImg, "PNG", 10, 10, 190, 25);
+
     // Add blue separator line
     doc.setDrawColor(0, 120, 200);
     doc.setLineWidth(0.3);
     doc.line(10, 35, 200, 35);
-    
+
     // Add title
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
     doc.text("BUTUANON SCHOLARSHIP PROFILE", 105, 45, { align: "center" });
-    
+
     // Set font for form content
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
-    
+
     // Set line color to black for all form lines
     doc.setDrawColor(0, 0, 0);
-    
+
     // Personal Information section
     const startY = 65;
-    
-   // Name section with data
-doc.text("Name:", 20, startY);
-doc.line(65, startY, 190, startY);
 
-// Add the actual name data above the line - adjust the positioning
-if (last_name || given_name || middle_name) {
-  // Center the text within their respective columns
-  doc.text(`${last_name || ""}`, 80, startY - 3);
-  doc.text(`${given_name || ""}`, 125, startY - 3);
-  doc.text(`${middle_name || ""}`, 170, startY - 3);
-}
+    // Name section with data
+    doc.text("Name:", 20, startY);
+    doc.line(65, startY, 190, startY);
 
-// Labels beneath - keep these aligned with the values above
-doc.setFontSize(8);
-doc.text("(Last Name)", 80, startY + 5);
-doc.text("(Given Name)", 125, startY + 5);
-doc.text("(Middle Name)", 170, startY + 5);
-doc.setFontSize(10);
+    // Add the actual name data above the line - adjust the positioning
+    if (last_name || given_name || middle_name) {
+      // Center the text within their respective columns
+      doc.text(`${last_name || ""}`, 80, startY - 3);
+      doc.text(`${given_name || ""}`, 125, startY - 3);
+      doc.text(`${middle_name || ""}`, 170, startY - 3);
+    }
 
-// Age, DOB, and Place of Birth - adjust all value positions
-const row2Y = startY + 15;
-doc.text("Age:", 20, row2Y);
-doc.line(35, row2Y, 50, row2Y);
-if (age) doc.text(`${age}`, 40, row2Y - 3);
+    // Labels beneath - keep these aligned with the values above
+    doc.setFontSize(8);
+    doc.text("(Last Name)", 80, startY + 5);
+    doc.text("(Given Name)", 125, startY + 5);
+    doc.text("(Middle Name)", 170, startY + 5);
+    doc.setFontSize(10);
 
-doc.text("Date of Birth:", 70, row2Y);
-doc.line(95, row2Y, 130, row2Y);
-if (date_of_birth) doc.text(`${date_of_birth}`, 95, row2Y - 3);
+    // Age, DOB, and Place of Birth - adjust all value positions
+    const row2Y = startY + 15;
+    doc.text("Age:", 20, row2Y);
+    doc.line(35, row2Y, 50, row2Y);
+    if (age) doc.text(`${age}`, 40, row2Y - 3);
 
-doc.text("Place of Birth:", 140, row2Y);
-doc.line(175, row2Y, 180, row2Y);
-if (place_of_birth) doc.text(`${place_of_birth}`, 160, row2Y - 3);
+    doc.text("Date of Birth:", 70, row2Y);
+    doc.line(95, row2Y, 130, row2Y);
+    if (date_of_birth) doc.text(`${date_of_birth}`, 95, row2Y - 3);
 
-// Course and Year Level - adjust positions
-const row3Y = row2Y + 10;
-doc.text("Course:", 20, row3Y);
-doc.line(40, row3Y, 140, row3Y);
-if (course) doc.text(`${course}`, 45, row3Y - 3);
+    doc.text("Place of Birth:", 140, row2Y);
+    doc.line(175, row2Y, 180, row2Y);
+    if (place_of_birth) doc.text(`${place_of_birth}`, 160, row2Y - 3);
 
-doc.text("Year Level:", 150, row3Y);
-doc.line(180, row3Y, 190, row3Y);
-if (year_level) doc.text(`${year_level}`, 175, row3Y - 3);
+    // Course and Year Level - adjust positions
+    const row3Y = row2Y + 10;
+    doc.text("Course:", 20, row3Y);
+    doc.line(40, row3Y, 140, row3Y);
+    if (course) doc.text(`${course}`, 45, row3Y - 3);
 
-// Contact details - adjust all positions
-const row4Y = row3Y + 10;
-doc.text("Contact Number:", 20, row4Y);
-doc.line(65, row4Y, 80, row4Y);
-if (contact_number) doc.text(`${contact_number}`, 67, row4Y - 3);
+    doc.text("Year Level:", 150, row3Y);
+    doc.line(180, row3Y, 190, row3Y);
+    if (year_level) doc.text(`${year_level}`, 175, row3Y - 3);
 
-doc.text("Email Address:", 90, row4Y);
-doc.line(130, row4Y, 155, row4Y);
-if (email_address) doc.text(`${email_address}`, 135, row4Y - 3);
+    // Contact details - adjust all positions
+    const row4Y = row3Y + 10;
+    doc.text("Contact Number:", 20, row4Y);
+    doc.line(65, row4Y, 80, row4Y);
+    if (contact_number) doc.text(`${contact_number}`, 67, row4Y - 3);
 
-doc.text("Sex:", 165, row4Y);
-doc.line(175, row4Y, 190, row4Y);
-if (sex) doc.text(`${sex}`, 177, row4Y - 3);
+    doc.text("Email Address:", 90, row4Y);
+    doc.line(130, row4Y, 155, row4Y);
+    if (email_address) doc.text(`${email_address}`, 135, row4Y - 3);
 
-// Civil Service, Religion, Height, Weight - adjust positions
-const row5Y = row4Y + 10;
-doc.text("Civil Service:", 20, row5Y);
-doc.line(55, row5Y, 70, row5Y);
-if (civil_service) doc.text(`${civil_service}`, 57, row5Y - 3);
+    doc.text("Sex:", 165, row4Y);
+    doc.line(175, row4Y, 190, row4Y);
+    if (sex) doc.text(`${sex}`, 177, row4Y - 3);
 
-doc.text("Religion:", 80, row5Y);
-doc.line(105, row5Y, 125, row5Y);
-if (religion) doc.text(`${religion}`, 107, row5Y - 3);
+    // Civil Service, Religion, Height, Weight - adjust positions
+    const row5Y = row4Y + 10;
+    doc.text("Civil Service:", 20, row5Y);
+    doc.line(55, row5Y, 70, row5Y);
+    if (civil_service) doc.text(`${civil_service}`, 57, row5Y - 3);
 
-doc.text("Height:", 135, row5Y);
-doc.line(155, row5Y, 165, row5Y);
-if (height) doc.text(`${height}`, 157, row5Y - 3);
+    doc.text("Religion:", 80, row5Y);
+    doc.line(105, row5Y, 125, row5Y);
+    if (religion) doc.text(`${religion}`, 107, row5Y - 3);
 
-doc.text("Weight (kg):", 170, row5Y);
-doc.line(190, row5Y, 190, row5Y);
-if (weight) doc.text(`${weight}`, 185, row5Y - 3);
+    doc.text("Height:", 135, row5Y);
+    doc.line(155, row5Y, 165, row5Y);
+    if (height) doc.text(`${height}`, 157, row5Y - 3);
 
-// Address - adjust position
+    doc.text("Weight (kg):", 170, row5Y);
+    doc.line(190, row5Y, 190, row5Y);
+    if (weight) doc.text(`${weight}`, 185, row5Y - 3);
+
+    // Address - adjust position
     const row6Y = row5Y + 10;
     doc.text("Address:", 20, row6Y);
     doc.line(45, row6Y, 190, row6Y);
@@ -318,127 +318,129 @@ if (weight) doc.text(`${weight}`, 185, row5Y - 3);
     const row7Y = row6Y + 10;
     doc.text("No. of Family Members in your Household:", 20, row7Y);
     doc.line(120, row7Y, 130, row7Y);
-    if (number_family_members) doc.text(`${number_family_members}`, 122, row7Y - 3);
-    
+    if (number_family_members)
+      doc.text(`${number_family_members}`, 122, row7Y - 3);
+
     doc.text("Ethnicity:", 140, row7Y);
     doc.line(165, row7Y, 190, row7Y);
     if (ethnicity) doc.text(`${ethnicity}`, 167, row7Y - 3);
-    
+
     // Father's information
     const row8Y = row7Y + 10;
     doc.text("Father's Name:", 20, row8Y);
     doc.line(65, row8Y, 120, row8Y);
     if (father_name) doc.text(`${father_name}`, 67, row8Y - 3);
-    
+
     doc.text("Occupation:", 130, row8Y);
     doc.line(165, row8Y, 190, row8Y);
     if (father_occupation) doc.text(`${father_occupation}`, 167, row8Y - 3);
-    
+
     // Father's address and contact
     const row9Y = row8Y + 10;
     doc.text("Address:", 20, row9Y);
     doc.line(45, row9Y, 120, row9Y);
     if (father_address) doc.text(`${father_address}`, 47, row9Y - 3);
-    
+
     doc.text("Contact Number:", 130, row9Y);
     doc.line(175, row9Y, 190, row9Y);
     if (father_number) doc.text(`${father_number}`, 177, row9Y - 3);
-    
+
     // Mother's information
     const row10Y = row9Y + 10;
     doc.text("Mother's Name:", 20, row10Y);
     doc.line(65, row10Y, 120, row10Y);
     if (mother_name) doc.text(`${mother_name}`, 67, row10Y - 3);
-    
+
     doc.text("Occupation:", 130, row10Y);
     doc.line(165, row10Y, 190, row10Y);
     if (mother_occupation) doc.text(`${mother_occupation}`, 167, row10Y - 3);
-    
+
     // Mother's address and contact
     const row11Y = row10Y + 10;
     doc.text("Address:", 20, row11Y);
     doc.line(45, row11Y, 120, row11Y);
     if (mother_address) doc.text(`${mother_address}`, 47, row11Y - 3);
-    
+
     doc.text("Contact Number:", 130, row11Y);
     doc.line(175, row11Y, 190, row11Y);
     if (mother_number) doc.text(`${mother_number}`, 177, row11Y - 3);
-    
+
     // Educational Attainment section
     const row12Y = row11Y + 15;
     doc.setFont("helvetica", "bold");
     doc.text("Educational Attainment", 20, row12Y);
     doc.setFont("helvetica", "normal");
-    
+
     // Table headers
     const tableHeaderY = row12Y + 10;
     doc.text("Attended", 20, tableHeaderY);
     doc.text("Name of School", 75, tableHeaderY);
     doc.text("Awards Received", 140, tableHeaderY);
     doc.text("Year", 180, tableHeaderY);
-    
+
     // Elementary row
     const elemRowY = tableHeaderY + 10;
     doc.text("Elementary:", 20, elemRowY);
     doc.line(55, elemRowY, 120, elemRowY);
     if (elementary_school) doc.text(`${elementary_school}`, 57, elemRowY - 3);
-    
+
     doc.line(140, elemRowY, 170, elemRowY);
     if (elementary_awards) doc.text(`${elementary_awards}`, 142, elemRowY - 3);
-    
+
     doc.line(180, elemRowY, 190, elemRowY);
     if (elementary_year) doc.text(`${elementary_year}`, 181, elemRowY - 3);
-    
+
     // High School row
     const hsRowY = elemRowY + 10;
     doc.text("High School:", 20, hsRowY);
     doc.line(55, hsRowY, 120, hsRowY);
     if (secondary_school) doc.text(`${secondary_school}`, 57, hsRowY - 3);
-    
+
     doc.line(140, hsRowY, 170, hsRowY);
     if (secondary_awards) doc.text(`${secondary_awards}`, 142, hsRowY - 3);
-    
+
     doc.line(180, hsRowY, 190, hsRowY);
     if (secondary_year) doc.text(`${secondary_year}`, 181, hsRowY - 3);
-    
+
     // Scholarship question
     const scholarshipY = hsRowY + 15;
     doc.text("Have you avail any scholarship grants?", 20, scholarshipY);
     doc.line(115, scholarshipY, 125, scholarshipY);
-    if (availed_scholarship) doc.text(`${availed_scholarship}`, 117, scholarshipY - 3);
-    
+    if (availed_scholarship)
+      doc.text(`${availed_scholarship}`, 117, scholarshipY - 3);
+
     // If yes question
     const ifYesY = scholarshipY + 10;
     doc.text("If yes, what year?", 20, ifYesY);
     doc.line(65, ifYesY, 80, ifYesY);
     if (scholarship_year) doc.text(`${scholarship_year}`, 67, ifYesY - 3);
-    
+
     doc.text("Name of Scholarship Program:", 90, ifYesY);
     doc.line(165, ifYesY, 190, ifYesY);
     if (scholarship_name) doc.text(`${scholarship_name}`, 167, ifYesY - 3);
-  
+
     // Add footer image
     const footerImg = new Image();
     footerImg.src = "footer.png";
-    doc.addImage(footerImg, 'PNG', 150, 255, 40, 20);
-    
+    doc.addImage(footerImg, "PNG", 150, 255, 40, 20);
+
     // Footer text
     doc.setFontSize(9);
     doc.text("Phone:", 20, 265);
     doc.setFont("helvetica", "bold");
     doc.text("(085) – 225 - 6743", 40, 265);
-    
+
     doc.setFont("helvetica", "normal");
     doc.text("Email:", 20, 270);
     doc.setFont("helvetica", "bold");
     doc.text("cedd@butuan.gov.ph", 40, 270);
-    
+
     doc.setFont("helvetica", "normal");
     doc.text("Website:", 20, 275);
     doc.setFont("helvetica", "bold");
-    
+
     // Save the PDF with dynamic name if form data is available
-    if (typeof last_name !== 'undefined' && typeof given_name !== 'undefined') {
+    if (typeof last_name !== "undefined" && typeof given_name !== "undefined") {
       doc.save(`${last_name}_${given_name}_scholarship_profile.pdf`);
     } else {
       doc.save("scholarship_profile.pdf");
@@ -589,21 +591,33 @@ if (weight) doc.text(`${weight}`, 185, row5Y - 3);
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <input
-                  type="text"
-                  placeholder="Address"
-                  className="input input-bordered border-gray-300 w-full mb-4"
-                  required
-                  onChange={(e) => setAddress(e.target.value)}
-                />
-                   <input
+                  <input
+                    type="text"
+                    placeholder="Address"
+                    className="input input-bordered border-gray-300 w-full mb-4"
+                    required
+                    onChange={(e) => setAddress(e.target.value)}
+                  />
+                  {/* <input
                   type="text"
                   placeholder="Barangay"
                   className="input input-bordered border-gray-300 w-full mb-4"
                   required
                   onChange={(e) => setBarangay(e.target.value)}
-                />
-
+                /> */}
+                  <input
+                    type="text"
+                    placeholder="Barangay"
+                    className="input input-bordered border-gray-300 w-full mb-4"
+                    required
+                    onChange={(e) => {
+                      const formattedValue = e.target.value
+                        .toLowerCase()
+                        .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalizes each word
+                      setBarangay(formattedValue);
+                    }}
+                    value={barangay} // Ensure it updates correctly
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -784,16 +798,21 @@ if (weight) doc.text(`${weight}`, 185, row5Y - 3);
                 <div className="divider"></div>
 
                 <div className="flex flex-col items-start">
-                <p className="font-semibold mb-4">Submit the Required Documents for New Applicant (merge into one PDF):</p>
-          <ul className="list-disc ml-6 mb-4">
-            <li>Application Letter</li>
-            <li>1x1 Picture</li>
-            <li>Latest Community Tax / Cedula</li>
-            <li>Recent Scholastic Records</li>
-            <li>Recommendation Letter</li>
-            <li>Copy of Income Tax of Applicant's
-            Parents and Voter's Registration Certificate</li>
-          </ul>
+                  <p className="font-semibold mb-4">
+                    Submit the Required Documents for New Applicant (merge into
+                    one PDF):
+                  </p>
+                  <ul className="list-disc ml-6 mb-4">
+                    <li>Application Letter</li>
+                    <li>1x1 Picture</li>
+                    <li>Latest Community Tax / Cedula</li>
+                    <li>Recent Scholastic Records</li>
+                    <li>Recommendation Letter</li>
+                    <li>
+                      Copy of Income Tax of Applicant's Parents and Voter's
+                      Registration Certificate
+                    </li>
+                  </ul>
                   <span className="text-red-500 text-sm sm:text-base mt-1">
                     Filename format : "LastName_Documents".
                   </span>
@@ -820,14 +839,14 @@ if (weight) doc.text(`${weight}`, 185, row5Y - 3);
                 </div>
 
                 <div className="flex flex-col sm:flex-row justify-end mt-5 gap-3">
-                <button
-                  type="button"
-                  className="btn btn-primary w-full sm:w-1/6"
-                  onClick={generatePDF}
-                >
-                  <AiOutlineFilePdf size={20} />
-                  Download PDF
-                </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary w-full sm:w-1/6"
+                    onClick={generatePDF}
+                  >
+                    <AiOutlineFilePdf size={20} />
+                    Download PDF
+                  </button>
                   <button
                     type="submit"
                     className="btn btn-neutral w-full sm:w-1/6"
