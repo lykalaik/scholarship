@@ -10,15 +10,18 @@ const TotalCountFundsPerSemester = () => {
       const { data, error } = await supabase
         .from("scholarsData")
         .select("school_year, semester, fund, barangay, school, name");
-
+  
       if (error) {
         console.error("Error fetching data:", error);
         return;
       }
-
+  
+      // Filter out records with null or empty semester values
+      const filteredData = data.filter(item => item.semester && item.semester.trim() !== "");
+  
       // Group data by academic_year
       const groupedData = {};
-      data.forEach((item) => {
+      filteredData.forEach((item) => {
         const year = item.school_year;
         if (!groupedData[year]) {
           groupedData[year] = {
@@ -30,20 +33,21 @@ const TotalCountFundsPerSemester = () => {
             totalFund: 0,
           };
         }
-
+  
         groupedData[year].nameSet.add(item.name);
         groupedData[year].barangaysSet.add(item.barangay);
         groupedData[year].schoolsSet.add(item.school);
-
-        if (item.semester === "1st sem") {
-          groupedData[year].firstSem += Number(item.fund) || 0;
-        } else if (item.semester === "2nd sem") {
-          groupedData[year].secondSem += Number(item.fund) || 0;
+  
+        const fundAmount = Number(item.fund) || 0;
+        if (item.semester.trim().toLowerCase() === "1st sem") {
+          groupedData[year].firstSem += fundAmount;
+        } else if (item.semester.trim().toLowerCase() === "2nd sem") {
+          groupedData[year].secondSem += fundAmount;
         }
-
-        groupedData[year].totalFund += Number(item.fund) || 0;
+  
+        groupedData[year].totalFund += fundAmount;
       });
-
+  
       const finalData = Object.entries(groupedData).map(([year, value]) => ({
         academicYear: year,
         scholars: value.nameSet.size,
@@ -53,7 +57,7 @@ const TotalCountFundsPerSemester = () => {
         secondSem: value.secondSem,
         total: value.totalFund,
       }));
-
+  
       setFundsData(
         finalData.sort((a, b) => b.academicYear.localeCompare(a.academicYear))
       );
@@ -61,6 +65,7 @@ const TotalCountFundsPerSemester = () => {
       console.error("Fetch error:", err);
     }
   };
+  
 
   const exportToExcel = () => {
     // Prepare the data for export
