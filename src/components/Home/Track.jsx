@@ -8,7 +8,6 @@ const Track = () => {
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [hasSearched, setHasSearched] = useState(false);
-  const [total, setTotal] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,37 +26,7 @@ const Track = () => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    const fetchSlots = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("deadline")
-          .select("*")
-          .eq("type", "application")
-          .single();
 
-        if (error) throw error;
-        if (data) {
-          fetchScholars(data.slots);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error.message);
-      }
-    };
-
-    const fetchScholars = async (slots) => {
-      try {
-        const { data, error } = await supabase.from("scholars").select("*");
-
-        if (error) throw error;
-        setTotal(slots - data.length);
-      } catch (error) {
-        console.error("Error fetching data:", error.message);
-      }
-    };
-
-    fetchSlots();
-  }, []);
 
   const track_status = (e) => {
     e.preventDefault();
@@ -101,9 +70,6 @@ const Track = () => {
               Enter your application number below to check the current status of
               your submission.
             </p>
-            <span className="mt-2 lg:text-lg sm:text-md font-semibold px-3 flex gap-2">
-              Number of Slots: {total}
-            </span>
           </div>
 
           {/* Search Form */}

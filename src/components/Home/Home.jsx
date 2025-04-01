@@ -13,6 +13,7 @@ const Home = () => {
   const [selectedNews, setSelectedNews] = useState(null);
   const [imagesData, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [total, setTotal] = useState("");
   const [applicationData, setApplicationData] = useState({
     start: "",
     end: "",
@@ -110,6 +111,39 @@ const Home = () => {
     return now >= startDate && now <= endDate;
   };
 
+
+  useEffect(() => {
+    const fetchSlots = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("deadline")
+          .select("*")
+          .eq("type", "application")
+          .single();
+
+        if (error) throw error;
+        if (data) {
+          fetchScholars(data.slots);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error.message);
+      }
+    };
+
+    const fetchScholars = async (slots) => {
+      try {
+        const { data, error } = await supabase.from("scholars").select("*");
+
+        if (error) throw error;
+        setTotal(slots - data.length);
+      } catch (error) {
+        console.error("Error fetching data:", error.message);
+      }
+    };
+
+    fetchSlots();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -151,7 +185,7 @@ const Home = () => {
                 
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <h3 className="font-semibold text-gray-700">Number of slots available for Scholars: </h3>
-                  <p className="mt-2 text-gray-800">{applicationData.slots || "Not specified"}</p>
+                  <p className="mt-2 text-gray-800">{total || "Not specified"}</p>
                 </div>
               </div>
               
@@ -171,9 +205,7 @@ const Home = () => {
                   </span>
                 </div>
                 
-                <p className="mt-4 text-gray-600">
-                  {applicationData.semester && `For ${applicationData.semester}`}
-                </p>
+                
               </div>
             </div>
           </div>
