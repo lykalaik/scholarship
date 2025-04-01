@@ -3,6 +3,7 @@ import Navbar from "./Navbar.jsx";
 import { MdOutlineMenuBook } from "react-icons/md";
 import { IoNewspaperOutline } from "react-icons/io5";
 import { BsCalendarDate } from "react-icons/bs";
+import { FaUserGraduate } from "react-icons/fa";
 import supabase from "../supabaseClient.jsx";
 const LazyCarousel = lazy(() => import("./Carousel.jsx"));
 
@@ -12,12 +13,18 @@ const Home = () => {
   const [selectedNews, setSelectedNews] = useState(null);
   const [imagesData, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [applicationData, setApplicationData] = useState({
+    start: "",
+    end: "",
+    slots: 0,
+    semester: "",
+  });
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        await Promise.all([fetch_news(), fetch_newsimage()]);
+        await Promise.all([fetch_news(), fetch_newsimage(), fetch_application_data()]);
       } catch (error) {
         console.error("Error fetching data:", error.message);
       } finally {
@@ -27,6 +34,27 @@ const Home = () => {
     
     fetchData();
   }, []);
+
+  const fetch_application_data = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("deadline")
+        .select("*")
+        .eq("type", "application");
+      
+      if (error) throw error;
+      if (data && data.length > 0) {
+        setApplicationData({
+          start: data[0].start,
+          end: data[0].end,
+          slots: data[0].slots,
+          semester: data[0].semester || "Current Semester"
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching application data:", error.message);
+    }
+  };
 
   const fetch_news = async () => {
     try {
@@ -58,6 +86,30 @@ const Home = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  // Function to format date with time
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "Not set";
+    const options = { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  // Check if application period is active
+  const isApplicationActive = () => {
+    if (!applicationData.start || !applicationData.end) return false;
+    
+    const now = new Date();
+    const startDate = new Date(applicationData.start);
+    const endDate = new Date(applicationData.end);
+    
+    return now >= startDate && now <= endDate;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -72,6 +124,59 @@ const Home = () => {
           }>
             <LazyCarousel imagesData={imagesData} />
           </Suspense>
+        </section>
+
+        {/* Application Period Banner */}
+        <section className="mb-12">
+          <div className="bg-white rounded-xl shadow-md overflow-hidden">
+            <div className={`p-1 ${isApplicationActive() ? 'bg-green-600' : 'bg-blue-600'}`}></div>
+            <div className="p-6">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <FaUserGraduate size={28} className={isApplicationActive() ? "text-green-600" : "text-blue-600"} />
+                <h2 className="text-2xl font-bold text-gray-800 tracking-wide">
+                  Scholarship Application
+                </h2>
+              </div>
+              
+              <div className="grid md:grid-cols-3 gap-6 text-center">
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <h3 className="font-semibold text-gray-700">Application Opens</h3>
+                  <p className="mt-2 text-gray-800">{formatDateTime(applicationData.start)}</p>
+                </div>
+                
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <h3 className="font-semibold text-gray-700">Application Closes</h3>
+                  <p className="mt-2 text-gray-800">{formatDateTime(applicationData.end)}</p>
+                </div>
+                
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <h3 className="font-semibold text-gray-700">Number of slots available for Scholars: </h3>
+                  <p className="mt-2 text-gray-800">{applicationData.slots || "Not specified"}</p>
+                </div>
+              </div>
+              
+              <div className="mt-6 text-center">
+                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${
+                  isApplicationActive() 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-yellow-100 text-yellow-800'
+                }`}>
+                  <span className={`w-3 h-3 rounded-full ${
+                    isApplicationActive() ? 'bg-green-600' : 'bg-yellow-600'
+                  }`}></span>
+                  <span>
+                    {isApplicationActive() 
+                      ? 'Application Period is OPEN' 
+                      : 'Application Period is CLOSED'}
+                  </span>
+                </div>
+                
+                <p className="mt-4 text-gray-600">
+                  {applicationData.semester && `For ${applicationData.semester}`}
+                </p>
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* News Section Header */}
