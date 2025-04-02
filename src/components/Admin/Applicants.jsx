@@ -221,7 +221,7 @@ const Applicants = () => {
       credentials: "Appreciate the time you spent, once again Thankyou!",
       reply_to: "scholarship@gmail.com",
     };
-    profileData;
+    
     closeRejectConfirmModal();
     emailjs
       .send(

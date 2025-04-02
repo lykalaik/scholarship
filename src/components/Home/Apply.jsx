@@ -94,6 +94,9 @@ const Apply = () => {
 
   const handleConfirmSubmit = async () => {
     setLoading(true);
+    const currentYear = new Date().getFullYear();
+    const nextYear = currentYear + 1;
+    const school_year = `${currentYear}-${nextYear}`;
     try {
       const { data, error } = await supabase
         .from("application")
@@ -137,6 +140,7 @@ const Apply = () => {
             docs,
             status: "Pending",
             barangay,
+            school_year,
           },
         ])
         .select();
