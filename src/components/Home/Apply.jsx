@@ -523,14 +523,14 @@ const Apply = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <input
                     type="text"
-                    placeholder="Course"
+                    placeholder="Course (e.g. Bachelor of Science in Information Technology)"
                     className="input input-bordered border-gray-300 w-full"
                     required
                     onChange={(e) => setCourse(e.target.value)}
                   />
                   <input
                     type="text"
-                    placeholder="Year Level"
+                    placeholder="Year Level (e.g. 1st Year)"
                     className="input input-bordered border-gray-300 w-full"
                     required
                     onChange={(e) => setYearLevel(e.target.value)}
@@ -567,7 +567,7 @@ const Apply = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                   <input
                     type="text"
-                    placeholder="Civil Status"
+                    placeholder="Civil Status (e.g. Single)"
                     className="input input-bordered border-gray-300 w-full"
                     required
                     onChange={(e) => setCivilService(e.target.value)}
@@ -581,7 +581,7 @@ const Apply = () => {
                   />
                   <input
                     type="text"
-                    placeholder="Height"
+                    placeholder="Height (in cm/ft)"
                     className="input input-bordered border-gray-300 w-full"
                     required
                     onChange={(e) => setHeight(e.target.value)}
@@ -597,7 +597,7 @@ const Apply = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <input
                     type="text"
-                    placeholder="Address"
+                    placeholder="Street Address (e.g. 123 Main St)"
                     className="input input-bordered border-gray-300 w-full mb-4"
                     required
                     onChange={(e) => setAddress(e.target.value)}
@@ -627,14 +627,14 @@ const Apply = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <input
                     type="number"
-                    placeholder="No. of Family Members"
+                    placeholder="No. of Family Members (including you and your parents)"
                     className="input input-bordered border-gray-300 w-full"
                     required
                     onChange={(e) => setNumberFamilyMembers(e.target.value)}
                   />
                   <input
                     type="text"
-                    placeholder="Ethnicity"
+                    placeholder="Ethnicity (e.g. Butuanon)"
                     className="input input-bordered border-gray-300 w-full"
                     required
                     onChange={(e) => setEthnicity(e.target.value)}
