@@ -86,13 +86,12 @@ const Archive = () => {
     // Search across multiple fields
     return (
       (scholar.full_name && scholar.full_name.toLowerCase().includes(query)) ||
-      (scholar.scholarship_type &&
-        scholar.scholarship_type.toLowerCase().includes(query)) ||
+      (scholar.scholarship_type && scholar.scholarship_type.toLowerCase().includes(query)) ||
       (scholar.status && scholar.status.toLowerCase().includes(query)) ||
       (scholar.school && scholar.school.toLowerCase().includes(query)) ||
-      (scholar.email_address &&
-        scholar.email_address.toLowerCase().includes(query))
-    );
+      (scholar.course && scholar.course.toLowerCase().includes(query)) ||
+      (scholar.address && scholar.address.toLowerCase().includes(query)) ||
+      (scholar.email_address && scholar.email_address.toLowerCase().includes(query)));
   });
 
   const handleViewClick = async (scholar) => {
