@@ -27,7 +27,7 @@ const Scholars = () => {
   const fetch_school_years = async () => {
     try {
       const { data, error } = await supabase
-        .from("scholars")
+        .from("scholarsData")
         .select("school_year");
 
       if (error) throw error;
@@ -66,7 +66,7 @@ const Scholars = () => {
       }
 
       const { data, error } = await query;
-
+      console.log(data);
       if (error) throw error;
       setScholars(data);
     } catch (error) {
@@ -94,23 +94,25 @@ const Scholars = () => {
 
   const funding = async () => {
     if (!validateAmount()) return;
-  
+
     try {
       setIsLoading(true);
-  
+
       // Remove commas from the amount input
-      const sanitizedAmount = amount.toString().replace(/,/g, '');
-  
+      const sanitizedAmount = amount.toString().replace(/,/g, "");
+
       const { data, error } = await supabase
         .from("scholarsData")
-        .update([{ 
-          status: "Completed",
-          fund: sanitizedAmount,
-        }])
+        .update([
+          {
+            status: "Completed",
+            fund: sanitizedAmount,
+          },
+        ])
         .eq("id", selectedScholar.id);
-        
+
       if (error) throw error;
-  
+
       await status_update();
       setShowConfirmModal(false);
       setShowSuccessModal(true);
@@ -119,7 +121,6 @@ const Scholars = () => {
       setIsLoading(false);
     }
   };
-  
 
   const status_update = async () => {
     try {
@@ -222,7 +223,7 @@ const Scholars = () => {
                 value={schoolYear}
                 onChange={(e) => setSchoolYear(e.target.value)}
               >
-                <option value="">Select School Year</option>
+                <option value="">Select S.Y</option>
                 {schoolYears.length > 0 ? (
                   schoolYears.map((year) => (
                     <option key={year} value={year}>
@@ -383,8 +384,7 @@ const Scholars = () => {
               Fund Sent Successfully!
             </h3>
             <p className="py-4 text-center">
-              ₱{amount} has been successfully sent to{" "}
-              {selectedScholar?.name}.
+              ₱{amount} has been successfully sent to {selectedScholar?.name}.
             </p>
             <div className="modal-action justify-center">
               <button

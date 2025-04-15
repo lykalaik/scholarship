@@ -12,7 +12,6 @@ const Archive = () => {
   const [selectedScholar, setSelectedScholar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-
   useEffect(() => {
     fetch_scholars();
   }, []);
@@ -20,6 +19,7 @@ const Archive = () => {
   const fetch_scholars = async () => {
     try {
       const { data, error } = await supabase.from("scholars").select("*");
+      console.log(data);
       if (error) throw error;
       setScholars(data);
     } catch (error) {
@@ -68,15 +68,32 @@ const Archive = () => {
     saveAs(fileBlob, "scholars.xlsx");
   };
 
-  const filteredScholars = scholars.filter(
-    (scholar) =>
-      (!scholarshipType || scholar.scholarship_type === scholarshipType) &&
-      (
-        scholar.scholarship_type?.toLowerCase().trim() ===
-          searchQuery.toLowerCase().trim() ||
-        scholar.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        scholar.school.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  // Improved search functionality
+  const filteredScholars = scholars.filter((scholar) => {
+    // If scholarshipType filter is set, apply it
+    if (scholarshipType && scholar.scholarship_type !== scholarshipType) {
+      return false;
+    }
+
+    // If search query is empty, return all scholars
+    if (!searchQuery.trim()) {
+      return true;
+    }
+
+    // Check if search query matches any key fields
+    const query = searchQuery.toLowerCase().trim();
+
+    // Search across multiple fields
+    return (
+      (scholar.full_name && scholar.full_name.toLowerCase().includes(query)) ||
+      (scholar.scholarship_type &&
+        scholar.scholarship_type.toLowerCase().includes(query)) ||
+      (scholar.status && scholar.status.toLowerCase().includes(query)) ||
+      (scholar.school && scholar.school.toLowerCase().includes(query)) ||
+      (scholar.email_address &&
+        scholar.email_address.toLowerCase().includes(query))
+    );
+  });
 
   const handleViewClick = async (scholar) => {
     setSelectedScholar(scholar);
@@ -131,6 +148,21 @@ const Archive = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
+            <select
+              className="select select-bordered w-full max-w-xs"
+              value={scholarshipType}
+              onChange={(e) => setScholarshipType(e.target.value)}
+            >
+              <option value="">All Scholarship Types</option>
+              {/* Get unique scholarship types */}
+              {[...new Set(scholars.map((s) => s.scholarship_type))]
+                .filter(Boolean)
+                .map((type, index) => (
+                  <option key={index} value={type}>
+                    {type}
+                  </option>
+                ))}
+            </select>
             <button
               className="btn btn-success text-white"
               onClick={exportToExcel}
@@ -146,6 +178,9 @@ const Archive = () => {
               <thead>
                 <tr>
                   <th>Name of Scholar</th>
+                  <th>Course</th>
+                  <th>Address</th>
+                  <th>School</th>
                   <th>Status</th>
                   <th>Scholarship Type</th>
                   <th>Allow Renewal?</th>
@@ -156,6 +191,9 @@ const Archive = () => {
                 {filteredScholars.map((applicant) => (
                   <tr key={applicant.id}>
                     <td>{applicant.full_name}</td>
+                    <td>{applicant.course}</td>
+                    <td>{applicant.address}</td>
+                    <td>{applicant.school}</td>
                     <td>{applicant.status}</td>
                     <td>{applicant.scholarship_type}</td>
                     <td>
@@ -191,222 +229,222 @@ const Archive = () => {
         </div>
 
         {/* Applicant Documents Modal */}
-      <dialog id="my_modal_4" className="modal">
-        <div className="modal-box w-11/12 max-w-5xl">
-          <h3 className="font-bold text-lg mb-4">Applicant's Data</h3>
-          <div className="divider"></div>
-          <button
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-5"
-            onClick={closeModal}
-          >
-            ✕
-          </button>
-          {selectedScholar && (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <p>
-                  <strong>Last Name:</strong> {selectedScholar.last_name}
-                </p>
-                <p>
-                  <strong>Given Name:</strong> {selectedScholar.given_name}
-                </p>
-                <p>
-                  <strong>Middle Name:</strong> {selectedScholar.middle_name}
-                </p>
-                <p>
-                  <strong>Age:</strong> {selectedScholar.age}
-                </p>
-                <p>
-                  <strong>Date of Birth:</strong>{" "}
-                  {selectedScholar.date_of_birth}
-                </p>
-                <p>
-                  <strong>Place of Birth:</strong>{" "}
-                  {selectedScholar.place_of_birth}
-                </p>
-                <p>
-                  <strong>Course:</strong> {selectedScholar.course}
-                </p>
-                <p>
-                  <strong>Year Level:</strong> {selectedScholar.year_level}
-                </p>
-              </div>
+        <dialog id="my_modal_4" className="modal">
+          <div className="modal-box w-11/12 max-w-5xl">
+            <h3 className="font-bold text-lg mb-4">Applicant's Data</h3>
+            <div className="divider"></div>
+            <button
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-5"
+              onClick={closeModal}
+            >
+              ✕
+            </button>
+            {selectedScholar && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <p>
+                    <strong>Last Name:</strong> {selectedScholar.last_name}
+                  </p>
+                  <p>
+                    <strong>Given Name:</strong> {selectedScholar.given_name}
+                  </p>
+                  <p>
+                    <strong>Middle Name:</strong> {selectedScholar.middle_name}
+                  </p>
+                  <p>
+                    <strong>Age:</strong> {selectedScholar.age}
+                  </p>
+                  <p>
+                    <strong>Date of Birth:</strong>{" "}
+                    {selectedScholar.date_of_birth}
+                  </p>
+                  <p>
+                    <strong>Place of Birth:</strong>{" "}
+                    {selectedScholar.place_of_birth}
+                  </p>
+                  <p>
+                    <strong>Course:</strong> {selectedScholar.course}
+                  </p>
+                  <p>
+                    <strong>Year Level:</strong> {selectedScholar.year_level}
+                  </p>
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <p>
-                  <strong>Sex:</strong> {selectedScholar.sex}
-                </p>
-                <p>
-                  <strong>Civil Service:</strong>{" "}
-                  {selectedScholar.civil_service}
-                </p>
-                <p>
-                  <strong>Religion:</strong> {selectedScholar.religion}
-                </p>
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <p>
+                    <strong>Sex:</strong> {selectedScholar.sex}
+                  </p>
+                  <p>
+                    <strong>Civil Service:</strong>{" "}
+                    {selectedScholar.civil_service}
+                  </p>
+                  <p>
+                    <strong>Religion:</strong> {selectedScholar.religion}
+                  </p>
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <p>
-                  <strong>Contact Number:</strong>{" "}
-                  {selectedScholar.contact_number}
-                </p>
-                <p>
-                  <strong>Email Address:</strong>{" "}
-                  {selectedScholar.email_address}
-                </p>
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <p>
+                    <strong>Contact Number:</strong>{" "}
+                    {selectedScholar.contact_number}
+                  </p>
+                  <p>
+                    <strong>Email Address:</strong>{" "}
+                    {selectedScholar.email_address}
+                  </p>
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <p>
-                  <strong>Height:</strong> {selectedScholar.height}
-                </p>
-                <p>
-                  <strong>Weight:</strong> {selectedScholar.weight}
-                </p>
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <p>
+                    <strong>Height:</strong> {selectedScholar.height}
+                  </p>
+                  <p>
+                    <strong>Weight:</strong> {selectedScholar.weight}
+                  </p>
+                </div>
 
-              <p>
-                <strong>Address:</strong> {selectedScholar.address}
-              </p>
+                <p>
+                  <strong>Address:</strong> {selectedScholar.address}
+                </p>
 
-              <div className="divider"></div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <p>
-                  <strong>Number of Family Members:</strong>{" "}
-                  {selectedScholar.number_family_members}
-                </p>
-                <p>
-                  <strong>Ethnicity:</strong> {selectedScholar.ethnicity}
-                </p>
-              </div>
+                <div className="divider"></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <p>
+                    <strong>Number of Family Members:</strong>{" "}
+                    {selectedScholar.number_family_members}
+                  </p>
+                  <p>
+                    <strong>Ethnicity:</strong> {selectedScholar.ethnicity}
+                  </p>
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <p>
-                  <strong>Father's Name:</strong>{" "}
-                  {selectedScholar.father_name}
-                </p>
-                <p>
-                  <strong>Father's Address:</strong>{" "}
-                  {selectedScholar.father_address}
-                </p>
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <p>
+                    <strong>Father's Name:</strong>{" "}
+                    {selectedScholar.father_name}
+                  </p>
+                  <p>
+                    <strong>Father's Address:</strong>{" "}
+                    {selectedScholar.father_address}
+                  </p>
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <p>
-                  <strong>Father's Contact:</strong>{" "}
-                  {selectedScholar.father_number}
-                </p>
-                <p>
-                  <strong>Father's Occupation:</strong>{" "}
-                  {selectedScholar.father_occupation}
-                </p>
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <p>
+                    <strong>Father's Contact:</strong>{" "}
+                    {selectedScholar.father_number}
+                  </p>
+                  <p>
+                    <strong>Father's Occupation:</strong>{" "}
+                    {selectedScholar.father_occupation}
+                  </p>
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <p>
-                  <strong>Mother's Name:</strong>{" "}
-                  {selectedScholar.mother_name}
-                </p>
-                <p>
-                  <strong>Mother's Address:</strong>{" "}
-                  {selectedScholar.mother_address}
-                </p>
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <p>
+                    <strong>Mother's Name:</strong>{" "}
+                    {selectedScholar.mother_name}
+                  </p>
+                  <p>
+                    <strong>Mother's Address:</strong>{" "}
+                    {selectedScholar.mother_address}
+                  </p>
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <p>
-                  <strong>Mother's Contact:</strong>{" "}
-                  {selectedScholar.mother_number}
-                </p>
-                <p>
-                  <strong>Mother's Occupation:</strong>{" "}
-                  {selectedScholar.mother_occupation}
-                </p>
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <p>
+                    <strong>Mother's Contact:</strong>{" "}
+                    {selectedScholar.mother_number}
+                  </p>
+                  <p>
+                    <strong>Mother's Occupation:</strong>{" "}
+                    {selectedScholar.mother_occupation}
+                  </p>
+                </div>
 
-              <div className="divider"></div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <p>
-                  <strong>Elementary School:</strong>{" "}
-                  {selectedScholar.elementary_school}
-                </p>
-                <p>
-                  <strong>Elementary Year:</strong>{" "}
-                  {selectedScholar.elementary_year}
-                </p>
-                <p>
-                  <strong>Elementary Awards:</strong>{" "}
-                  {selectedScholar.elementary_awards}
-                </p>
-              </div>
+                <div className="divider"></div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <p>
+                    <strong>Elementary School:</strong>{" "}
+                    {selectedScholar.elementary_school}
+                  </p>
+                  <p>
+                    <strong>Elementary Year:</strong>{" "}
+                    {selectedScholar.elementary_year}
+                  </p>
+                  <p>
+                    <strong>Elementary Awards:</strong>{" "}
+                    {selectedScholar.elementary_awards}
+                  </p>
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <p>
-                  <strong>Secondary School:</strong>{" "}
-                  {selectedScholar.secondary_school}
-                </p>
-                <p>
-                  <strong>Secondary Year:</strong>{" "}
-                  {selectedScholar.secondary_year}
-                </p>
-                <p>
-                  <strong>Secondary Awards:</strong>{" "}
-                  {selectedScholar.secondary_awards}
-                </p>
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <p>
+                    <strong>Secondary School:</strong>{" "}
+                    {selectedScholar.secondary_school}
+                  </p>
+                  <p>
+                    <strong>Secondary Year:</strong>{" "}
+                    {selectedScholar.secondary_year}
+                  </p>
+                  <p>
+                    <strong>Secondary Awards:</strong>{" "}
+                    {selectedScholar.secondary_awards}
+                  </p>
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <p>
-                  <strong>Availed Scholarship:</strong>{" "}
-                  {selectedScholar.availed_scholarship}
-                </p>
-                <p>
-                  <strong>Scholarship Year:</strong>{" "}
-                  {selectedScholar.scholarship_year}
-                </p>
-                <p>
-                  <strong>Scholarship Name:</strong>{" "}
-                  {selectedScholar.scholarship_name}
-                </p>
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <p>
+                    <strong>Availed Scholarship:</strong>{" "}
+                    {selectedScholar.availed_scholarship}
+                  </p>
+                  <p>
+                    <strong>Scholarship Year:</strong>{" "}
+                    {selectedScholar.scholarship_year}
+                  </p>
+                  <p>
+                    <strong>Scholarship Name:</strong>{" "}
+                    {selectedScholar.scholarship_name}
+                  </p>
+                </div>
 
-              {/* PDF Viewer Section */}
-              {selectedScholar?.docs &&
-                typeof selectedScholar.docs === "string" && (
-                  <div className="mt-4">
-                    <h4 className="font-bold text-md mb-2">
-                      Applicant Documents:
-                    </h4>
-                    <div className="card bordered bg-base-100 shadow-md">
-                      <div className="card-body p-2">
-                        <object
-                          data={selectedScholar.docs}
-                          type="application/pdf"
-                          width="100%"
-                          height="500px"
-                          className="border border-gray-300 rounded-md"
-                        >
-                          <p className="text-center py-4">
-                            Unable to display PDF file.
-                            <a
-                              href={selectedScholar.docs}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="btn btn-sm btn-link"
-                            >
-                              Download
-                            </a>{" "}
-                            instead.
-                          </p>
-                        </object>
+                {/* PDF Viewer Section */}
+                {selectedScholar?.docs &&
+                  typeof selectedScholar.docs === "string" && (
+                    <div className="mt-4">
+                      <h4 className="font-bold text-md mb-2">
+                        Applicant Documents:
+                      </h4>
+                      <div className="card bordered bg-base-100 shadow-md">
+                        <div className="card-body p-2">
+                          <object
+                            data={selectedScholar.docs}
+                            type="application/pdf"
+                            width="100%"
+                            height="500px"
+                            className="border border-gray-300 rounded-md"
+                          >
+                            <p className="text-center py-4">
+                              Unable to display PDF file.
+                              <a
+                                href={selectedScholar.docs}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn btn-sm btn-link"
+                              >
+                                Download
+                              </a>{" "}
+                              instead.
+                            </p>
+                          </object>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
-            </>
-          )}
-        </div>
-      </dialog>
+                  )}
+              </>
+            )}
+          </div>
+        </dialog>
       </main>
     </div>
   );

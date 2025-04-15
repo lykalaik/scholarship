@@ -221,7 +221,7 @@ const Applicants = () => {
       credentials: "Appreciate the time you spent, once again Thankyou!",
       reply_to: "scholarship@gmail.com",
     };
-    
+
     closeRejectConfirmModal();
     emailjs
       .send(
@@ -315,6 +315,9 @@ const Applicants = () => {
         {
           email_address: email,
           password: selectedApplicant.contact_number,
+          course: selectedApplicant.course,
+          school: selectedApplicant.secondary_school,
+          address: selectedApplicant.barangay,
           full_name: fullName,
           status: "On-Going",
           scholarship_type: "New",
