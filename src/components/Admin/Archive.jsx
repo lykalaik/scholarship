@@ -18,10 +18,33 @@ const Archive = () => {
 
   const fetch_scholars = async () => {
     try {
-      const { data, error } = await supabase.from("scholars").select("*");
-      console.log(data);
-      if (error) throw error;
-      setScholars(data);
+      // Fetch scholars data
+      const { data: scholars, error: scholarsError } = await supabase
+        .from("scholars")
+        .select("*");
+  
+      if (scholarsError) throw scholarsError;
+  
+      // Fetch applications data
+      const { data: applications, error: applicationsError } = await supabase
+        .from("application")
+        .select("email_address, barangay");
+  
+      if (applicationsError) throw applicationsError;
+  
+      // Map scholars and match with applications using email_address
+      const processedData = scholars.map((scholar) => {
+        const application = applications.find(
+          (app) => app.email_address === scholar.email_address
+        );
+        return {
+          ...scholar,
+          address: application ? application.barangay : "", // Use barangay if match found
+        };
+      });
+  
+      // Update state with processed data
+      setScholars(processedData);
     } catch (error) {
       alert("An unexpected error occurred.");
       console.error("Error during fetching scholars:", error.message);
@@ -96,21 +119,28 @@ const Archive = () => {
 
   const handleViewClick = async (scholar) => {
     setSelectedScholar(scholar);
-
+  
     try {
       const { data, error } = await supabase
         .from("application")
         .select("*")
         .eq("email_address", scholar.email_address);
-
+  
       if (error) throw error;
-
+  
       const applicationData = data && data[0];
+  
+      // Concatenate barangay and address into full_address
+      const fullAddress = applicationData
+        ? `${applicationData.address || ""}, ${applicationData.barangay || ""}`.trim().replace(/^,|,$/g, "")
+        : "";
+  
       setSelectedScholar((prevScholar) => ({
         ...prevScholar,
         ...applicationData,
+        full_address: fullAddress, // Add concatenated address
       }));
-
+  
       const modal = document.getElementById("my_modal_4");
       if (modal) {
         modal.showModal();
@@ -303,7 +333,7 @@ const Archive = () => {
                 </div>
 
                 <p>
-                  <strong>Address:</strong> {selectedScholar.address}
+                  <strong>Address:</strong> {selectedScholar.full_address}
                 </p>
 
                 <div className="divider"></div>
