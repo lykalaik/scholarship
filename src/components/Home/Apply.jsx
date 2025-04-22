@@ -867,7 +867,7 @@ const Apply = () => {
                 Application for Butuan Scholarship is Closed!
               </span>
               <span className="text-1xl font-semibold text-gray-600 mt-2">
-                For Updates, Visit CEBDD Facebook Page or Wait for further
+                For Updates, Visit CEDD Facebook Page or Wait for further
                 announcements on the Home Page. Have a great day!
               </span>
             </div>

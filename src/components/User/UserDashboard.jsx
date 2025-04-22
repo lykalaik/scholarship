@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import supabase from "../supabaseClient";
 import { MdManageAccounts } from "react-icons/md";
 import { RiLockPasswordFill } from "react-icons/ri";
+import { FaCheckCircle } from "react-icons/fa"; // Added for success icon
 
 const UserDashboard = () => {
   const [userData, setUserData] = useState([]);
@@ -23,6 +24,8 @@ const UserDashboard = () => {
   const [school, setSchool] = useState("");
   const [changePasswordModal, setChangePasswordModal] = useState(false);
   const [changeSchoolModal, setChangeSchoolModal] = useState(false);
+  const [confirmSchoolModal, setConfirmSchoolModal] = useState(false);
+  const [successSchoolModal, setSuccessSchoolModal] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -34,6 +37,22 @@ const UserDashboard = () => {
   const openChangeSchoolModal = () => setChangeSchoolModal(true);
   const closeChangeSchoolModal = () => setChangeSchoolModal(false);
   const closeChangePasswordModal = () => setChangePasswordModal(false);
+  
+  // New modal control functions
+  const openConfirmSchoolModal = () => {
+    if (!school.trim()) {
+      alert("Please enter a school name");
+      return;
+    }
+    setChangeSchoolModal(false);
+    setConfirmSchoolModal(true);
+  };
+  
+  const closeConfirmSchoolModal = () => setConfirmSchoolModal(false);
+  const closeSuccessSchoolModal = () => {
+    setSuccessSchoolModal(false);
+    window.location.reload();
+  };
 
   useEffect(() => {
     fetch_data();
@@ -90,9 +109,12 @@ const UserDashboard = () => {
     }
   };
 
+  // Modified to use confirmation modal
   const handleChangeSchool = async () => {
     try {
-      const { data } = await supabase
+      closeConfirmSchoolModal();
+      
+      const { data, error } = await supabase
         .from("scholarsData")
         .update([
           {
@@ -102,8 +124,13 @@ const UserDashboard = () => {
         .eq("name", scholarName)
         .eq("semester", "1st Sem")
         .eq("category", "New");
-      window.location.reload();
+        
+      if (error) throw error;
+      
+      // Show success modal instead of reloading
+      setSuccessSchoolModal(true);
     } catch (error) {
+      console.error("Error Saving Data:", error.message);
       alert("Error Saving Data.");
     }
   };
@@ -539,39 +566,6 @@ const UserDashboard = () => {
                 </p>
               </div>
 
-              {/* PDF Viewer Section */}
-              {/* {profileData?.docs &&
-                typeof profileData.docs === "string" && (
-                  <div className="mt-4">
-                    <h4 className="font-bold text-md mb-2">
-                      Applicant Documents:
-                    </h4>
-                    <div className="card bordered bg-base-100 shadow-md">
-                      <div className="card-body p-2">
-                        <object
-                          data={profileData.docs}
-                          type="application/pdf"
-                          width="100%"
-                          height="500px"
-                          className="border border-gray-300 rounded-md"
-                        >
-                          <p className="text-center py-4">
-                            Unable to display PDF file.
-                            <a
-                              href={profileData.docs}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="btn btn-sm btn-link"
-                            >
-                              Download
-                            </a>{" "}
-                            instead.
-                          </p>
-                        </object>
-                      </div>
-                    </div>
-                  </div>
-                )} */}
               {profileData?.docs && typeof profileData.docs === "string" && (
                 <div className="mt-4">
                   <h4 className="font-bold text-md mb-2">
@@ -717,6 +711,7 @@ const UserDashboard = () => {
         </div>
       )}
 
+      {/* Update School Modal */}
       {changeSchoolModal && (
         <div className="modal modal-open">
           <div className="modal-box">
@@ -742,7 +737,8 @@ const UserDashboard = () => {
                     Cancel
                   </button>
                   <button
-                    onClick={handleChangeSchool}
+                    type="button"
+                    onClick={openConfirmSchoolModal}
                     className="btn btn-neutral"
                   >
                     Update
@@ -750,6 +746,58 @@ const UserDashboard = () => {
                 </div>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal for School Update */}
+      {confirmSchoolModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h2 className="text-xl font-bold">Confirm School Update</h2>
+            <p className="py-4">
+              Are you sure you want to update your school to "{school}"?
+            </p>
+            <div className="modal-action">
+              <button
+                type="button"
+                className="btn"
+                onClick={closeConfirmSchoolModal}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleChangeSchool}
+                className="btn btn-primary"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal for School Update */}
+      {successSchoolModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <div className="flex flex-col items-center justify-center">
+              <FaCheckCircle className="text-green-500 text-5xl mb-4" />
+              <h2 className="text-xl font-bold text-center">Success!</h2>
+              <p className="py-4 text-center">
+                Your school has been successfully updated to "{school}".
+              </p>
+            </div>
+            <div className="modal-action">
+              <button
+                type="button"
+                onClick={closeSuccessSchoolModal}
+                className="btn btn-success"
+              >
+                Done
+              </button>
+            </div>
           </div>
         </div>
       )}
